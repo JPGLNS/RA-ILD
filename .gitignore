@@ -1,0 +1,54 @@
+# ============================================================
+# White-list Git policy
+# 默认忽略 RA-ILD 项目中的全部内容
+# 只允许指定脚本目录和少量仓库说明文件进入 Git
+# ============================================================
+
+# 默认忽略所有文件和目录
+*
+
+# ---------- 仓库根目录允许的文件 ----------
+!.gitignore
+!README.md
+!CLAUDE.md
+!AGENTS.md
+
+# ---------- TRB ----------
+!TRB/
+TRB/*
+
+!TRB/set/
+TRB/set/*
+
+!TRB/set/scripts/
+!TRB/set/scripts/**
+
+# ---------- IGH ----------
+!IGH/
+IGH/*
+
+!IGH/set/
+IGH/set/*
+
+!IGH/set/scripts/
+!IGH/set/scripts/**
+
+# ---------- TRB + IGH ----------
+!TRB_IGH/
+TRB_IGH/*
+
+!TRB_IGH/set/
+TRB_IGH/set/*
+
+!TRB_IGH/set/scripts/
+!TRB_IGH/set/scripts/**
+
+# ---------- 即使位于脚本目录中，也不要上传 ----------
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.ipynb_checkpoints/
+**/*~
+**/*.swp
+**/*.tmp
