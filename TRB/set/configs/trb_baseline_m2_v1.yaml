@@ -39,6 +39,14 @@ public_reference:
     RA_specific: 41649
     ILD_specific: 28947
     shared: 38585
+  cache:
+    presence: "TRB/set/train/result/05_modeling/cache/05_train_public_presence.npz"
+    frequency: "TRB/set/train/result/05_modeling/cache/05_train_public_frequency.npz"
+    metadata: "TRB/set/train/result/05_modeling/cache/05_train_public_sparse_cache.json"
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
   dynamic_features:
     - "all_ref_public_clone_ratio"
     - "all_ref_public_frequency_sum"

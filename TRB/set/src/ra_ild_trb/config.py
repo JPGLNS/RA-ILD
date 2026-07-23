@@ -92,7 +92,7 @@ def _positive_grid(value: Any, context: str, maximum: Optional[float] = None) ->
 
 
 def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
-    """Validate the batch-01 configuration schema."""
+    """Validate the current TRB V2 configuration schema."""
     if not isinstance(raw, Mapping):
         raise ConfigError("YAML root must be a mapping")
     if str(raw.get("schema_version")) != "1.0":
@@ -132,6 +132,15 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     for key in ("catalog", "global", "RA_specific", "ILD_specific", "shared"):
         _integer(expected_sizes, key, "public_reference.expected_sizes", 0)
 
+    cache = _mapping(public, "cache", "public_reference")
+    for key in ("presence", "frequency", "metadata"):
+        _string(cache, key, "public_reference.cache")
+
+    regression_task = _mapping(public, "regression_task", "public_reference")
+    _integer(regression_task, "outer_repeat", "public_reference.regression_task", 1)
+    _integer(regression_task, "outer_fold", "public_reference.regression_task", 1)
+    _string(regression_task, "task_dir", "public_reference.regression_task")
+
     cv = _mapping(raw, "cross_validation", "root")
     _integer(cv, "outer_repeats", "cross_validation", 1)
     _integer(cv, "outer_folds", "cross_validation", 2)
@@ -141,7 +150,7 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
 
     engine = _mapping(raw, "model_engine", "root")
     if _string(engine, "engine", "model_engine") != "elastic_net_logistic":
-        raise ConfigError("Batch 01 supports only elastic_net_logistic")
+        raise ConfigError("Current framework supports only elastic_net_logistic")
     if engine.get("class_weight") not in {"balanced", "none"}:
         raise ConfigError("model_engine.class_weight must be balanced or none")
     _positive_grid(engine.get("alpha_grid"), "model_engine.alpha_grid", 1)

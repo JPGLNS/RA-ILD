@@ -41,6 +41,18 @@ class TestBaselineConfig(unittest.TestCase):
         self.assertEqual(sizes["ILD_specific"], 28947)
         self.assertEqual(sizes["shared"], 38585)
 
+    def test_public_cache_paths(self) -> None:
+        cache = self.config.raw["public_reference"]["cache"]
+        self.assertTrue(cache["presence"].endswith("05_train_public_presence.npz"))
+        self.assertTrue(cache["frequency"].endswith("05_train_public_frequency.npz"))
+        self.assertTrue(cache["metadata"].endswith("05_train_public_sparse_cache.json"))
+
+    def test_public_regression_task(self) -> None:
+        task = self.config.raw["public_reference"]["regression_task"]
+        self.assertEqual(task["outer_repeat"], 1)
+        self.assertEqual(task["outer_fold"], 1)
+        self.assertTrue(task["task_dir"].endswith("repeat_01_fold_01"))
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")

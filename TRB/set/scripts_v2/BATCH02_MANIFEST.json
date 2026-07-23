@@ -1,0 +1,58 @@
+{
+  "batch": "02",
+  "purpose": "Shared leakage-controlled public-reference module and V1 regression checks",
+  "base_commit": "d014711",
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 5357,
+      "sha256": "0e3a4ff1a873ad7e54db9d2e9a4b52561dd195476db32d03546764d8c1c757bc"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_public_reference_regression.py",
+      "bytes": 18160,
+      "sha256": "45906636d96f66df21715d2bae2ffa45c0bb965dc5b3909af66637ced52b40d9"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch02.md",
+      "bytes": 3914,
+      "sha256": "34058679949c8c4f1a7471ae92948afcc541759180975718ef793f55b0c346a6"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 3424,
+      "sha256": "c17b88e5836379730138f601b34710e1bf29e4e9266c6148c1bafe3943cbdd95"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 1124,
+      "sha256": "2b41af0f51a483e8c4f7a4d61093b1f64b50cd9ede13642d20cec9e7c2d30932"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 10496,
+      "sha256": "9c00946822af55868135ce042d9f620420ee37846bf117898f939013800e2132"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/public_reference.py",
+      "bytes": 28431,
+      "sha256": "07f3e838fe475ce1165fc42cb9d5c1f72cea82c6d52d91494d53db1cd45294c3"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 3704,
+      "sha256": "15e0b3ef15465b39bb35c5a382658e50dda6e31456e477cda944ba41b47267c5"
+    },
+    {
+      "path": "TRB/set/tests/test_public_reference.py",
+      "bytes": 8143,
+      "sha256": "c84287737127efc1daa3e4496c10f713bd5c52d63ea58f4ba316fcba4b985542"
+    }
+  ],
+  "local_validation": {
+    "python_syntax_all_passed": true,
+    "unit_tests": "18 passed",
+    "mock_end_to_end_regression": "15 checks passed",
+    "real_project_regression": "must be run on the user server against existing V1 cache and outputs"
+  }
+}
