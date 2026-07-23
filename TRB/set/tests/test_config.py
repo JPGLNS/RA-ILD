@@ -104,6 +104,40 @@ class TestBaselineConfig(unittest.TestCase):
             "08_independent_test_metrics.csv"
         ))
 
+    def test_model_selection_definition(self) -> None:
+        selection = self.config.raw["model_selection"]
+        self.assertEqual(
+            selection["static_feature_group"],
+            "static_tcr_candidate_predictors",
+        )
+        self.assertEqual(selection["expected_static_feature_count"], 1083)
+        self.assertEqual(selection["hyperparameter_grid_order"], "alpha_then_lambda")
+        self.assertEqual(
+            [item["field"] for item in selection["candidate_sort"]],
+            [
+                "pooled_inner_roc_auc",
+                "pooled_inner_pr_auc",
+                "lambda",
+                "l1_ratio_alpha",
+            ],
+        )
+
+    def test_model_selection_regression_path(self) -> None:
+        path = self.config.raw["model_selection"]["regression_task"]["inner_tuning_results"]
+        self.assertTrue(path.endswith("05_inner_tuning_results.csv"))
+
+    def test_invalid_candidate_sort_rejected(self) -> None:
+        broken = copy.deepcopy(self.config.raw)
+        broken["model_selection"]["candidate_sort"][0]["ascending"] = True
+        with self.assertRaises(ConfigError):
+            validate_experiment_mapping(broken)
+
+    def test_selected_pair_must_be_final_candidate(self) -> None:
+        broken = copy.deepcopy(self.config.raw)
+        broken["final_model"]["selected_lambda"] = 3
+        with self.assertRaises(ConfigError):
+            validate_experiment_mapping(broken)
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")

@@ -39,6 +39,7 @@ PATH_SPECS = (
     ("preprocessing.regression_task.outer_train_public", "file"),
     ("preprocessing.regression_task.outer_validation_public", "file"),
     ("preprocessing.regression_task.coefficients", "file"),
+    ("model_selection.regression_task.inner_tuning_results", "file"),
     ("modeling.regression_task.inner_selected_oof", "file"),
     ("modeling.regression_task.outer_predictions", "file"),
     ("modeling.regression_task.outer_metrics", "file"),

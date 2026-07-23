@@ -152,6 +152,29 @@ modeling:
     independent_predictions: "TRB/set/test/result/08_final_M2_validation/08_independent_test_predictions.csv"
     independent_metrics: "TRB/set/test/result/08_final_M2_validation/08_independent_test_metrics.csv"
 
+
+model_selection:
+  static_feature_group: "static_tcr_candidate_predictors"
+  expected_static_feature_count: 1083
+  manifest_rule:
+    present_in_train_base: true
+    feature_group_prefix: "tcr_"
+    feature_role: "candidate_predictor"
+    reference_drop: false
+  hyperparameter_grid_order: "alpha_then_lambda"
+  candidate_sort:
+    - {field: "pooled_inner_roc_auc", ascending: false}
+    - {field: "pooled_inner_pr_auc", ascending: false}
+    - {field: "lambda", ascending: false}
+    - {field: "l1_ratio_alpha", ascending: false}
+  expected_resolved_columns:
+    M0_clinical: {numeric: 1, categorical: 1}
+    M1_static_tcr: {numeric: 1084, categorical: 1}
+    M2_static_tcr_public: {numeric: 1092, categorical: 1}
+    M3_static_tcr_public_material: {numeric: 1092, categorical: 2}
+  regression_task:
+    inner_tuning_results: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_tuning_results.csv"
+
 stability:
   minimum_selection_frequency: 0.50
   minimum_sign_consistency: 0.80

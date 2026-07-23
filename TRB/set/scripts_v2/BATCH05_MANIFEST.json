@@ -1,0 +1,58 @@
+{
+  "batch": "05",
+  "title": "Model specifications and candidate management",
+  "purpose": "Extract V1-compatible static-feature selection, model-column expansion, Elastic Net candidate-grid construction, inner-CV candidate ranking, and locked final-candidate validation.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "80 tests passed",
+    "synthetic_specification_regression": "19 checks passed",
+    "real_data_regression_required_on_server": true
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 8273,
+      "sha256": "40ad61281ad523a68020f805b5470fff7b221e5dcd8e37288a7ad6cc7e15b1c1"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch05_specifications.md",
+      "bytes": 4390,
+      "sha256": "dd5f911d7eccd5583be8a025ac194b0a36a4d782739bb4510d016bb86c81a096"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_specification_regression.py",
+      "bytes": 11356,
+      "sha256": "b58985a68375308cd8e13f80a579c446a7ed22b21b0e4955adfce9f9ce33a7e5"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 4242,
+      "sha256": "02a9c6118f05ab0375305484ea15866382bef6f888109c522e921e175cc1e101"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 746,
+      "sha256": "c12c01e4cb8e7700f399346e25d610ca4d7f057178d8c44245b09343f7bb52fd"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 17340,
+      "sha256": "9dd2f3501f4925089026eb5cf5d8d3f40385a27a2275e23e4ffc8f83b5a0ae59"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/specifications.py",
+      "bytes": 18094,
+      "sha256": "5e2bf5cd25d9948845f4b7e09e035a2c519cb0d28a14e34e2df62ac78cbca280"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 7245,
+      "sha256": "80b1487f3a62dce379450af77bb9c05cb23dcc9041df7b333a8016c5e1da30e3"
+    },
+    {
+      "path": "TRB/set/tests/test_specifications.py",
+      "bytes": 8482,
+      "sha256": "02eff803568967999fac3472e668e4b1e9677d52c1632ce42718cc5a94d977cf"
+    }
+  ]
+}

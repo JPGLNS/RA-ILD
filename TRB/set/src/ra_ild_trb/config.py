@@ -222,6 +222,75 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     ):
         _string(modeling_task, key, "modeling.regression_task")
 
+    selection = _mapping(raw, "model_selection", "root")
+    _string(selection, "static_feature_group", "model_selection")
+    _integer(selection, "expected_static_feature_count", "model_selection", 1)
+    manifest_rule = _mapping(selection, "manifest_rule", "model_selection")
+    if manifest_rule.get("present_in_train_base") is not True:
+        raise ConfigError(
+            "model_selection.manifest_rule.present_in_train_base must be true"
+        )
+    _string(manifest_rule, "feature_group_prefix", "model_selection.manifest_rule")
+    _string(manifest_rule, "feature_role", "model_selection.manifest_rule")
+    if manifest_rule.get("reference_drop") is not False:
+        raise ConfigError(
+            "model_selection.manifest_rule.reference_drop must be false"
+        )
+    if _string(selection, "hyperparameter_grid_order", "model_selection") != "alpha_then_lambda":
+        raise ConfigError(
+            "model_selection.hyperparameter_grid_order must be alpha_then_lambda"
+        )
+    candidate_sort = selection.get("candidate_sort")
+    if not isinstance(candidate_sort, Sequence) or isinstance(candidate_sort, (str, bytes)):
+        raise ConfigError("model_selection.candidate_sort must be a list")
+    expected_sort = [
+        ("pooled_inner_roc_auc", False),
+        ("pooled_inner_pr_auc", False),
+        ("lambda", False),
+        ("l1_ratio_alpha", False),
+    ]
+    observed_sort = []
+    for index, item in enumerate(candidate_sort):
+        if not isinstance(item, Mapping):
+            raise ConfigError(
+                f"model_selection.candidate_sort[{index}] must be a mapping"
+            )
+        field = _string(item, "field", f"model_selection.candidate_sort[{index}]")
+        ascending = item.get("ascending")
+        if not isinstance(ascending, bool):
+            raise ConfigError(
+                f"model_selection.candidate_sort[{index}].ascending must be boolean"
+            )
+        observed_sort.append((field, ascending))
+    if observed_sort != expected_sort:
+        raise ConfigError(
+            "model_selection.candidate_sort does not match the frozen V1 ranking rule"
+        )
+    expected_columns = _mapping(selection, "expected_resolved_columns", "model_selection")
+    if set(expected_columns) != set(models):
+        raise ConfigError(
+            "model_selection.expected_resolved_columns must define every model exactly once"
+        )
+    for model_name, counts in expected_columns.items():
+        if not isinstance(counts, Mapping):
+            raise ConfigError(
+                f"model_selection.expected_resolved_columns.{model_name} must be a mapping"
+            )
+        _integer(
+            counts,
+            "numeric",
+            f"model_selection.expected_resolved_columns.{model_name}",
+            0,
+        )
+        _integer(
+            counts,
+            "categorical",
+            f"model_selection.expected_resolved_columns.{model_name}",
+            0,
+        )
+    selection_task = _mapping(selection, "regression_task", "model_selection")
+    _string(selection_task, "inner_tuning_results", "model_selection.regression_task")
+
     stability = _mapping(raw, "stability", "root")
     _number(stability, "minimum_selection_frequency", "stability", 0, 1)
     _number(stability, "minimum_sign_consistency", "stability", 0, 1)
@@ -231,8 +300,41 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     selected_model = _string(final, "selected_model", "final_model")
     if selected_model not in models:
         raise ConfigError("final_model.selected_model is not defined in models")
-    _number(final, "selected_alpha", "final_model", 0, 1, strict_minimum=True)
-    _number(final, "selected_lambda", "final_model", 0, strict_minimum=True)
+    selected_alpha = _number(
+        final, "selected_alpha", "final_model", 0, 1, strict_minimum=True
+    )
+    selected_lambda = _number(
+        final, "selected_lambda", "final_model", 0, strict_minimum=True
+    )
+    candidate_pairs = final.get("candidate_pairs")
+    if not isinstance(candidate_pairs, Sequence) or isinstance(candidate_pairs, (str, bytes)) or not candidate_pairs:
+        raise ConfigError("final_model.candidate_pairs must be a non-empty list")
+    parsed_pairs = []
+    for index, pair in enumerate(candidate_pairs):
+        if not isinstance(pair, Mapping):
+            raise ConfigError(f"final_model.candidate_pairs[{index}] must be a mapping")
+        alpha = _number(
+            pair,
+            "alpha",
+            f"final_model.candidate_pairs[{index}]",
+            0,
+            1,
+            strict_minimum=True,
+        )
+        lambda_value = _number(
+            pair,
+            "lambda",
+            f"final_model.candidate_pairs[{index}]",
+            0,
+            strict_minimum=True,
+        )
+        parsed_pairs.append((alpha, lambda_value))
+    if len(parsed_pairs) != len(set(parsed_pairs)):
+        raise ConfigError("final_model.candidate_pairs contains duplicates")
+    if (selected_alpha, selected_lambda) not in set(parsed_pairs):
+        raise ConfigError(
+            "final_model selected alpha/lambda must appear in candidate_pairs"
+        )
     threshold = _number(final, "locked_threshold", "final_model", 0, 1, strict_minimum=True)
     if threshold >= 1:
         raise ConfigError("final_model.locked_threshold must be < 1")
