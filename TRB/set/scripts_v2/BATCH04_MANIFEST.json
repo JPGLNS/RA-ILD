@@ -1,0 +1,78 @@
+{
+  "batch": "04",
+  "title": "Elastic Net model backend, thresholds, and metrics",
+  "purpose": "Extract V1-compatible Elastic Net fitting, deterministic seeds, threshold rules, binary metrics, and stratified bootstrap intervals into shared TRB V2 modules.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "59 tests passed",
+    "synthetic_end_to_end_modeling_regression": "28 checks passed",
+    "real_data_regression_required_on_server": true
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 7340,
+      "sha256": "11f00dedd079e90908b6ed80b4eafbc504f15291a506b29880c54c446b320abd"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch04_modeling.md",
+      "bytes": 4419,
+      "sha256": "5c97e96a78952d64073c21d5a323391e4c766835c1324bbed296683952c3be68"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_modeling_regression.py",
+      "bytes": 27355,
+      "sha256": "1639efc25e04d9ab115a4ee9c44ce75498793a318be6495432631260149b8fb7"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 4172,
+      "sha256": "40a13c82fdf277eeb51bd9c7318c211275a29ed1b7212e061ef25b4c87faa7e9"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 2538,
+      "sha256": "99bcc243c93032e754b1c808e7ec427acaa30ae785278cfa149bc1d640efebee"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 12957,
+      "sha256": "95d0f214141c0885bd03bfd35b6cc437cc13b6ac5aaef72b65a58bd45f972e12"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/metrics.py",
+      "bytes": 6068,
+      "sha256": "d930cbb99a85d2573ae79d6ff55da92557060129ca58053d764a83aa25c6eef4"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/modeling.py",
+      "bytes": 11989,
+      "sha256": "7ba34e468011238b6ef6d384a09857cfdb0b5dc0c715239c2c231d49f214a977"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/thresholds.py",
+      "bytes": 3869,
+      "sha256": "42b1dbd22a462e8ddafd57b3d3c8e66cee01f10b381927ec40a9bac8632a987a"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 5808,
+      "sha256": "fdfde0c7654697bec818980f038199ff5584f8623eab2cb133ccd0524385d427"
+    },
+    {
+      "path": "TRB/set/tests/test_metrics.py",
+      "bytes": 5399,
+      "sha256": "3f38ffecfa21e3a01148d59de69f6c4e9692ff9fe6c2393f1437cd1c2396cba0"
+    },
+    {
+      "path": "TRB/set/tests/test_modeling.py",
+      "bytes": 6013,
+      "sha256": "368ed115e4227f2ca5b45a64a756344169bc90c4b0c91b70784ac8a3d943c1b8"
+    },
+    {
+      "path": "TRB/set/tests/test_thresholds.py",
+      "bytes": 3027,
+      "sha256": "28019d077589d29d3b08885569b84871e9f537f3a98c97532632865ff2aa2b63"
+    }
+  ]
+}

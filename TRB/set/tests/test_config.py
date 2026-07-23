@@ -77,6 +77,33 @@ class TestBaselineConfig(unittest.TestCase):
         self.assertTrue(task["static_feature_list"].endswith("05_static_tcr_feature_list.csv"))
         self.assertTrue(task["coefficients"].endswith("05_final_model_coefficients.csv"))
 
+    def test_modeling_definition(self) -> None:
+        modeling = self.config.raw["modeling"]
+        self.assertEqual(modeling["positive_label"], "ILD")
+        self.assertEqual(modeling["negative_label"], "RA")
+        self.assertEqual(
+            modeling["threshold_selection"],
+            "youden_closest_to_0.5",
+        )
+        self.assertAlmostEqual(
+            float(modeling["coefficient_nonzero_tolerance"]),
+            1e-12,
+        )
+
+    def test_modeling_regression_paths(self) -> None:
+        task = self.config.raw["modeling"]["regression_task"]
+        self.assertEqual(task["outer_repeat"], 1)
+        self.assertEqual(task["outer_fold"], 1)
+        self.assertTrue(task["inner_selected_oof"].endswith(
+            "05_inner_selected_oof_predictions.csv"
+        ))
+        self.assertTrue(task["outer_predictions"].endswith(
+            "05_outer_validation_predictions.csv"
+        ))
+        self.assertTrue(task["independent_metrics"].endswith(
+            "08_independent_test_metrics.csv"
+        ))
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")

@@ -1,6 +1,24 @@
 """Reusable components for the RA/RA-ILD TRB V2 framework."""
 
 from .config import ConfigError, ExperimentConfig, load_experiment_config
+from .metrics import (
+    BOOTSTRAP_METRICS,
+    MetricError,
+    classification_metrics,
+    safe_pr_auc,
+    safe_roc_auc,
+    stratified_bootstrap_ci,
+)
+from .modeling import (
+    ElasticNetFit,
+    ElasticNetLogisticConfig,
+    ModelingError,
+    coefficient_frame,
+    count_nonzero_coefficients,
+    derive_seed,
+    fit_elastic_net,
+    predict_positive_probability,
+)
 from .paths import RepositoryRootError, find_repository_root, resolve_project_path
 from .preprocessing import (
     CategoryEncoding,
@@ -25,33 +43,59 @@ from .public_reference import (
     leave_one_out_public_features,
     public_feature_columns,
 )
+from .thresholds import (
+    ThresholdError,
+    apply_threshold,
+    choose_threshold_for_sensitivity,
+    choose_threshold_max_f1,
+    choose_threshold_youden,
+)
 
 __all__ = [
     "ALL_PUBLIC_FEATURES",
+    "BOOTSTRAP_METRICS",
     "CategoryEncoding",
     "ConfigError",
     "DesignTransform",
+    "ElasticNetFit",
+    "ElasticNetLogisticConfig",
     "ExperimentConfig",
     "FittedPreprocessor",
     "MAIN_THRESHOLD_SCHEME",
+    "MetricError",
+    "ModelingError",
     "PUBLIC_FEATURE_SETS",
     "PreparedDesign",
     "PreprocessingError",
     "PublicFeatureResult",
     "PublicReference",
     "RepositoryRootError",
+    "ThresholdError",
     "ThresholdScheme",
     "apply_reference",
+    "apply_threshold",
     "build_reference_from_counts",
     "build_reference_from_presence",
+    "choose_threshold_for_sensitivity",
+    "choose_threshold_max_f1",
+    "choose_threshold_youden",
+    "classification_metrics",
+    "coefficient_frame",
+    "count_nonzero_coefficients",
+    "derive_seed",
     "external_public_features",
     "find_repository_root",
+    "fit_elastic_net",
     "fit_preprocessor",
     "leave_one_out_public_features",
     "load_experiment_config",
+    "predict_positive_probability",
     "prepare_design_matrices",
     "public_feature_columns",
     "resolve_project_path",
+    "safe_pr_auc",
+    "safe_roc_auc",
+    "stratified_bootstrap_ci",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

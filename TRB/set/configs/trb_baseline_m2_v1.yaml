@@ -137,6 +137,21 @@ preprocessing:
     outer_validation_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
     coefficients: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
 
+modeling:
+  positive_label: "ILD"
+  negative_label: "RA"
+  threshold_selection: "youden_closest_to_0.5"
+  coefficient_nonzero_tolerance: 1.0e-12
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    inner_selected_oof: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_selected_oof_predictions.csv"
+    outer_predictions: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_predictions.csv"
+    outer_metrics: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_metrics.csv"
+    coefficients: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+    independent_predictions: "TRB/set/test/result/08_final_M2_validation/08_independent_test_predictions.csv"
+    independent_metrics: "TRB/set/test/result/08_final_M2_validation/08_independent_test_metrics.csv"
+
 stability:
   minimum_selection_frequency: 0.50
   minimum_sign_consistency: 0.80

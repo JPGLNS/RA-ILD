@@ -199,6 +199,29 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     ):
         _string(preprocessing_task, key, "preprocessing.regression_task")
 
+    modeling = _mapping(raw, "modeling", "root")
+    positive_label = _string(modeling, "positive_label", "modeling")
+    negative_label = _string(modeling, "negative_label", "modeling")
+    if positive_label == negative_label:
+        raise ConfigError("modeling positive_label and negative_label must differ")
+    if _string(modeling, "threshold_selection", "modeling") != "youden_closest_to_0.5":
+        raise ConfigError(
+            "modeling.threshold_selection must be youden_closest_to_0.5"
+        )
+    _number(modeling, "coefficient_nonzero_tolerance", "modeling", 0)
+    modeling_task = _mapping(modeling, "regression_task", "modeling")
+    _integer(modeling_task, "outer_repeat", "modeling.regression_task", 1)
+    _integer(modeling_task, "outer_fold", "modeling.regression_task", 1)
+    for key in (
+        "inner_selected_oof",
+        "outer_predictions",
+        "outer_metrics",
+        "coefficients",
+        "independent_predictions",
+        "independent_metrics",
+    ):
+        _string(modeling_task, key, "modeling.regression_task")
+
     stability = _mapping(raw, "stability", "root")
     _number(stability, "minimum_selection_frequency", "stability", 0, 1)
     _number(stability, "minimum_sign_consistency", "stability", 0, 1)
