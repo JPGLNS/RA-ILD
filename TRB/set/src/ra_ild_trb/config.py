@@ -171,6 +171,34 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
         if predictor_count == 0:
             raise ConfigError(f"models.{model_name} has no predictors")
 
+    preprocessing = _mapping(raw, "preprocessing", "root")
+    if _string(preprocessing, "numeric_standardization", "preprocessing") != "zscore_population_ddof0":
+        raise ConfigError(
+            "preprocessing.numeric_standardization must be zscore_population_ddof0"
+        )
+    if _string(preprocessing, "categorical_encoding", "preprocessing") != "sorted_reference_dummy":
+        raise ConfigError(
+            "preprocessing.categorical_encoding must be sorted_reference_dummy"
+        )
+    if preprocessing.get("zero_variance_filter") is not True:
+        raise ConfigError("preprocessing.zero_variance_filter must be true")
+    if _string(preprocessing, "unseen_category_policy", "preprocessing") != "reference_all_zero_with_audit":
+        raise ConfigError(
+            "preprocessing.unseen_category_policy must be reference_all_zero_with_audit"
+        )
+    preprocessing_task = _mapping(preprocessing, "regression_task", "preprocessing")
+    _integer(preprocessing_task, "outer_repeat", "preprocessing.regression_task", 1)
+    _integer(preprocessing_task, "outer_fold", "preprocessing.regression_task", 1)
+    for key in (
+        "task_dir",
+        "preprocessing_summary",
+        "static_feature_list",
+        "outer_train_public",
+        "outer_validation_public",
+        "coefficients",
+    ):
+        _string(preprocessing_task, key, "preprocessing.regression_task")
+
     stability = _mapping(raw, "stability", "root")
     _number(stability, "minimum_selection_frequency", "stability", 0, 1)
     _number(stability, "minimum_sign_consistency", "stability", 0, 1)

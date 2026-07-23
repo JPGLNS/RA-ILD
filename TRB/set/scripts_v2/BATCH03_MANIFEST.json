@@ -1,0 +1,58 @@
+{
+  "title": "Fold-local preprocessing module",
+  "purpose": "Extract V1-compatible numeric/categorical encoding, zero-variance filtering, and training-only standardization into a shared module.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "34 tests passed",
+    "synthetic_preprocessing_regression": "18 checks passed",
+    "real_data_regression_required_on_server": true
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 6399,
+      "sha256": "d70bb7dddae3929e18d2e7c969084d5dce2aaf1f52d0af72fd608fc77f0907a4"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch03_preprocessing.md",
+      "bytes": 3757,
+      "sha256": "ec02fb31df87c5922ab9012c6ce4aad183f27817a6921b7d6a3aaa0c66857774"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_preprocessing_regression.py",
+      "bytes": 16697,
+      "sha256": "eefab28baadf0d70a1d85c2ee1db2c03931c7bde7013970707c58d6628534b6f"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 3812,
+      "sha256": "b97b9021201b42a4def254fa2dcb77edf45808a72b90c38bf320558a9f307bde"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 1493,
+      "sha256": "7629c9508c327d5ce5bef4acdafec9be680249f2b7a15669400ff45c8bb7488f"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 11896,
+      "sha256": "28d2267eabc40f7e91c566632b50fda612f64fa62e266cda8a3991425aa5ceef"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/preprocessing.py",
+      "bytes": 14855,
+      "sha256": "5db27975a240e9c170166fa1843d7fb3c6cca51d0fbdd173012708de6e1205a1"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 4773,
+      "sha256": "679e33b2e0ce75f2ca1f3692d557f888ebda3f4a44bfc79f94cb2502f3a62253"
+    },
+    {
+      "path": "TRB/set/tests/test_preprocessing.py",
+      "bytes": 8415,
+      "sha256": "a5e736fcae0b3d2d8c478909f85d3b5423a8bc870cf62f64cce33c3b4ddee9a5"
+    }
+  ],
+  "batch": "03"
+}

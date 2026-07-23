@@ -122,6 +122,21 @@ models:
       - "ILD_specific_ref_clone_ratio"
       - "ILD_specific_ref_frequency_sum"
 
+preprocessing:
+  numeric_standardization: "zscore_population_ddof0"
+  categorical_encoding: "sorted_reference_dummy"
+  zero_variance_filter: true
+  unseen_category_policy: "reference_all_zero_with_audit"
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
+    preprocessing_summary: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_preprocessing_summary.csv"
+    static_feature_list: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_static_tcr_feature_list.csv"
+    outer_train_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_train_loo.csv"
+    outer_validation_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
+    coefficients: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+
 stability:
   minimum_selection_frequency: 0.50
   minimum_sign_consistency: 0.80

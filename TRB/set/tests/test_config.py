@@ -53,6 +53,30 @@ class TestBaselineConfig(unittest.TestCase):
         self.assertEqual(task["outer_fold"], 1)
         self.assertTrue(task["task_dir"].endswith("repeat_01_fold_01"))
 
+    def test_preprocessing_definition(self) -> None:
+        preprocessing = self.config.raw["preprocessing"]
+        self.assertEqual(
+            preprocessing["numeric_standardization"],
+            "zscore_population_ddof0",
+        )
+        self.assertEqual(
+            preprocessing["categorical_encoding"],
+            "sorted_reference_dummy",
+        )
+        self.assertTrue(preprocessing["zero_variance_filter"])
+        self.assertEqual(
+            preprocessing["unseen_category_policy"],
+            "reference_all_zero_with_audit",
+        )
+
+    def test_preprocessing_regression_paths(self) -> None:
+        task = self.config.raw["preprocessing"]["regression_task"]
+        self.assertEqual(task["outer_repeat"], 1)
+        self.assertEqual(task["outer_fold"], 1)
+        self.assertTrue(task["preprocessing_summary"].endswith("05_preprocessing_summary.csv"))
+        self.assertTrue(task["static_feature_list"].endswith("05_static_tcr_feature_list.csv"))
+        self.assertTrue(task["coefficients"].endswith("05_final_model_coefficients.csv"))
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")
