@@ -17,6 +17,9 @@
 !TRB/
 TRB/*
 
+!TRB/scripts/
+!TRB/scripts/**
+
 !TRB/set/
 TRB/set/*
 
