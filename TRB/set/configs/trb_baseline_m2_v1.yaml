@@ -1,0 +1,148 @@
+schema_version: "1.0"
+
+experiment:
+  id: "trb_baseline_m2_v1"
+  description: "Frozen configuration for the reproducible TRB baseline and final M2 model."
+  receptor: "TRB"
+  status: "baseline_locked"
+  random_seed: 20260711
+  baseline_git_tag: "trb-baseline-v1.0"
+
+data:
+  train:
+    expected_samples: 123
+    metadata: "TRB/set/train/metadata_train_70.csv"
+    base_matrix: "TRB/set/train/result/04_final_feature_matrix/04_train_base_feature_matrix.csv"
+    feature_manifest: "TRB/set/train/result/04_final_feature_matrix/04_feature_manifest.csv"
+    aa_clone_table_dir: "TRB/set/train/result/01_AA_clone_table"
+    public_catalog: "TRB/set/train/result/03_public_features/03_public_aa_catalog.csv.gz"
+    reference_definition: "TRB/set/train/result/03_public_features/03_reference_definition.json"
+  test:
+    expected_samples: 51
+    metadata: "TRB/set/test/metadata_test_30.csv"
+    final_matrix: "TRB/set/test/result/04_final_feature_matrix/04_test_final_feature_matrix.csv"
+    reference_features: "TRB/set/test/result/03_public_features/03_test_reference_public_features.csv"
+    reference_definition_used: "TRB/set/test/result/03_public_features/03_reference_definition_used.json"
+
+public_reference:
+  scheme_name: "main"
+  global_min_prevalence: 0.02
+  global_min_count: 3
+  group_min_prevalence: 0.05
+  group_min_count: 3
+  specific_prevalence_delta: 0.05
+  epsilon: 1.0e-8
+  feature_set: "raw_bilateral"
+  expected_sizes:
+    catalog: 1000139
+    global: 394235
+    RA_specific: 41649
+    ILD_specific: 28947
+    shared: 38585
+  dynamic_features:
+    - "all_ref_public_clone_ratio"
+    - "all_ref_public_frequency_sum"
+    - "shared_ref_clone_ratio"
+    - "shared_ref_frequency_sum"
+    - "RA_specific_ref_clone_ratio"
+    - "RA_specific_ref_frequency_sum"
+    - "ILD_specific_ref_clone_ratio"
+    - "ILD_specific_ref_frequency_sum"
+
+cross_validation:
+  outer_repeats: 20
+  outer_folds: 5
+  inner_folds: 5
+  outer_assignments: "TRB/set/train/result/05_modeling/cv_splits/05_outer_fold_assignments.csv"
+  inner_assignments: "TRB/set/train/result/05_modeling/cv_splits/05_inner_fold_assignments.csv.gz"
+  balance_columns: ["batch", "material", "sex"]
+
+model_engine:
+  engine: "elastic_net_logistic"
+  solver: "saga"
+  class_weight: "balanced"
+  alpha_grid: [0.1, 0.5, 0.9]
+  lambda_grid: [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
+  max_iter: 10000
+  tolerance: 1.0e-4
+  zero_sd_tolerance: 1.0e-12
+  inner_selection_primary_metric: "roc_auc"
+  threshold_rule: "youden"
+
+models:
+  M0_clinical:
+    description: "Age and sex clinical comparator."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: []
+    dynamic_public: []
+
+  M1_static_tcr:
+    description: "Clinical variables plus static TRB repertoire features."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: ["static_tcr_candidate_predictors"]
+    dynamic_public: []
+
+  M2_static_tcr_public:
+    description: "Clinical variables, static TRB features, and dynamic public-reference features."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: ["static_tcr_candidate_predictors"]
+    dynamic_public:
+      - "all_ref_public_clone_ratio"
+      - "all_ref_public_frequency_sum"
+      - "shared_ref_clone_ratio"
+      - "shared_ref_frequency_sum"
+      - "RA_specific_ref_clone_ratio"
+      - "RA_specific_ref_frequency_sum"
+      - "ILD_specific_ref_clone_ratio"
+      - "ILD_specific_ref_frequency_sum"
+
+  M3_static_tcr_public_material:
+    description: "M2 plus material as a sensitivity model."
+    numeric: ["age"]
+    categorical: ["sex", "material"]
+    static_feature_groups: ["static_tcr_candidate_predictors"]
+    dynamic_public:
+      - "all_ref_public_clone_ratio"
+      - "all_ref_public_frequency_sum"
+      - "shared_ref_clone_ratio"
+      - "shared_ref_frequency_sum"
+      - "RA_specific_ref_clone_ratio"
+      - "RA_specific_ref_frequency_sum"
+      - "ILD_specific_ref_clone_ratio"
+      - "ILD_specific_ref_frequency_sum"
+
+stability:
+  minimum_selection_frequency: 0.50
+  minimum_sign_consistency: 0.80
+  coefficient_tolerance: 1.0e-12
+
+final_model:
+  selected_model: "M2_static_tcr_public"
+  tuning_mode: "stable_pairs"
+  candidate_pairs:
+    - {alpha: 0.9, lambda: 10}
+    - {alpha: 0.5, lambda: 30}
+  selection_rule: "one_se"
+  selected_alpha: 0.5
+  selected_lambda: 30
+  locked_threshold: 0.509337
+  bundle: "TRB/set/train/result/07_final_M2_model/07_final_M2_model.joblib"
+  configuration: "TRB/set/train/result/07_final_M2_model/07_final_M2_configuration.json"
+  reference_masks: "TRB/set/train/result/07_final_M2_model/07_full_training_public_reference_masks.npz"
+
+independent_validation:
+  single_use: true
+  bootstrap_reps: 5000
+  bootstrap_seed: 20260713
+  output_dir: "TRB/set/test/result/08_final_M2_validation"
+  expected_metrics:
+    roc_auc: 0.779605
+    pr_auc: 0.720809
+    sensitivity: 0.631579
+    specificity: 0.718750
+    precision: 0.571429
+    f1: 0.600000
+    brier: 0.225618

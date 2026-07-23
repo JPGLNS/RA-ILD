@@ -23,6 +23,20 @@ TRB/set/*
 !TRB/set/scripts/
 !TRB/set/scripts/**
 
+# ---------- TRB V2 framework ----------
+
+!TRB/set/configs/
+!TRB/set/configs/**
+
+!TRB/set/src/
+!TRB/set/src/**
+
+!TRB/set/scripts_v2/
+!TRB/set/scripts_v2/**
+
+!TRB/set/tests/
+!TRB/set/tests/**
+
 # ---------- IGH ----------
 !IGH/
 IGH/*

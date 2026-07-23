@@ -1,0 +1,13 @@
+# Add these rules under the TRB whitelist section in repository-root .gitignore.
+
+!TRB/set/configs/
+!TRB/set/configs/**
+
+!TRB/set/src/
+!TRB/set/src/**
+
+!TRB/set/scripts_v2/
+!TRB/set/scripts_v2/**
+
+!TRB/set/tests/
+!TRB/set/tests/**

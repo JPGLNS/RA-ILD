@@ -1,0 +1,59 @@
+{
+  "batch": "01",
+  "purpose": "TRB V2 configuration and V1 baseline regression checks",
+  "local_validation": {
+    "python_syntax": "PASS",
+    "configuration_validation": "PASS",
+    "unit_tests": {
+      "status": "PASS",
+      "count": 8
+    }
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 4942,
+      "sha256": "4106441f69632aeb2c39d3ad9749e8a88c71c0ffdb80f59627d47336e00d042e"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch01.md",
+      "bytes": 2404,
+      "sha256": "27d9084d31ac7add8da8d4d39675d98cf373d1b1ef4376b3d0a21d59c865d1f5"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_v1_baseline_outputs.py",
+      "bytes": 10323,
+      "sha256": "c4c16e6954341496814ff8efe28593c7e122806466ff6b8f552201569c9397ca"
+    },
+    {
+      "path": "TRB/set/scripts_v2/gitignore_TRB_v2_snippet.txt",
+      "bytes": 231,
+      "sha256": "16c1319595745afdb5e0e0f893646616e7cdeae4402ec7ac30f2d4e5c1b316b1"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 3218,
+      "sha256": "e0926f075cc07992632a66e40d08dfb48fcbb0321ece2fa0af69b352f8fd2268"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 414,
+      "sha256": "ae9790e2c8102e8fea447e94a1dbd91a513117330cdbb19a64bb7acca668c28d"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 9990,
+      "sha256": "338aa9622ac8493c5362b79d8e91c689e953ea752c8510d6bc62565a643fe3f3"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/paths.py",
+      "bytes": 2262,
+      "sha256": "c88b438baeeeae12e56bdee2d91bd1cda76b6d0f7a893a106a3a8db64eb37402"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 3044,
+      "sha256": "eac8b0349140953eb6227f0bc5c97560d212913d8f4428c51960e3e9570c4072"
+    }
+  ]
+}
