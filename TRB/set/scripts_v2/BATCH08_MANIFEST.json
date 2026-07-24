@@ -1,0 +1,83 @@
+{
+  "batch": "08",
+  "title": "Final integration and release",
+  "framework_version": "1.0.0",
+  "purpose": "Provide the unified entry document, integrated hotfix history, explicit Git exclusions, one-command validation, and a server-generated completion marker.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "120 tests passed",
+    "release_helper_tests": "8 tests passed",
+    "new_model_training": false,
+    "independent_test_rerun": false,
+    "full_v2_outer_mirror_required": false
+  },
+  "delete_files": [
+    "TRB/set/scripts_v2/README_batch04_hotfix01.md",
+    "TRB/set/scripts_v2/BATCH04_HOTFIX01_MANIFEST.json",
+    "TRB/set/scripts_v2/README_batch06_hotfix01.md",
+    "TRB/set/scripts_v2/BATCH06_HOTFIX01_MANIFEST.json"
+  ],
+  "completion_marker": {
+    "path": "TRB/set/FRAMEWORK_V2_COMPLETE.json",
+    "shipped_prefilled": false,
+    "generation_command": "python3 TRB/set/scripts_v2/run_all_checks.py --config TRB/set/configs/trb_baseline_m2_v1.yaml --quick --write-completion-marker",
+    "reason": "The marker must record the actual server interpreter, package versions, Git commit, and validation results."
+  },
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 1493,
+      "sha256": "87adf1106521c67b3b15980c0b7626537bcbd7e4b986b7914deffafa767213b8"
+    },
+    {
+      "path": "TRB/set/README_V2.md",
+      "bytes": 5881,
+      "sha256": "c0e25a3985ea8c64acb198db0b67df1878e709640e13159235842b4ab20c058e"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 746,
+      "sha256": "cf7c23572f22d1b2eeb1d77e4c36fd1e8e0acd6084b081f444ae3b7f3db064a9"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/release.py",
+      "bytes": 10195,
+      "sha256": "992de5f3aedb23a8a4397b72a690412a8779a42a7b1cd2e73dec57746948c867"
+    },
+    {
+      "path": "TRB/set/scripts_v2/run_all_checks.py",
+      "bytes": 7422,
+      "sha256": "f7955c287ed3d3a03c98104fbb8144b3e6c565137cbc3eb2327540217404afec"
+    },
+    {
+      "path": "TRB/set/tests/test_release.py",
+      "bytes": 5100,
+      "sha256": "71804a96cd14197cc2527725366194f2885fe4c17d48de29a9c6d8ad93c9a73f"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch04_modeling.md",
+      "bytes": 5062,
+      "sha256": "7293e52fa12c4d275578ce53a5c2695ff253ab7853e68e1ccedb699613823ea1"
+    },
+    {
+      "path": "TRB/set/scripts_v2/BATCH04_MANIFEST.json",
+      "bytes": 2216,
+      "sha256": "a41d499f57ad9db2f655ef982b30f7b23f6607d3a73b6da02793bad814260bc3"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch06_nested_cv.md",
+      "bytes": 5969,
+      "sha256": "35f43a363dabc406e6495bf643edea08d07e018b7968746717dc0f7ffd8134b2"
+    },
+    {
+      "path": "TRB/set/scripts_v2/BATCH06_MANIFEST.json",
+      "bytes": 1820,
+      "sha256": "da85758790fd90c04cd53614245a4b4be9fa16fdea6f740c3c1d89aae0f98642"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch08_release.md",
+      "bytes": 3387,
+      "sha256": "7b62888d88fd9a1b52edb88d100d50213b322080f739ea0cd26659fd42ab2ee2"
+    }
+  ]
+}

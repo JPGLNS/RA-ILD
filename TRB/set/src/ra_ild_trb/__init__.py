@@ -19,4 +19,4 @@ __all__ = [
     "resolve_project_path",
 ]
 
-__version__ = "0.7.0"
+__version__ = "1.0.0"

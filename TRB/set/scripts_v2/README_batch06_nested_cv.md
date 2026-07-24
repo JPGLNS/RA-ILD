@@ -182,3 +182,29 @@ Preprocessing:       18 PASS, 0 FAIL
 Public reference:    15 PASS, 0 FAIL
 V1 baseline:         36 PASS, 0 FAIL
 ```
+
+## Final integrated status
+
+Batch 06 Hotfix 01 is incorporated into the released checker. The frozen V1
+`05_preprocessing_summary.csv` contains only `stage=outer_final` rows even
+though V1 computed inner-fold preprocessing in memory. The full V2 regression
+therefore:
+
+- confirms that V1 exported zero inner preprocessing rows;
+- validates all 16,370 V2 inner preprocessing audit rows structurally;
+- requires all four models and all five inner folds;
+- checks unique `(model, inner_fold, feature_name)` keys;
+- checks expected per-model/per-fold row counts, finite means/SDs, and valid
+  source types.
+
+The successful server result was:
+
+```text
+Mode=full Outer task=1/1 Checks=43 PASS=43 FAIL=0
+Full inner preprocessing audit completeness: V2 rows=16370, expected=16370
+```
+
+The separate `README_batch06_hotfix01.md` and
+`BATCH06_HOTFIX01_MANIFEST.json` files are obsolete after Batch 08 and should be
+removed. `BATCH06_MANIFEST.json` is now a finalized batch-owned-file manifest
+and intentionally excludes shared files that evolved in later batches.

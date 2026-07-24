@@ -203,3 +203,16 @@ git diff --cached --stat
 git commit -m "Add shared TRB modeling and metric modules"
 git push
 ```
+
+## Final integrated status
+
+Batch 04 Hotfix 01 is incorporated into the released framework. The package
+initializer imports only lightweight configuration and path modules; importing
+`ra_ild_trb.config` therefore does not require scikit-learn. Modeling and metric
+modules continue to import their scientific dependencies explicitly.
+
+The separate `README_batch04_hotfix01.md` and
+`BATCH04_HOTFIX01_MANIFEST.json` files are obsolete after Batch 08 and should be
+removed from the repository. `BATCH04_MANIFEST.json` is now a finalized
+batch-owned-file manifest and intentionally excludes shared files that continued
+to change in later batches.

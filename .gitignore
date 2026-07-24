@@ -20,11 +20,13 @@ TRB/*
 !TRB/set/
 TRB/set/*
 
+!TRB/set/README_V2.md
+!TRB/set/FRAMEWORK_V2_COMPLETE.json
+
 !TRB/set/scripts/
 !TRB/set/scripts/**
 
 # ---------- TRB V2 framework ----------
-
 !TRB/set/configs/
 !TRB/set/configs/**
 
@@ -56,6 +58,16 @@ TRB_IGH/set/*
 
 !TRB_IGH/set/scripts/
 !TRB_IGH/set/scripts/**
+
+# ---------- Generated results and delivery archives ----------
+# These explicit rules document exclusions even though the whitelist above
+# already ignores most result directories.
+TRB/set/train/result_v2/
+TRB/set/test/result_v2/
+**/scheduler_logs/
+TRB_framework_v2_batch*.zip
+TRB_framework_v2_step*.zip
+TRB/set/FRAMEWORK_V2_COMPLETE.json.tmp
 
 # ---------- 即使位于脚本目录中，也不要上传 ----------
 **/__pycache__/
