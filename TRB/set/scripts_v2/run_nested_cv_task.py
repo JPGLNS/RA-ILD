@@ -155,8 +155,7 @@ def main() -> int:
             output_dir = Path(args.output_dir).expanduser().resolve()
         else:
             output_dir = (
-                config.repository_root
-                / "TRB/set/train/result_v2/06_nested_cv"
+                config.path("outer_tasks.output_root")
                 / f"repeat_{outer_repeat:02d}_fold_{outer_fold:02d}"
             )
         paths = output_paths(output_dir)

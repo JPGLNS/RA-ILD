@@ -1,0 +1,51 @@
+{
+  "batch_id": "TRB_SCHEME_UPGRADE_BATCH01",
+  "title": "Multi-scheme configuration and isolated result directories",
+  "base_branch": "refactor/trb-framework-v2",
+  "delivery_mode": "additive payload plus guarded one-snippet patch",
+  "scientific_modeling_logic_changed": false,
+  "patched_existing_files": [
+    "TRB/set/scripts_v2/run_nested_cv_task.py"
+  ],
+  "added_files": [
+    "TRB/set/configs/schemes/trb_scheme_001_baseline_compat.yaml",
+    "TRB/set/scripts_v2/README_upgrade_batch01.md",
+    "TRB/set/scripts_v2/prepare_analysis_scheme.py",
+    "TRB/set/scripts_v2/test_batch01_scheme_management.py",
+    "TRB/set/src/ra_ild_trb/scheme_management.py",
+    "TRB/set/scripts_v2/BATCH01_SCHEME_UPGRADE_MANIFEST.json"
+  ],
+  "payload_files": [
+    {
+      "path": "TRB/set/configs/schemes/trb_scheme_001_baseline_compat.yaml",
+      "sha256": "3b86bdf5faeccfa83cd5215786b6d2aba91ca22d75794be0a52b07b8ed4b37bb",
+      "size_bytes": 368
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_upgrade_batch01.md",
+      "sha256": "ef19a985fad241a645939e1b0e9ba04b99ccbf7ad8467bc3eba2e839c3d0e1b6",
+      "size_bytes": 5003
+    },
+    {
+      "path": "TRB/set/scripts_v2/prepare_analysis_scheme.py",
+      "sha256": "4de5ca792080d2f0a0f5830e6b2e8efa6eafe21da04ca3629c13ca43edf7f081",
+      "size_bytes": 3018
+    },
+    {
+      "path": "TRB/set/scripts_v2/test_batch01_scheme_management.py",
+      "sha256": "185d3186fcdd23f702e57b227394c28d09f7839ce2493475d35a13d605932cae",
+      "size_bytes": 3650
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/scheme_management.py",
+      "sha256": "7e0d69265b76cd0f6ab4921f296ba71da42173dbedcf8a413b1d3403241d2cf2",
+      "size_bytes": 18407
+    }
+  ],
+  "acceptance_tests": [
+    "python3 -m py_compile ...",
+    "python3 TRB/set/scripts_v2/test_batch01_scheme_management.py",
+    "python3 TRB/set/scripts_v2/prepare_analysis_scheme.py --scheme ... --dry-run",
+    "python3 TRB/set/scripts_v2/run_all_outer_tasks.py --config .../resolved_config.yaml --status-only"
+  ]
+}
