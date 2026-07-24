@@ -55,7 +55,14 @@ def main() -> int:
         print(f"Base config:     {prepared.base_config_path}")
         print(f"Output root:     {prepared.output_root}")
         print(f"Resolved config: {prepared.resolved_config_path}")
+        models = list(prepared.resolved_config.get("models", {}))
+        additional_tables = [
+            row for row in prepared.input_manifest
+            if "additional_feature_tables" in str(row.get("config_key", ""))
+        ]
+        print(f"Models:          {len(models)} ({', '.join(models)})")
         print(f"Input paths:     {len(prepared.input_manifest)}")
+        print(f"Additional tables: {len(additional_tables)}")
         print(f"Missing inputs:  {len(missing)}")
 
         if args.dry_run:

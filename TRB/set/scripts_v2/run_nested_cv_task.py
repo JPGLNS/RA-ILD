@@ -21,6 +21,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from ra_ild_trb.config import load_experiment_config  # noqa: E402
+from ra_ild_trb.feature_inputs import load_partition_feature_matrix  # noqa: E402
 from ra_ild_trb.nested_cv import NestedCVOptions, run_nested_outer_task  # noqa: E402
 from ra_ild_trb.public_reference import ThresholdScheme  # noqa: E402
 from ra_ild_trb.specifications import (  # noqa: E402
@@ -59,14 +60,12 @@ def load_inputs(config) -> Tuple[
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
+    pd.DataFrame,
     sparse.csr_matrix,
     sparse.csr_matrix,
     Mapping[str, object],
 ]:
-    base = read_csv(
-        config.path("data.train.base_matrix", must_exist=True, expect="file"),
-        "training base matrix",
-    )
+    base, feature_input_audit = load_partition_feature_matrix(config, "train")
     manifest = read_csv(
         config.path("data.train.feature_manifest", must_exist=True, expect="file"),
         "feature manifest",
@@ -108,12 +107,13 @@ def load_inputs(config) -> Tuple[
             f"Sparse cache shape mismatch: presence={presence.shape}, "
             f"frequency={frequency.shape}, expected={expected_shape}."
         )
-    return base, manifest, outer, inner, presence, frequency, metadata
+    return base, feature_input_audit, manifest, outer, inner, presence, frequency, metadata
 
 
 def output_paths(output_dir: Path) -> Dict[str, Path]:
     return {
         "configuration": output_dir / "06_task_configuration.json",
+        "feature_input_audit": output_dir / "06_feature_input_audit.csv",
         "sample_roles": output_dir / "06_task_sample_roles.csv",
         "outer_train_public": output_dir / "06_dynamic_public_features_outer_train_loo.csv",
         "outer_valid_public": output_dir / "06_dynamic_public_features_outer_validation.csv",
@@ -162,7 +162,7 @@ def main() -> int:
         enforce_output_policy(paths, args.overwrite)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        base, manifest, outer, inner, presence, frequency, metadata = load_inputs(config)
+        base, feature_input_audit, manifest, outer, inner, presence, frequency, metadata = load_inputs(config)
         static_features = select_static_tcr_features(
             manifest,
             available_columns=base.columns,
@@ -220,6 +220,7 @@ def main() -> int:
             inner_folds=int(config.raw["cross_validation"]["inner_folds"]),
         )
 
+        feature_input_audit.to_csv(paths["feature_input_audit"], index=False)
         result.sample_roles.to_csv(paths["sample_roles"], index=False)
         result.outer_train_public.to_csv(paths["outer_train_public"], index=False)
         result.outer_validation_public.to_csv(paths["outer_valid_public"], index=False)
@@ -250,6 +251,8 @@ def main() -> int:
         }
         configuration = {
             "experiment_id": config.experiment_id,
+            "merged_feature_column_count": int(len(base.columns)),
+            "additional_feature_table_count": int((feature_input_audit["source_type"] == "additional_feature_table").sum()),
             "outer_repeat": outer_repeat,
             "outer_fold": outer_fold,
             "outer_train_samples": result.split.n_outer_train,

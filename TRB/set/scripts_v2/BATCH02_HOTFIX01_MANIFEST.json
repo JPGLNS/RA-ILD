@@ -1,0 +1,12 @@
+{
+  "hotfix_id": "TRB_SCHEME_UPGRADE_BATCH02_HOTFIX01",
+  "applies_to": "TRB_SCHEME_UPGRADE_BATCH02",
+  "scope": "test-only compatibility fix",
+  "reason": "pandas 3.x rejects assigning a string directly into a float64 test fixture column",
+  "scientific_engine_changed": false,
+  "production_feature_loader_changed": false,
+  "files": [
+    "TRB/set/scripts_v2/test_batch02_feature_management.py",
+    "TRB/set/scripts_v2/BATCH02_HOTFIX01_MANIFEST.json"
+  ]
+}

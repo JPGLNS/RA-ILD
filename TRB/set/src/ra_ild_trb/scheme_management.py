@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """Configuration-driven analysis-scheme preparation for the RA-ILD TRB framework.
 
-Batch 01 deliberately leaves the scientific modeling engine unchanged.  It turns a
-frozen V2 configuration into an isolated, auditable analysis scheme by resolving a
-small scheme YAML, rewriting only output destinations, and snapshotting inputs.
+Batch 02 keeps the scientific Elastic Net/public-reference engine unchanged while
+adding scheme-level replacement of model definitions, automatic recalculation of
+derived task counts, and auditable optional feature-table inputs.
 """
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from .paths import resolve_project_path
 
 
 SCHEME_VERSION = "1.0"
+BATCH02_REPLACEABLE_SECTIONS = frozenset({"models"})
 SCHEME_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{2,79}$")
 DEFAULT_SCHEME_ROOT = Path("TRB/set/experiments")
 
@@ -253,6 +254,154 @@ def _sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
     return digest.hexdigest()
 
 
+
+def _additional_feature_path_specs(
+    resolved: Mapping[str, Any],
+) -> Tuple[Tuple[str, str], ...]:
+    """Return ``(config_key, path)`` pairs for optional feature tables."""
+
+    rows = []
+    data = resolved.get("data", {})
+    if not isinstance(data, Mapping):
+        return tuple()
+    for partition in ("train", "test"):
+        section = data.get(partition, {})
+        if not isinstance(section, Mapping):
+            continue
+        tables = section.get("additional_feature_tables", []) or []
+        if not isinstance(tables, Sequence) or isinstance(tables, (str, bytes)):
+            raise SchemeError(
+                f"data.{partition}.additional_feature_tables must be a list"
+            )
+        for index, item in enumerate(tables):
+            if isinstance(item, str):
+                value = item
+            elif isinstance(item, Mapping):
+                value = item.get("path")
+            else:
+                raise SchemeError(
+                    f"data.{partition}.additional_feature_tables[{index}] must be a mapping or path string"
+                )
+            if not isinstance(value, str) or not value.strip():
+                raise SchemeError(
+                    f"data.{partition}.additional_feature_tables[{index}].path must be a non-empty string"
+                )
+            rows.append(
+                (
+                    f"data.{partition}.additional_feature_tables[{index}].path",
+                    value.strip(),
+                )
+            )
+    return tuple(rows)
+
+
+def _apply_top_level_replacements(
+    resolved: MutableMapping[str, Any],
+    replacements: Mapping[str, Any],
+) -> None:
+    """Replace selected top-level sections instead of recursively merging them."""
+
+    unknown = sorted(set(replacements) - BATCH02_REPLACEABLE_SECTIONS)
+    if unknown:
+        raise SchemeError(
+            "Batch 02 replacements may currently replace only: "
+            + ", ".join(sorted(BATCH02_REPLACEABLE_SECTIONS))
+            + f"; unsupported sections: {unknown}"
+        )
+    for key, value in replacements.items():
+        if not isinstance(value, Mapping):
+            raise SchemeError(f"replacements.{key} must be a mapping")
+        resolved[key] = copy.deepcopy(dict(value))
+
+
+def _derive_scheme_counts(resolved: MutableMapping[str, Any]) -> None:
+    """Recalculate all count fields that depend on configured models or CV sizes."""
+
+    models = resolved.get("models")
+    if not isinstance(models, Mapping) or not models:
+        raise SchemeError("Resolved models must be a non-empty mapping")
+    selection = resolved.get("model_selection")
+    cv = resolved.get("cross_validation")
+    engine = resolved.get("model_engine")
+    nested = resolved.get("nested_cv")
+    outer = resolved.get("outer_tasks")
+    aggregation = resolved.get("aggregation")
+    train = resolved.get("data", {}).get("train", {})
+    for name, value in (
+        ("model_selection", selection),
+        ("cross_validation", cv),
+        ("model_engine", engine),
+        ("nested_cv", nested),
+        ("outer_tasks", outer),
+        ("aggregation", aggregation),
+        ("data.train", train),
+    ):
+        if not isinstance(value, MutableMapping):
+            raise SchemeError(f"Resolved {name} must be a mapping")
+
+    static_group_name = str(selection.get("static_feature_group", "")).strip()
+    static_count = int(selection.get("expected_static_feature_count", 0))
+    if not static_group_name or static_count < 1:
+        raise SchemeError("model_selection static feature group/count are invalid")
+
+    expected_columns: Dict[str, Dict[str, int]] = {}
+    for model_name, raw_spec in models.items():
+        if not isinstance(raw_spec, Mapping):
+            raise SchemeError(f"models.{model_name} must be a mapping")
+        numeric = list(raw_spec.get("numeric", []) or [])
+        categorical = list(raw_spec.get("categorical", []) or [])
+        static_groups = list(raw_spec.get("static_feature_groups", []) or [])
+        dynamic = list(raw_spec.get("dynamic_public", []) or [])
+        unsupported_groups = sorted(set(map(str, static_groups)) - {static_group_name})
+        if unsupported_groups:
+            raise SchemeError(
+                f"models.{model_name} uses unsupported static feature groups: {unsupported_groups}"
+            )
+        numeric_count = len(numeric) + len(dynamic)
+        if static_group_name in static_groups:
+            numeric_count += static_count
+        expected_columns[str(model_name)] = {
+            "numeric": int(numeric_count),
+            "categorical": int(len(categorical)),
+        }
+    selection["expected_resolved_columns"] = expected_columns
+
+    outer_tasks = int(cv["outer_repeats"]) * int(cv["outer_folds"])
+    candidate_count = len(engine["alpha_grid"]) * len(engine["lambda_grid"])
+    model_count = len(models)
+    nested["expected_outer_tasks"] = outer_tasks
+    nested["expected_inner_fits_per_task"] = (
+        model_count * int(cv["inner_folds"]) * candidate_count
+    )
+    outer["expected_tasks"] = outer_tasks
+    aggregation["expected_metric_rows"] = outer_tasks * model_count
+    aggregation["expected_predictions_per_sample"] = int(cv["outer_repeats"])
+    aggregation["expected_prediction_rows"] = (
+        int(train["expected_samples"]) * int(cv["outer_repeats"]) * model_count
+    )
+
+
+def _normalize_final_model(resolved: MutableMapping[str, Any]) -> None:
+    """Allow development schemes to start without inherited locked parameters."""
+
+    final = resolved.get("final_model")
+    if not isinstance(final, MutableMapping):
+        raise SchemeError("Resolved final_model must be a mapping")
+    status = str(final.get("status", "locked")).strip()
+    final["status"] = status
+    if status == "not_selected":
+        for key in (
+            "selected_model",
+            "tuning_mode",
+            "candidate_pairs",
+            "selection_rule",
+            "selected_alpha",
+            "selected_lambda",
+            "locked_threshold",
+        ):
+            final.pop(key, None)
+
+
 def collect_input_manifest(
     resolved: Mapping[str, Any],
     repository_root: Path,
@@ -260,13 +409,18 @@ def collect_input_manifest(
     """Record immutable identifiers for configured input files without copying large data."""
 
     rows = []
+    configured_paths = []
     for keys in INPUT_PATH_KEYS:
         configured = _get_nested(resolved, keys)
+        configured_paths.append((".".join(keys), configured))
+    configured_paths.extend(_additional_feature_path_specs(resolved))
+
+    for config_key, configured in configured_paths:
         if not isinstance(configured, str) or not configured.strip():
-            raise SchemeError(f"Configured input path is invalid: {'.'.join(keys)}")
+            raise SchemeError(f"Configured input path is invalid: {config_key}")
         path = resolve_project_path(configured, repository_root)
         row: Dict[str, Any] = {
-            "config_key": ".".join(keys),
+            "config_key": config_key,
             "configured_path": configured,
             "resolved_path": str(path),
             "exists": path.exists(),
@@ -366,6 +520,13 @@ def build_prepared_scheme(
     if not isinstance(overrides, Mapping):
         raise SchemeError("overrides must be a mapping")
     resolved = deep_merge(base, overrides)
+    replacements = raw_scheme.get("replacements", {})
+    if not isinstance(replacements, Mapping):
+        raise SchemeError("replacements must be a mapping")
+    _apply_top_level_replacements(resolved, replacements)
+    _normalize_final_model(resolved)
+    _derive_scheme_counts(resolved)
+
     experiment = resolved.get("experiment")
     if not isinstance(experiment, MutableMapping):
         raise SchemeError("Resolved experiment section must be a mapping")
@@ -494,6 +655,10 @@ def write_prepared_scheme(
         "source_scheme_sha256": _sha256_file(prepared.source_path),
         "missing_input_count": len(missing),
         "scientific_engine_changed_by_batch01": False,
+        "scientific_engine_changed_by_batch02": False,
+        "feature_management_enabled": True,
+        "configured_models": list(prepared.resolved_config.get("models", {})),
+        "additional_feature_table_count": len(_additional_feature_path_specs(prepared.resolved_config)),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "git_commit": env.get("git_commit"),
     }
@@ -506,6 +671,8 @@ def write_prepared_scheme(
             "resolved_config": str(prepared.resolved_config_path),
             "created_at_utc": metadata["created_at_utc"],
             "scientific_engine_changed_by_batch01": False,
+            "scientific_engine_changed_by_batch02": False,
+            "feature_management_enabled": True,
         },
     )
     return metadata

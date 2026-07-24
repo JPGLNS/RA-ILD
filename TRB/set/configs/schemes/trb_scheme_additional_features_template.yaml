@@ -1,0 +1,46 @@
+scheme_version: "1.0"
+
+scheme:
+  id: "replace_with_new_scheme_id"
+  description: "Template: merge scheme-specific features and assign them to selected Elastic Net models."
+  status: "development"
+  base_config: "TRB/set/configs/trb_baseline_m2_v1.yaml"
+  output_root: "TRB/set/experiments/replace_with_new_scheme_id"
+
+# This is a template only. Copy it to a new filename and replace the IDs and paths.
+# The table must contain exactly one row per configured training sample.
+overrides:
+  data:
+    train:
+      additional_feature_tables:
+        - path: "TRB/set/additional_features/replace_with_feature_table.csv"
+          key: "sample_id"
+          required_columns: ["new_feature_1", "new_feature_2"]
+          numeric_columns: ["new_feature_1", "new_feature_2"]
+          categorical_columns: []
+  final_model:
+    status: "not_selected"
+
+replacements:
+  models:
+    M1_static_tcr:
+      description: "Static features only."
+      numeric: []
+      categorical: []
+      static_feature_groups: ["static_tcr_candidate_predictors"]
+      dynamic_public: []
+
+    M2_static_tcr_public_new:
+      description: "Static/public features plus two additional numeric features."
+      numeric: ["new_feature_1", "new_feature_2"]
+      categorical: []
+      static_feature_groups: ["static_tcr_candidate_predictors"]
+      dynamic_public:
+        - "all_ref_public_clone_ratio"
+        - "all_ref_public_frequency_sum"
+        - "shared_ref_clone_ratio"
+        - "shared_ref_frequency_sum"
+        - "RA_specific_ref_clone_ratio"
+        - "RA_specific_ref_frequency_sum"
+        - "ILD_specific_ref_clone_ratio"
+        - "ILD_specific_ref_frequency_sum"

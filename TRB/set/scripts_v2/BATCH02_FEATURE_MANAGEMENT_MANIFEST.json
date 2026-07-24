@@ -1,0 +1,64 @@
+{
+  "batch_id": "TRB_SCHEME_UPGRADE_BATCH02",
+  "title": "Flexible model definitions and additional-feature management",
+  "requires": "TRB_SCHEME_UPGRADE_BATCH01",
+  "scientific_modeling_logic_changed": false,
+  "payload_files": [
+    {
+      "path": "TRB/set/configs/schemes/trb_scheme_002_no_clinical.yaml",
+      "sha256": "652e7272561d80aeda4308adaf68f667f945012098d3503f43ba645f5aa92561",
+      "size_bytes": 1848
+    },
+    {
+      "path": "TRB/set/configs/schemes/trb_scheme_additional_features_template.yaml",
+      "sha256": "91610cf06d5363d782bbab1395ad928e9d88215ed5bd26c713cd1abedf747c2a",
+      "size_bytes": 1650
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_upgrade_batch02.md",
+      "sha256": "dc47f1740049e502368d67faebb790538b294e0828414339992954311c4c5f93",
+      "size_bytes": 2612
+    },
+    {
+      "path": "TRB/set/scripts_v2/audit_scheme_features.py",
+      "sha256": "1a668053c3f74cf6d9947001f071cb47361bc316b4e34851068246d2afcffeb7",
+      "size_bytes": 8291
+    },
+    {
+      "path": "TRB/set/scripts_v2/prepare_analysis_scheme.py",
+      "sha256": "24534eb0418b66b106bd7b24bf32c205e9c99653d66afc7aab850b3db54efef4",
+      "size_bytes": 3385
+    },
+    {
+      "path": "TRB/set/scripts_v2/test_batch02_feature_management.py",
+      "sha256": "42c36f793cb9b9e080912919e2e8b62f278bc0a319a72a79c0db57d63f596591",
+      "size_bytes": 8173
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__pycache__/feature_inputs.cpython-313.pyc",
+      "sha256": "bf658a38bb0dd92dd1d6320f6fc9c4870639bc3b65160dbb9cfc807add519fd2",
+      "size_bytes": 15533
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/feature_inputs.py",
+      "sha256": "86ca9b75da0ba691cbac64fb9f90a1ba06adc14731d74c08ba377db34ec537ef",
+      "size_bytes": 11511
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/scheme_management.py",
+      "sha256": "def54803f75812e22d4297f3f9bf6174f83fc574bbc06f2ede2ef087764b3448",
+      "size_bytes": 25357
+    }
+  ],
+  "patched_in_place": [
+    "TRB/set/src/ra_ild_trb/config.py",
+    "TRB/set/scripts_v2/run_nested_cv_task.py"
+  ],
+  "capabilities": [
+    "complete scheme-level replacement of model definitions",
+    "automatic recalculation of model-dependent expected counts",
+    "development schemes with final_model.status=not_selected",
+    "strict one-to-one additional feature-table merging",
+    "effective feature and model audit outputs"
+  ]
+}

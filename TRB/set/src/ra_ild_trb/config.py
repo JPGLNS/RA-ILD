@@ -91,6 +91,53 @@ def _positive_grid(value: Any, context: str, maximum: Optional[float] = None) ->
         seen.add(number)
 
 
+
+def _validate_additional_feature_tables(
+    partition: Mapping[str, Any],
+    context: str,
+) -> None:
+    value = partition.get("additional_feature_tables", [])
+    if value is None:
+        value = []
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        raise ConfigError(f"{context}.additional_feature_tables must be a list")
+    observed_paths = []
+    for index, item in enumerate(value):
+        item_context = f"{context}.additional_feature_tables[{index}]"
+        if isinstance(item, str):
+            path = item.strip()
+            if not path:
+                raise ConfigError(f"{item_context} must be a non-empty path")
+            observed_paths.append(path)
+            continue
+        if not isinstance(item, Mapping):
+            raise ConfigError(f"{item_context} must be a mapping or path string")
+        path = _string(item, "path", item_context)
+        key = item.get("key", "sample_id")
+        if not isinstance(key, str) or not key.strip():
+            raise ConfigError(f"{item_context}.key must be a non-empty string")
+        required = _string_list(item.get("required_columns", []), f"{item_context}.required_columns")
+        numeric = _string_list(item.get("numeric_columns", []), f"{item_context}.numeric_columns")
+        categorical = _string_list(
+            item.get("categorical_columns", []),
+            f"{item_context}.categorical_columns",
+        )
+        overlap = sorted(set(numeric) & set(categorical))
+        if overlap:
+            raise ConfigError(
+                f"{item_context} declares columns as both numeric and categorical: {overlap}"
+            )
+        declared = required + numeric + categorical
+        if len(declared) != len(set(declared)):
+            # Repetition across required/numeric/categorical is allowed only because a
+            # required column is commonly also typed. Duplicates within each list were
+            # already rejected by _string_list.
+            pass
+        observed_paths.append(path)
+    if len(observed_paths) != len(set(observed_paths)):
+        raise ConfigError(f"{context}.additional_feature_tables contains duplicate paths")
+
+
 def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     """Validate the current TRB V2 configuration schema."""
     if not isinstance(raw, Mapping):
@@ -118,6 +165,9 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
         "metadata", "final_matrix", "reference_features", "reference_definition_used",
     ):
         _string(test, key, "data.test")
+
+    _validate_additional_feature_tables(train, "data.train")
+    _validate_additional_feature_tables(test, "data.test")
 
     public = _mapping(raw, "public_reference", "root")
     _number(public, "global_min_prevalence", "public_reference", 0, 1)
@@ -400,49 +450,56 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     _number(stability, "coefficient_tolerance", "stability", 0)
 
     final = _mapping(raw, "final_model", "root")
-    selected_model = _string(final, "selected_model", "final_model")
-    if selected_model not in models:
-        raise ConfigError("final_model.selected_model is not defined in models")
-    selected_alpha = _number(
-        final, "selected_alpha", "final_model", 0, 1, strict_minimum=True
-    )
-    selected_lambda = _number(
-        final, "selected_lambda", "final_model", 0, strict_minimum=True
-    )
-    candidate_pairs = final.get("candidate_pairs")
-    if not isinstance(candidate_pairs, Sequence) or isinstance(candidate_pairs, (str, bytes)) or not candidate_pairs:
-        raise ConfigError("final_model.candidate_pairs must be a non-empty list")
-    parsed_pairs = []
-    for index, pair in enumerate(candidate_pairs):
-        if not isinstance(pair, Mapping):
-            raise ConfigError(f"final_model.candidate_pairs[{index}] must be a mapping")
-        alpha = _number(
-            pair,
-            "alpha",
-            f"final_model.candidate_pairs[{index}]",
-            0,
-            1,
-            strict_minimum=True,
-        )
-        lambda_value = _number(
-            pair,
-            "lambda",
-            f"final_model.candidate_pairs[{index}]",
-            0,
-            strict_minimum=True,
-        )
-        parsed_pairs.append((alpha, lambda_value))
-    if len(parsed_pairs) != len(set(parsed_pairs)):
-        raise ConfigError("final_model.candidate_pairs contains duplicates")
-    if (selected_alpha, selected_lambda) not in set(parsed_pairs):
-        raise ConfigError(
-            "final_model selected alpha/lambda must appear in candidate_pairs"
-        )
-    threshold = _number(final, "locked_threshold", "final_model", 0, 1, strict_minimum=True)
-    if threshold >= 1:
-        raise ConfigError("final_model.locked_threshold must be < 1")
+    final_status = str(final.get("status", "locked")).strip()
+    if final_status not in {"locked", "not_selected"}:
+        raise ConfigError("final_model.status must be locked or not_selected")
     for key in ("bundle", "configuration", "reference_masks"):
         _string(final, key, "final_model")
+
+    if final_status == "locked":
+        selected_model = _string(final, "selected_model", "final_model")
+        if selected_model not in models:
+            raise ConfigError("final_model.selected_model is not defined in models")
+        selected_alpha = _number(
+            final, "selected_alpha", "final_model", 0, 1, strict_minimum=True
+        )
+        selected_lambda = _number(
+            final, "selected_lambda", "final_model", 0, strict_minimum=True
+        )
+        candidate_pairs = final.get("candidate_pairs")
+        if not isinstance(candidate_pairs, Sequence) or isinstance(candidate_pairs, (str, bytes)) or not candidate_pairs:
+            raise ConfigError("final_model.candidate_pairs must be a non-empty list")
+        parsed_pairs = []
+        for index, pair in enumerate(candidate_pairs):
+            if not isinstance(pair, Mapping):
+                raise ConfigError(f"final_model.candidate_pairs[{index}] must be a mapping")
+            alpha = _number(
+                pair,
+                "alpha",
+                f"final_model.candidate_pairs[{index}]",
+                0,
+                1,
+                strict_minimum=True,
+            )
+            lambda_value = _number(
+                pair,
+                "lambda",
+                f"final_model.candidate_pairs[{index}]",
+                0,
+                strict_minimum=True,
+            )
+            parsed_pairs.append((alpha, lambda_value))
+        if len(parsed_pairs) != len(set(parsed_pairs)):
+            raise ConfigError("final_model.candidate_pairs contains duplicates")
+        if (selected_alpha, selected_lambda) not in set(parsed_pairs):
+            raise ConfigError(
+                "final_model selected alpha/lambda must appear in candidate_pairs"
+            )
+        threshold = _number(
+            final, "locked_threshold", "final_model", 0, 1, strict_minimum=True
+        )
+        if threshold >= 1:
+            raise ConfigError("final_model.locked_threshold must be < 1")
 
     validation = _mapping(raw, "independent_validation", "root")
     if not isinstance(validation.get("single_use"), bool):
