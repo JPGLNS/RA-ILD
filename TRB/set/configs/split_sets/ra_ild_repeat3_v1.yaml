@@ -1,0 +1,48 @@
+split_set_version: "1.0"
+
+split_set:
+  id: "ra_ild_repeat3_v1"
+  description: "Three frozen metadata-balanced 123/51 repeated holdouts for fair comparison of RA-ILD TRB analysis schemes."
+  status: "development"
+  output_root: "TRB/set/split_sets/ra_ild_repeat3_v1"
+
+source:
+  # The old train/test roles are ignored. These two files are combined only to
+  # reconstruct the complete 174-patient TRB cohort before new splits are made.
+  metadata_files:
+    - "TRB/set/train/metadata_train_70.csv"
+    - "TRB/set/test/metadata_test_30.csv"
+  sample_id_column: "libraryid"
+  patient_id_column: "patient"
+  require_one_sample_per_patient: true
+  expected_samples: 174
+  expected_patients: 174
+
+split:
+  strategy: "repeated_holdout"
+  label_column: "cohort"
+  repeats: 3
+  train_size: 123
+  holdout_size: 51
+
+  # Every candidate is stratified by the joint cohort × batch label.
+  exact_strata:
+    - "cohort"
+    - "batch"
+
+  # Candidate ranking uses metadata only. No model prediction, AUC, feature, or
+  # downstream test result is allowed to influence split selection.
+  balance_categorical:
+    - "material"
+    - "sex"
+  balance_numeric:
+    - "age"
+
+  candidates_per_repeat: 5000
+  base_seed: 20260724
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+
+  role_names:
+    train: "train"
+    holdout: "holdout"

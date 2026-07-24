@@ -1,0 +1,24 @@
+{
+  "batch": "03",
+  "title": "Repeated train-holdout split generation",
+  "scientific_engine_changed": false,
+  "model_training_enabled_by_this_batch": false,
+  "installed_files": [
+    "TRB/set/src/ra_ild_trb/repeated_holdout.py",
+    "TRB/set/scripts_v2/generate_repeated_holdout_splits.py",
+    "TRB/set/scripts_v2/test_batch03_repeated_holdout.py",
+    "TRB/set/scripts_v2/README_upgrade_batch03.md",
+    "TRB/set/scripts_v2/BATCH03_REPEATED_HOLDOUT_MANIFEST.json",
+    "TRB/set/configs/split_sets/ra_ild_repeat3_v1.yaml"
+  ],
+  "expected_split_set": {
+    "id": "ra_ild_repeat3_v1",
+    "patients": 174,
+    "repeats": 3,
+    "train_size": 123,
+    "holdout_size": 51,
+    "exact_strata": ["cohort", "batch"],
+    "balance_categorical": ["material", "sex"],
+    "balance_numeric": ["age"]
+  }
+}
