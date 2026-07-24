@@ -53,6 +53,7 @@ PATH_SPECS = (
     ("final_model.bundle", "file"),
     ("final_model.configuration", "file"),
     ("final_model.reference_masks", "file"),
+    ("outer_tasks.runner_script", "file"),
 )
 
 

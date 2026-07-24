@@ -340,6 +340,60 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     ):
         _string(nested_task, key, "nested_cv.regression_task")
 
+    outer_tasks = _mapping(raw, "outer_tasks", "root")
+    for key in ("output_root", "runner_script", "manifest", "status", "logs_dir"):
+        _string(outer_tasks, key, "outer_tasks")
+    expected_outer_task_count = _integer(
+        outer_tasks, "expected_tasks", "outer_tasks", 1
+    )
+    if expected_outer_task_count != expected_outer_tasks:
+        raise ConfigError(
+            "outer_tasks.expected_tasks must equal nested_cv.expected_outer_tasks"
+        )
+    default_workers = _integer(outer_tasks, "default_workers", "outer_tasks", 1)
+    max_workers = _integer(outer_tasks, "max_workers", "outer_tasks", 1)
+    if default_workers > max_workers:
+        raise ConfigError("outer_tasks.default_workers cannot exceed max_workers")
+    minimum_complete = _integer(
+        outer_tasks, "minimum_complete_tasks_for_validation", "outer_tasks", 0
+    )
+    if minimum_complete > expected_outer_task_count:
+        raise ConfigError(
+            "outer_tasks.minimum_complete_tasks_for_validation exceeds expected_tasks"
+        )
+
+    aggregation = _mapping(raw, "aggregation", "root")
+    _string(aggregation, "output_dir", "aggregation")
+    if not isinstance(aggregation.get("require_all_tasks"), bool):
+        raise ConfigError("aggregation.require_all_tasks must be boolean")
+    expected_metric_rows = _integer(
+        aggregation, "expected_metric_rows", "aggregation", 1
+    )
+    if expected_metric_rows != expected_outer_tasks * len(models):
+        raise ConfigError(
+            "aggregation.expected_metric_rows must equal outer tasks * models"
+        )
+    expected_predictions_per_sample = _integer(
+        aggregation, "expected_predictions_per_sample", "aggregation", 1
+    )
+    if expected_predictions_per_sample != int(cv["outer_repeats"]):
+        raise ConfigError(
+            "aggregation.expected_predictions_per_sample must equal outer_repeats"
+        )
+    expected_prediction_rows = _integer(
+        aggregation, "expected_prediction_rows", "aggregation", 1
+    )
+    expected_prediction_total = (
+        int(train["expected_samples"])
+        * int(cv["outer_repeats"])
+        * len(models)
+    )
+    if expected_prediction_rows != expected_prediction_total:
+        raise ConfigError(
+            "aggregation.expected_prediction_rows must equal "
+            "train samples * outer repeats * models"
+        )
+
     stability = _mapping(raw, "stability", "root")
     _number(stability, "minimum_selection_frequency", "stability", 0, 1)
     _number(stability, "minimum_sign_consistency", "stability", 0, 1)

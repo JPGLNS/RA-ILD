@@ -201,6 +201,24 @@ nested_cv:
     outer_train_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_train_loo.csv"
     outer_validation_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
 
+outer_tasks:
+  output_root: "TRB/set/train/result_v2/06_nested_cv"
+  runner_script: "TRB/set/scripts_v2/run_nested_cv_task.py"
+  manifest: "TRB/set/train/result_v2/06_nested_cv/07_outer_task_manifest.csv"
+  status: "TRB/set/train/result_v2/06_nested_cv/07_outer_task_status.csv"
+  logs_dir: "TRB/set/train/result_v2/06_nested_cv/scheduler_logs"
+  expected_tasks: 100
+  default_workers: 1
+  max_workers: 4
+  minimum_complete_tasks_for_validation: 1
+
+aggregation:
+  output_dir: "TRB/set/train/result_v2/07_outer_summary"
+  require_all_tasks: true
+  expected_metric_rows: 400
+  expected_predictions_per_sample: 20
+  expected_prediction_rows: 9840
+
 stability:
   minimum_selection_frequency: 0.50
   minimum_sign_consistency: 0.80

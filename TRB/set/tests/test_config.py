@@ -160,6 +160,34 @@ class TestBaselineConfig(unittest.TestCase):
         with self.assertRaises(ConfigError):
             validate_experiment_mapping(broken)
 
+    def test_outer_task_orchestration_definition(self) -> None:
+        outer = self.config.raw["outer_tasks"]
+        self.assertEqual(outer["expected_tasks"], 100)
+        self.assertEqual(outer["default_workers"], 1)
+        self.assertEqual(outer["max_workers"], 4)
+        self.assertTrue(outer["runner_script"].endswith("run_nested_cv_task.py"))
+
+    def test_aggregation_definition(self) -> None:
+        aggregation = self.config.raw["aggregation"]
+        self.assertTrue(aggregation["require_all_tasks"])
+        self.assertEqual(aggregation["expected_metric_rows"], 400)
+        self.assertEqual(aggregation["expected_predictions_per_sample"], 20)
+        self.assertEqual(aggregation["expected_prediction_rows"], 9840)
+
+    def test_invalid_outer_worker_bounds_rejected(self) -> None:
+        broken = copy.deepcopy(self.config.raw)
+        broken["outer_tasks"]["default_workers"] = 5
+        broken["outer_tasks"]["max_workers"] = 4
+        with self.assertRaises(ConfigError):
+            validate_experiment_mapping(broken)
+
+    def test_invalid_aggregation_prediction_count_rejected(self) -> None:
+        broken = copy.deepcopy(self.config.raw)
+        broken["aggregation"]["expected_prediction_rows"] = 9839
+        with self.assertRaises(ConfigError):
+            validate_experiment_mapping(broken)
+
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")

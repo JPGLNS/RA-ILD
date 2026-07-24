@@ -1,0 +1,69 @@
+{
+  "batch": "07",
+  "title": "Outer-task orchestration, aggregation, and stability analysis",
+  "purpose": "Schedule and resume all 100 repeated nested-CV outer tasks, validate every task directory, aggregate repeated out-of-fold performance, summarize hyperparameter choices, and calculate feature and prediction stability.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "112 tests passed",
+    "synthetic_outer_task_tree": "manifest, status inspection, partial/full aggregation, repeated OOF metrics, hyperparameter frequencies, coefficient stability, prediction stability, and output overwrite protection passed",
+    "real_server_validation_required": true,
+    "independent_test_read": false
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 11013,
+      "sha256": "65c10f406bccee95bedc30ed37a0b1574d0eb74c4c4be6e78996f75631b6511a"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch07_outer_summary.md",
+      "bytes": 7506,
+      "sha256": "8280a94194bf117045726aea845955274d6f26c2a3706bad1da212a08a6a4621"
+    },
+    {
+      "path": "TRB/set/scripts_v2/aggregate_outer_results.py",
+      "bytes": 4558,
+      "sha256": "08caf3c1db3e41369d95bfea50c95e8e564d01c3d196e2e210917bdbe010f07c"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_outer_orchestration.py",
+      "bytes": 5222,
+      "sha256": "cd00d04b6aabc1a6078af435ea8e11301960fe98dcbff256263ea3a31e85a6d4"
+    },
+    {
+      "path": "TRB/set/scripts_v2/run_all_outer_tasks.py",
+      "bytes": 7270,
+      "sha256": "4bfc7399c5c01451808b03163034f52fa5b546f6cc94a84d1eda6a775fd654a3"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 4532,
+      "sha256": "5910acf003f3fd4d5707e83eca176e3a053929d800522c17763b06350e5cf1e6"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 746,
+      "sha256": "9b78f17e8556892ede592773d4b551f0da2c63a2c3f85aa503b53feab3eebc6b"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 21753,
+      "sha256": "e99bb8d7b3981a96d9277828db927759b5a191393a90904b85ebf9306b3ba3e9"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/outer_cv.py",
+      "bytes": 38799,
+      "sha256": "5c079ecd5c5b22c3da9a1640e71e93f8746e869d4df58408374284c455c245a9"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 9700,
+      "sha256": "39a784411269cd95740b1824bd1a1ffb2cb61d597f31971a79c079f28cb92234"
+    },
+    {
+      "path": "TRB/set/tests/test_outer_cv.py",
+      "bytes": 16994,
+      "sha256": "c44d929d4769c7b0b69182ed4931ee19ba0c6a3b8464598405a313e8ec70d503"
+    }
+  ]
+}
