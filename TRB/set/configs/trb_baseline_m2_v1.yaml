@@ -175,6 +175,32 @@ model_selection:
   regression_task:
     inner_tuning_results: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_tuning_results.csv"
 
+
+nested_cv:
+  assignment_policy: "fixed_precomputed"
+  training_public_policy: "exact_leave_one_out"
+  validation_public_policy: "training_reference_only"
+  preprocessing_policy: "fit_on_current_training_partition"
+  candidate_selection_policy: "pooled_roc_pr_lambda_alpha"
+  expected_outer_tasks: 100
+  expected_inner_fits_per_task: 480
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
+    configuration: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_trial_configuration.json"
+    sample_roles: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_trial_sample_roles.csv"
+    public_reference_summary: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_public_reference_build_summary.csv"
+    public_loo_assignments: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_public_loo_assignments.csv"
+    inner_tuning_results: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_tuning_results.csv"
+    inner_selected_oof: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_selected_oof_predictions.csv"
+    outer_predictions: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_predictions.csv"
+    outer_metrics: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_metrics.csv"
+    coefficients: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+    preprocessing_summary: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_preprocessing_summary.csv"
+    outer_train_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_train_loo.csv"
+    outer_validation_public: "TRB/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
+
 stability:
   minimum_selection_frequency: 0.50
   minimum_sign_consistency: 0.80

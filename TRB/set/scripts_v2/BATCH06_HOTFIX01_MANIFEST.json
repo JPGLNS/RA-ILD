@@ -1,0 +1,16 @@
+{
+  "hotfix": "batch06-hotfix01",
+  "title": "Correct unavailable V1 inner-preprocessing audit comparison",
+  "files": [
+    {
+      "path": "TRB/set/scripts_v2/README_batch06_hotfix01.md",
+      "bytes": 1716,
+      "sha256": "18d7549d51ea59119090686620f612830828d871564b0b97166a7527e41910a7"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_nested_cv_regression.py",
+      "bytes": 27387,
+      "sha256": "df14146a00fed1e3cbdf6dc6ae18afc15efd0753e10ac0834a7c39a0a518e59e"
+    }
+  ]
+}

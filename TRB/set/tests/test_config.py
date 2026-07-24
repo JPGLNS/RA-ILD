@@ -138,6 +138,28 @@ class TestBaselineConfig(unittest.TestCase):
         with self.assertRaises(ConfigError):
             validate_experiment_mapping(broken)
 
+
+    def test_nested_cv_definition(self) -> None:
+        nested = self.config.raw["nested_cv"]
+        self.assertEqual(nested["assignment_policy"], "fixed_precomputed")
+        self.assertEqual(nested["training_public_policy"], "exact_leave_one_out")
+        self.assertEqual(nested["validation_public_policy"], "training_reference_only")
+        self.assertEqual(nested["expected_outer_tasks"], 100)
+        self.assertEqual(nested["expected_inner_fits_per_task"], 480)
+
+    def test_nested_cv_regression_paths(self) -> None:
+        task = self.config.raw["nested_cv"]["regression_task"]
+        self.assertEqual(task["outer_repeat"], 1)
+        self.assertEqual(task["outer_fold"], 1)
+        self.assertTrue(task["configuration"].endswith("05_trial_configuration.json"))
+        self.assertTrue(task["sample_roles"].endswith("05_trial_sample_roles.csv"))
+
+    def test_invalid_nested_fit_count_rejected(self) -> None:
+        broken = copy.deepcopy(self.config.raw)
+        broken["nested_cv"]["expected_inner_fits_per_task"] = 479
+        with self.assertRaises(ConfigError):
+            validate_experiment_mapping(broken)
+
     def test_locked_model(self) -> None:
         final = self.config.raw["final_model"]
         self.assertEqual(final["selected_model"], "M2_static_tcr_public")

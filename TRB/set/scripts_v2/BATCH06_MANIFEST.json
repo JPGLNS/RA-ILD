@@ -1,0 +1,64 @@
+{
+  "batch": "06",
+  "title": "Leakage-controlled nested cross-validation engine",
+  "purpose": "Connect the validated public-reference, preprocessing, model specification, Elastic Net, threshold, and metric modules into one V1-compatible outer-task nested-CV engine.",
+  "validation": {
+    "python_syntax_all_passed": true,
+    "full_unit_test_suite": "94 tests passed",
+    "synthetic_nested_cv": "assignment validation, leakage controls, inner tuning, outer fitting, output dimensions, and deterministic full-task rerun passed",
+    "real_data_quick_regression_required": true,
+    "real_data_full_regression_required": true
+  },
+  "files": [
+    {
+      "path": "TRB/set/configs/trb_baseline_m2_v1.yaml",
+      "bytes": 10368,
+      "sha256": "2f3275bf4dc590003a7daac71731fbca9792d9baf108b1537a4ed0e497ab452e"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_batch06_nested_cv.md",
+      "bytes": 4915,
+      "sha256": "a432bc27da225dadf0623cc7542bb15889afa8337563a403d398c03ca5b36ca8"
+    },
+    {
+      "path": "TRB/set/scripts_v2/check_nested_cv_regression.py",
+      "bytes": 23396,
+      "sha256": "eb3cea0ea1df6dd5d430499bad8306bbba9c38fea29aa7d23bfca4a09d724a81"
+    },
+    {
+      "path": "TRB/set/scripts_v2/run_nested_cv_task.py",
+      "bytes": 12652,
+      "sha256": "be01bfbc2e7033a62645c99a769441ee00d52d5f43f15649dcc18e830d9a99c9"
+    },
+    {
+      "path": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "bytes": 4489,
+      "sha256": "5a9beb6512b81baa02eb96bf7edb0a8f27aba08de3ee50bfba1e3c60dc2b6612"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/__init__.py",
+      "bytes": 746,
+      "sha256": "46da02cdcc689f49cdd155196aace81f80e645ade46666cb771c3182c508ebb0"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/config.py",
+      "bytes": 19394,
+      "sha256": "4d387ec55b742ffd105f4c86e649b944951e5641764633095712d0468e87f9f7"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/nested_cv.py",
+      "bytes": 35155,
+      "sha256": "1254d90f3a9fd0a10bf4c39d65b17e772f130de01196c11a3cdd1dbbfb40a9af"
+    },
+    {
+      "path": "TRB/set/tests/test_config.py",
+      "bytes": 8377,
+      "sha256": "b296fd9129cb5c84c0c23fd0310907b5ad9ee24b8528ce21926d08536966d5aa"
+    },
+    {
+      "path": "TRB/set/tests/test_nested_cv.py",
+      "bytes": 12357,
+      "sha256": "b0959f1b43d79ab1499a199a4ccd6896a8515530ed8ea631a39d30e9f265187f"
+    }
+  ]
+}

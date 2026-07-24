@@ -291,6 +291,55 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     selection_task = _mapping(selection, "regression_task", "model_selection")
     _string(selection_task, "inner_tuning_results", "model_selection.regression_task")
 
+    nested = _mapping(raw, "nested_cv", "root")
+    expected_policies = {
+        "assignment_policy": "fixed_precomputed",
+        "training_public_policy": "exact_leave_one_out",
+        "validation_public_policy": "training_reference_only",
+        "preprocessing_policy": "fit_on_current_training_partition",
+        "candidate_selection_policy": "pooled_roc_pr_lambda_alpha",
+    }
+    for key, expected in expected_policies.items():
+        observed = _string(nested, key, "nested_cv")
+        if observed != expected:
+            raise ConfigError(f"nested_cv.{key} must be {expected}")
+    expected_outer_tasks = _integer(
+        nested, "expected_outer_tasks", "nested_cv", 1
+    )
+    if expected_outer_tasks != int(cv["outer_repeats"]) * int(cv["outer_folds"]):
+        raise ConfigError(
+            "nested_cv.expected_outer_tasks must equal outer_repeats * outer_folds"
+        )
+    expected_inner_fits = _integer(
+        nested, "expected_inner_fits_per_task", "nested_cv", 1
+    )
+    expected_grid_size = len(engine["alpha_grid"]) * len(engine["lambda_grid"])
+    expected_fit_count = len(models) * int(cv["inner_folds"]) * expected_grid_size
+    if expected_inner_fits != expected_fit_count:
+        raise ConfigError(
+            "nested_cv.expected_inner_fits_per_task must equal "
+            "models * inner_folds * alpha/lambda candidates"
+        )
+    nested_task = _mapping(nested, "regression_task", "nested_cv")
+    _integer(nested_task, "outer_repeat", "nested_cv.regression_task", 1)
+    _integer(nested_task, "outer_fold", "nested_cv.regression_task", 1)
+    for key in (
+        "task_dir",
+        "configuration",
+        "sample_roles",
+        "public_reference_summary",
+        "public_loo_assignments",
+        "inner_tuning_results",
+        "inner_selected_oof",
+        "outer_predictions",
+        "outer_metrics",
+        "coefficients",
+        "preprocessing_summary",
+        "outer_train_public",
+        "outer_validation_public",
+    ):
+        _string(nested_task, key, "nested_cv.regression_task")
+
     stability = _mapping(raw, "stability", "root")
     _number(stability, "minimum_selection_frequency", "stability", 0, 1)
     _number(stability, "minimum_sign_consistency", "stability", 0, 1)
