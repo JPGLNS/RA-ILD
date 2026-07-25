@@ -192,11 +192,75 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     _string(regression_task, "task_dir", "public_reference.regression_task")
 
     cv = _mapping(raw, "cross_validation", "root")
-    _integer(cv, "outer_repeats", "cross_validation", 1)
-    _integer(cv, "outer_folds", "cross_validation", 2)
-    _integer(cv, "inner_folds", "cross_validation", 2)
+    outer_repeats = _integer(cv, "outer_repeats", "cross_validation", 1)
+    outer_folds = _integer(cv, "outer_folds", "cross_validation", 2)
+    inner_folds = _integer(cv, "inner_folds", "cross_validation", 2)
     _string(cv, "outer_assignments", "cross_validation")
     _string(cv, "inner_assignments", "cross_validation")
+    configured_executed_folds = cv.get("executed_outer_folds")
+    if configured_executed_folds is None:
+        executed_outer_folds = tuple(range(1, outer_folds + 1))
+    else:
+        if not isinstance(configured_executed_folds, Sequence) or isinstance(
+            configured_executed_folds, (str, bytes)
+        ) or not configured_executed_folds:
+            raise ConfigError("cross_validation.executed_outer_folds must be a non-empty list")
+        parsed_folds = []
+        for index, value in enumerate(configured_executed_folds):
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise ConfigError(
+                    f"cross_validation.executed_outer_folds[{index}] must be an integer"
+                )
+            if not 1 <= int(value) <= outer_folds:
+                raise ConfigError(
+                    "cross_validation.executed_outer_folds contains a fold outside 1..outer_folds"
+                )
+            parsed_folds.append(int(value))
+        if len(parsed_folds) != len(set(parsed_folds)):
+            raise ConfigError("cross_validation.executed_outer_folds contains duplicates")
+        executed_outer_folds = tuple(parsed_folds)
+
+    repeated_holdout = raw.get("repeated_holdout_training")
+    if repeated_holdout is not None:
+        if not isinstance(repeated_holdout, Mapping):
+            raise ConfigError("repeated_holdout_training must be a mapping")
+        if _string(repeated_holdout, "mode", "repeated_holdout_training") != "frozen_repeated_holdout":
+            raise ConfigError(
+                "repeated_holdout_training.mode must be frozen_repeated_holdout"
+            )
+        for key in ("split_set_id", "assignments", "frozen_marker", "training_bundle_marker"):
+            _string(repeated_holdout, key, "repeated_holdout_training")
+        split_count = _integer(
+            repeated_holdout, "split_count", "repeated_holdout_training", 1
+        )
+        train_size = _integer(
+            repeated_holdout, "train_size", "repeated_holdout_training", 1
+        )
+        holdout_size = _integer(
+            repeated_holdout, "holdout_size", "repeated_holdout_training", 1
+        )
+        validation_outer_fold = _integer(
+            repeated_holdout,
+            "validation_outer_fold",
+            "repeated_holdout_training",
+            1,
+        )
+        if split_count != outer_repeats:
+            raise ConfigError(
+                "repeated_holdout_training.split_count must equal cross_validation.outer_repeats"
+            )
+        if train_size + holdout_size != int(train["expected_samples"]):
+            raise ConfigError(
+                "repeated_holdout_training train_size + holdout_size must equal data.train.expected_samples"
+            )
+        if validation_outer_fold not in executed_outer_folds:
+            raise ConfigError(
+                "repeated_holdout_training.validation_outer_fold must be executed"
+            )
+        if tuple(executed_outer_folds) != (validation_outer_fold,):
+            raise ConfigError(
+                "frozen repeated holdout currently requires exactly one executed validation fold"
+            )
 
     engine = _mapping(raw, "model_engine", "root")
     if _string(engine, "engine", "model_engine") != "elastic_net_logistic":
@@ -356,9 +420,10 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     expected_outer_tasks = _integer(
         nested, "expected_outer_tasks", "nested_cv", 1
     )
-    if expected_outer_tasks != int(cv["outer_repeats"]) * int(cv["outer_folds"]):
+    expected_configured_tasks = int(outer_repeats) * len(executed_outer_folds)
+    if expected_outer_tasks != expected_configured_tasks:
         raise ConfigError(
-            "nested_cv.expected_outer_tasks must equal outer_repeats * outer_folds"
+            "nested_cv.expected_outer_tasks must equal outer_repeats * executed outer folds"
         )
     expected_inner_fits = _integer(
         nested, "expected_inner_fits_per_task", "nested_cv", 1
@@ -433,15 +498,23 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     expected_prediction_rows = _integer(
         aggregation, "expected_prediction_rows", "aggregation", 1
     )
-    expected_prediction_total = (
-        int(train["expected_samples"])
-        * int(cv["outer_repeats"])
-        * len(models)
-    )
+    if repeated_holdout is None:
+        expected_prediction_total = (
+            int(train["expected_samples"])
+            * int(cv["outer_repeats"])
+            * len(models)
+        )
+        prediction_rule = "train samples * outer repeats * models"
+    else:
+        expected_prediction_total = (
+            int(repeated_holdout["holdout_size"])
+            * int(repeated_holdout["split_count"])
+            * len(models)
+        )
+        prediction_rule = "holdout size * split count * models"
     if expected_prediction_rows != expected_prediction_total:
         raise ConfigError(
-            "aggregation.expected_prediction_rows must equal "
-            "train samples * outer repeats * models"
+            "aggregation.expected_prediction_rows must equal " + prediction_rule
         )
 
     stability = _mapping(raw, "stability", "root")

@@ -1,0 +1,41 @@
+{
+  "batch": "04",
+  "title": "Repeated-holdout automatic tuning and leakage-controlled training",
+  "prerequisites": [
+    "Batch 01 scheme isolation",
+    "Batch 02 flexible models and feature inputs",
+    "Batch 03 frozen split set ra_ild_repeat3_v1"
+  ],
+  "scientific_engine_algorithms_changed": false,
+  "existing_nested_cv_engine_reused": true,
+  "capabilities": [
+    "Combine the old 123-person train and 51-person test static matrices into one 174-person static-only base matrix",
+    "Build a deterministic full-cohort sparse CDR3-AA indexing representation",
+    "Convert the three frozen 123/51 assignments into V2-compatible outer assignments",
+    "Generate five-fold inner assignments inside each 123-person training partition",
+    "Execute only outer fold 1 for each of three repeats",
+    "Automatically select Elastic Net alpha and lambda from inner CV",
+    "Select the classification threshold from inner out-of-fold predictions",
+    "Build public references from the current training partition only",
+    "Apply each frozen training reference once to its 51-person holdout"
+  ],
+  "installed_files": [
+    "TRB/set/src/ra_ild_trb/repeated_holdout_training.py",
+    "TRB/set/scripts_v2/prepare_repeated_holdout_training.py",
+    "TRB/set/scripts_v2/test_batch04_repeated_holdout_training.py",
+    "TRB/set/configs/repeated_holdout_training/trb_repeat3_training_v1.yaml",
+    "TRB/set/scripts_v2/BATCH04_REPEATED_HOLDOUT_TRAINING_MANIFEST.json",
+    "TRB/set/scripts_v2/README_upgrade_batch04.md"
+  ],
+  "patched_files": [
+    "TRB/set/src/ra_ild_trb/config.py",
+    "TRB/set/src/ra_ild_trb/scheme_management.py",
+    "TRB/set/scripts_v2/run_all_outer_tasks.py"
+  ],
+  "expected_tasks": 3,
+  "models_in_default_generated_scheme": 3,
+  "alpha_lambda_candidates_per_model": 24,
+  "inner_folds": 5,
+  "expected_inner_fits_per_task": 360,
+  "default_generated_scheme": "trb_scheme_003_repeat3_no_clinical"
+}

@@ -96,9 +96,22 @@ def main() -> int:
         manifest_path = config.path("outer_tasks.manifest")
         status_path = config.path("outer_tasks.status")
         log_dir = config.path("outer_tasks.logs_dir")
-        all_tasks = build_outer_tasks(
+        configured_tasks = build_outer_tasks(
             int(cv["outer_repeats"]), int(cv["outer_folds"]), output_root
         )
+        executed_outer_folds = tuple(
+            int(value)
+            for value in cv.get(
+                "executed_outer_folds", range(1, int(cv["outer_folds"]) + 1)
+            )
+        )
+        all_tasks = tuple(
+            task for task in configured_tasks if task.outer_fold in executed_outer_folds
+        )
+        if len(all_tasks) != int(outer["expected_tasks"]):
+            raise OuterCVError(
+                "Configured task count does not match outer_tasks.expected_tasks"
+            )
         tasks = _subset_tasks(all_tasks, args.tasks)
         manifest = manifest_frame(
             all_tasks,

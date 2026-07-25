@@ -366,7 +366,15 @@ def _derive_scheme_counts(resolved: MutableMapping[str, Any]) -> None:
         }
     selection["expected_resolved_columns"] = expected_columns
 
-    outer_tasks = int(cv["outer_repeats"]) * int(cv["outer_folds"])
+    executed_outer_folds = cv.get("executed_outer_folds")
+    if executed_outer_folds is None:
+        executed_outer_folds = list(range(1, int(cv["outer_folds"]) + 1))
+    if not isinstance(executed_outer_folds, Sequence) or isinstance(
+        executed_outer_folds, (str, bytes)
+    ) or not executed_outer_folds:
+        raise SchemeError("cross_validation.executed_outer_folds must be a non-empty list")
+    executed_outer_folds = [int(value) for value in executed_outer_folds]
+    outer_tasks = int(cv["outer_repeats"]) * len(executed_outer_folds)
     candidate_count = len(engine["alpha_grid"]) * len(engine["lambda_grid"])
     model_count = len(models)
     nested["expected_outer_tasks"] = outer_tasks
@@ -376,9 +384,19 @@ def _derive_scheme_counts(resolved: MutableMapping[str, Any]) -> None:
     outer["expected_tasks"] = outer_tasks
     aggregation["expected_metric_rows"] = outer_tasks * model_count
     aggregation["expected_predictions_per_sample"] = int(cv["outer_repeats"])
-    aggregation["expected_prediction_rows"] = (
-        int(train["expected_samples"]) * int(cv["outer_repeats"]) * model_count
-    )
+    repeated_holdout = resolved.get("repeated_holdout_training")
+    if repeated_holdout is None:
+        aggregation["expected_prediction_rows"] = (
+            int(train["expected_samples"]) * int(cv["outer_repeats"]) * model_count
+        )
+    else:
+        if not isinstance(repeated_holdout, Mapping):
+            raise SchemeError("repeated_holdout_training must be a mapping")
+        aggregation["expected_prediction_rows"] = (
+            int(repeated_holdout["holdout_size"])
+            * int(repeated_holdout["split_count"])
+            * model_count
+        )
 
 
 def _normalize_final_model(resolved: MutableMapping[str, Any]) -> None:
@@ -414,6 +432,15 @@ def collect_input_manifest(
         configured = _get_nested(resolved, keys)
         configured_paths.append((".".join(keys), configured))
     configured_paths.extend(_additional_feature_path_specs(resolved))
+    repeated_holdout = resolved.get("repeated_holdout_training")
+    if repeated_holdout is not None:
+        if not isinstance(repeated_holdout, Mapping):
+            raise SchemeError("repeated_holdout_training must be a mapping")
+        for key in ("assignments", "frozen_marker", "training_bundle_marker"):
+            value = repeated_holdout.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise SchemeError(f"repeated_holdout_training.{key} must be a path string")
+            configured_paths.append((f"repeated_holdout_training.{key}", value.strip()))
 
     for config_key, configured in configured_paths:
         if not isinstance(configured, str) or not configured.strip():
