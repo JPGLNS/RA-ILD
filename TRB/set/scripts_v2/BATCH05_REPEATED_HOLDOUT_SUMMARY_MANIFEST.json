@@ -1,0 +1,28 @@
+{
+  "batch": "05",
+  "title": "Repeated-holdout aggregation and scheme comparison",
+  "scientific_engine_changed": false,
+  "model_training_changed": false,
+  "independent_test_read": false,
+  "installed_files": [
+    "TRB/set/src/ra_ild_trb/repeated_holdout_summary.py",
+    "TRB/set/scripts_v2/aggregate_repeated_holdout_results.py",
+    "TRB/set/scripts_v2/compare_analysis_schemes.py",
+    "TRB/set/scripts_v2/test_batch05_repeated_holdout_summary.py",
+    "TRB/set/scripts_v2/README_upgrade_batch05.md",
+    "TRB/set/scripts_v2/BATCH05_REPEATED_HOLDOUT_SUMMARY_MANIFEST.json"
+  ],
+  "current_scheme_expected": {
+    "split_count": 3,
+    "models": 3,
+    "holdout_size": 51,
+    "metric_rows": 9,
+    "prediction_rows": 459,
+    "metric_summary_rows": 21
+  },
+  "comparison_contract": {
+    "same_split_set_id_required": true,
+    "same_assignment_sha256_required": true,
+    "automatic_winner_selection": false
+  }
+}
