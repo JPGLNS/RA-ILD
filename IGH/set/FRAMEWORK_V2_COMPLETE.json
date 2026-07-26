@@ -1,0 +1,406 @@
+{
+  "framework": "RA/RA-ILD IGH V2",
+  "framework_version": "1.0.0",
+  "status": "complete",
+  "generated_at_utc": "2026-07-26T15:09:25.191845+00:00",
+  "repository_root": "/data/users/chenhaisheng/RA-ILD",
+  "configuration": "/data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/00_config/resolved_config.yaml",
+  "historical_baseline_configuration": "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+  "validation_mode": "full",
+  "all_checks_passed": true,
+  "unit_test_count": 120,
+  "runtime": {
+    "python_version": "3.13.14",
+    "python_executable": "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+    "platform": "Linux-5.4.0-216-generic-x86_64-with-glibc2.31",
+    "packages": {
+      "numpy": "2.5.1",
+      "pandas": "3.0.3",
+      "scipy": "1.18.0",
+      "scikit-learn": "1.9.0",
+      "PyYAML": "6.0.3"
+    }
+  },
+  "git": {
+    "branch": "feature/igh-scheme-upgrade-v1",
+    "commit": "a840bf007dd5f3bf51bdd311a6ba6e53dc563a20",
+    "upstream_commit": "a840bf007dd5f3bf51bdd311a6ba6e53dc563a20",
+    "upstream_synchronized": true,
+    "tracked_worktree_clean_before_marker": true,
+    "untracked_igh_paths": [],
+    "untracked_outside_igh_allowed": true
+  },
+  "checks": [
+    {
+      "name": "configuration",
+      "category": "configuration",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/validate_experiment_config.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/00_config/resolved_config.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.07645855098962784,
+      "stdout_tail": "IGH V2 configuration: PASS\nExperiment: igh_scheme_003_repeat3_no_clinical\nRepository root: /data/users/chenhaisheng/RA-ILD\nModels:\n  - M1_static_igh\n  - M2_static_igh_public\n  - M3_static_igh_public_material",
+      "stderr_tail": ""
+    },
+    {
+      "name": "unit_tests",
+      "category": "unit",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 5.850367836654186,
+      "stdout_tail": "",
+      "stderr_tail": "test_manifest_strict_missing_feature_is_rejected (test_specifications.TestSpecifications.test_manifest_strict_missing_feature_is_rejected) ... ok\ntest_model_parser_requires_description (test_specifications.TestSpecifications.test_model_parser_requires_description) ... ok\ntest_model_resolution_preserves_order (test_specifications.TestSpecifications.test_model_resolution_preserves_order) ... ok\ntest_numeric_categorical_overlap_is_rejected (test_specifications.TestSpecifications.test_numeric_categorical_overlap_is_rejected) ... ok\ntest_selected_pairs_from_oof_requires_one_pair (test_specifications.TestSpecifications.test_selected_pairs_from_oof_requires_one_pair) ... ok\ntest_tuning_grid_frame_validation (test_specifications.TestSpecifications.test_tuning_grid_frame_validation) ... ok\ntest_unknown_dynamic_public_is_rejected (test_specifications.TestSpecifications.test_unknown_dynamic_public_is_rejected) ... ok\ntest_unknown_static_group_is_rejected (test_specifications.TestSpecifications.test_unknown_static_group_is_rejected) ... ok\ntest_apply_threshold_uses_greater_than_or_equal (test_thresholds.TestThresholds.test_apply_threshold_uses_greater_than_or_equal) ... ok\ntest_invalid_probability_is_rejected (test_thresholds.TestThresholds.test_invalid_probability_is_rejected) ... ok\ntest_max_f1_returns_observed_probability_threshold (test_thresholds.TestThresholds.test_max_f1_returns_observed_probability_threshold) ... ok\ntest_sensitivity_target_uses_highest_eligible_threshold (test_thresholds.TestThresholds.test_sensitivity_target_uses_highest_eligible_threshold) ... ok\ntest_single_class_labels_are_rejected (test_thresholds.TestThresholds.test_single_class_labels_are_rejected) ... ok\ntest_youden_matches_v1_reference_implementation (test_thresholds.TestThresholds.test_youden_matches_v1_reference_implementation) ... ok\ntest_youden_tie_break_is_closest_to_half (test_thresholds.TestThresholds.test_youden_tie_break_is_closest_to_half) ... ok\n\n----------------------------------------------------------------------\nRan 120 tests in 4.759s\n\nOK"
+    },
+    {
+      "name": "batch02_feature_management",
+      "category": "batch_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/test_batch02_feature_management.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.508303128182888,
+      "stdout_tail": "",
+      "stderr_tail": "test_baseline_remains_four_models_and_480_fits (__main__.Batch02FeatureManagementTests.test_baseline_remains_four_models_and_480_fits) ... ok\ntest_column_collision_is_rejected (__main__.Batch02FeatureManagementTests.test_column_collision_is_rejected) ... ok\ntest_duplicate_sample_is_rejected (__main__.Batch02FeatureManagementTests.test_duplicate_sample_is_rejected) ... ok\ntest_missing_sample_is_rejected (__main__.Batch02FeatureManagementTests.test_missing_sample_is_rejected) ... ok\ntest_no_clinical_scheme_replaces_models_and_recalculates_counts (__main__.Batch02FeatureManagementTests.test_no_clinical_scheme_replaces_models_and_recalculates_counts) ... ok\ntest_non_numeric_declared_value_is_rejected (__main__.Batch02FeatureManagementTests.test_non_numeric_declared_value_is_rejected) ... ok\ntest_template_is_not_silently_preparable (__main__.Batch02FeatureManagementTests.test_template_is_not_silently_preparable) ... ok\ntest_valid_additional_table_preserves_base_order (__main__.Batch02FeatureManagementTests.test_valid_additional_table_preserves_base_order) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.132s\n\nOK"
+    },
+    {
+      "name": "batch03_repeated_holdout",
+      "category": "batch_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/test_batch03_repeated_holdout.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 1.5915757603943348,
+      "stdout_tail": "",
+      "stderr_tail": "test_duplicate_sample_is_rejected (__main__.Batch03RepeatedHoldoutTests.test_duplicate_sample_is_rejected) ... ok\ntest_exact_sizes_and_one_role_per_patient (__main__.Batch03RepeatedHoldoutTests.test_exact_sizes_and_one_role_per_patient) ... ok\ntest_frozen_output_is_hashed_and_immutable (__main__.Batch03RepeatedHoldoutTests.test_frozen_output_is_hashed_and_immutable) ... ok\ntest_frozen_tamper_is_detected (__main__.Batch03RepeatedHoldoutTests.test_frozen_tamper_is_detected) ... ok\ntest_generation_is_deterministic (__main__.Batch03RepeatedHoldoutTests.test_generation_is_deterministic) ... ok\ntest_missing_required_column_is_rejected (__main__.Batch03RepeatedHoldoutTests.test_missing_required_column_is_rejected) ... ok\ntest_repeats_are_distinct_and_below_overlap_limit (__main__.Batch03RepeatedHoldoutTests.test_repeats_are_distinct_and_below_overlap_limit) ... ok\ntest_singleton_error_policy_is_rejected (__main__.Batch03RepeatedHoldoutTests.test_singleton_error_policy_is_rejected) ... ok\ntest_singleton_is_fixed_train_in_every_repeat (__main__.Batch03RepeatedHoldoutTests.test_singleton_is_fixed_train_in_every_repeat) ... ok\ntest_wrong_expected_singleton_is_rejected (__main__.Batch03RepeatedHoldoutTests.test_wrong_expected_singleton_is_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.571s\n\nOK"
+    },
+    {
+      "name": "batch04_training_bundle",
+      "category": "batch_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/test_batch04_repeated_holdout_training.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 3.0119563452899456,
+      "stdout_tail": "",
+      "stderr_tail": "test_frozen_assignment_hash_mismatch_is_rejected (__main__.Batch04RepeatedHoldoutTrainingTests.test_frozen_assignment_hash_mismatch_is_rejected) ... ok\ntest_full_static_matrix_preserves_frozen_order_and_excludes_old_public (__main__.Batch04RepeatedHoldoutTrainingTests.test_full_static_matrix_preserves_frozen_order_and_excludes_old_public) ... ok\ntest_generated_scheme_records_repeated_holdout_contract (__main__.Batch04RepeatedHoldoutTrainingTests.test_generated_scheme_records_repeated_holdout_contract) ... ok\ntest_inner_assignment_generation_is_deterministic (__main__.Batch04RepeatedHoldoutTrainingTests.test_inner_assignment_generation_is_deterministic) ... ok\ntest_missing_aa_table_is_rejected (__main__.Batch04RepeatedHoldoutTrainingTests.test_missing_aa_table_is_rejected) ... ok\ntest_one_aa_table_is_discovered_per_sample (__main__.Batch04RepeatedHoldoutTrainingTests.test_one_aa_table_is_discovered_per_sample) ... ok\ntest_sparse_cache_shape_and_frequency_sums (__main__.Batch04RepeatedHoldoutTrainingTests.test_sparse_cache_shape_and_frequency_sums) ... ok\ntest_v2_assignments_have_two_outer_folds_and_no_holdout_in_inner (__main__.Batch04RepeatedHoldoutTrainingTests.test_v2_assignments_have_two_outer_folds_and_no_holdout_in_inner) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 1.990s\n\nOK"
+    },
+    {
+      "name": "batch05_aggregation",
+      "category": "batch_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/test_batch05_repeated_holdout_summary.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.7999540977180004,
+      "stdout_tail": "",
+      "stderr_tail": "test_aggregate_counts_and_summary (__main__.Batch05Tests.test_aggregate_counts_and_summary) ... ok\ntest_compare_different_assignments_rejected (__main__.Batch05Tests.test_compare_different_assignments_rejected) ... ok\ntest_frozen_assignments_load (__main__.Batch05Tests.test_frozen_assignments_load) ... ok\ntest_frozen_hash_mismatch_rejected (__main__.Batch05Tests.test_frozen_hash_mismatch_rejected) ... ok\ntest_incomplete_task_rejected (__main__.Batch05Tests.test_incomplete_task_rejected) ... ok\ntest_membership_mismatch_rejected (__main__.Batch05Tests.test_membership_mismatch_rejected) ... ok\ntest_stable_feature_detected (__main__.Batch05Tests.test_stable_feature_detected) ... ok\ntest_variable_holdout_coverage_is_supported (__main__.Batch05Tests.test_variable_holdout_coverage_is_supported) ... ok\ntest_write_and_compare_same_assignments (__main__.Batch05Tests.test_write_and_compare_same_assignments) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.444s\n\nOK"
+    },
+    {
+      "name": "batch06_release_unit",
+      "category": "batch_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/test_batch06_release.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.12069809064269066,
+      "stdout_tail": "",
+      "stderr_tail": "test_completion_payload_does_not_select_winner (__main__.Batch06ReleaseTests.test_completion_payload_does_not_select_winner) ... ok\ntest_failed_payload_cannot_write_marker (__main__.Batch06ReleaseTests.test_failed_payload_cannot_write_marker) ... ok\ntest_quick_and_full_plans_differ_only_at_nested_mode (__main__.Batch06ReleaseTests.test_quick_and_full_plans_differ_only_at_nested_mode) ... ok\ntest_release_plan_contains_all_batch_regressions (__main__.Batch06ReleaseTests.test_release_plan_contains_all_batch_regressions) ... ok\ntest_shm_two_nt_to_one_aa_contract (__main__.Batch06ReleaseTests.test_shm_two_nt_to_one_aa_contract) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.037s\n\nOK"
+    },
+    {
+      "name": "historical_baseline",
+      "category": "historical_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_v1_baseline_outputs.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--scope",
+        "full"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.4363226965069771,
+      "stdout_tail": "[PASS] Step 07 reference_masks exists: /data/users/chenhaisheng/RA-ILD/IGH/set/train/result/07_final_M2_model/07_full_training_public_reference_masks.npz\n[PASS] Step 07 locked alpha: key=selected_alpha, observed=0.9, expected=0.9\n[PASS] Step 07 locked lambda: key=selected_lambda, observed=10.0, expected=10\n[PASS] Step 07 locked threshold: key=locked_threshold, observed=0.4568009623694209, expected=0.4568009623694209\n[PASS] Step 07 independent test unread: observed=False\n[PASS] Reference size global: observed=6387, expected=6387\n[PASS] Reference size RA_specific: observed=210, expected=210\n[PASS] Reference size ILD_specific: observed=504, expected=504\n[PASS] Reference size shared: observed=263, expected=263\n[PASS] Specific/shared masks disjoint: RA-specific, ILD-specific, shared\n[PASS] Step 08 completion marker exists: /data/users/chenhaisheng/RA-ILD/IGH/set/test/result/08_final_M2_validation/08_VALIDATION_COMPLETE.json\n[PASS] Step 08 predictions rows: observed=49, expected=49\n[PASS] Step 08 predictions unique sample_id: duplicates=0\n[PASS] Step 08 metric roc_auc: observed=0.7280701754385964, expected=0.72807\n[PASS] Step 08 metric pr_auc: observed=0.5538789171762901, expected=0.553879\n[PASS] Step 08 metric sensitivity: observed=0.8947368421052632, expected=0.894737\n[PASS] Step 08 metric specificity: observed=0.4, expected=0.4\n[PASS] Step 08 metric precision: observed=0.4857142857142857, expected=0.485714\n[PASS] Step 08 metric f1: observed=0.6296296296296297, expected=0.62963\n[PASS] Step 08 metric brier: observed=0.2252976641028745, expected=0.225298",
+      "stderr_tail": ""
+    },
+    {
+      "name": "public_reference",
+      "category": "scientific_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_public_reference_regression.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.5513721071183681,
+      "stdout_tail": "Checks=15 PASS=15 FAIL=0\n[PASS] Sparse cache sample order: n_samples=120\n[PASS] Full reference size global: observed=6387, expected=6387\n[PASS] Full reference size RA_specific: observed=210, expected=210\n[PASS] Full reference size ILD_specific: observed=504, expected=504\n[PASS] Full reference size shared: observed=263, expected=263\n[PASS] Exact mask equality global_mask: shape_saved=(41052,), shape_v2=(41052,), differing=0\n[PASS] Exact mask equality RA_specific_mask: shape_saved=(41052,), shape_v2=(41052,), differing=0\n[PASS] Exact mask equality ILD_specific_mask: shape_saved=(41052,), shape_v2=(41052,), differing=0\n[PASS] Exact mask equality shared_mask: shape_saved=(41052,), shape_v2=(41052,), differing=0\n[PASS] Full reference effective thresholds: global=3, RA=4, ILD=3; n_RA=72, n_ILD=48\n[PASS] Outer task 1/1 train LOO all-18 feature equality: max_abs_diff=8.881784197e-16, location=sample=MGI260113R01-35, feature=ILD_RA_specific_ref_frequency_log_ratio, rtol=1e-10, atol=1e-12\n[PASS] Outer task 1/1 validation all-18 feature equality: max_abs_diff=2.22044604925e-16, location=sample=MGI260113R01-29, feature=ILD_RA_specific_ref_frequency_log_ratio, rtol=1e-10, atol=1e-12\n[PASS] LOO reference sample count: expected_per_sample=95, n_training_samples=96\n[PASS] External validation reference sample count: observed=96, expected=96\n[PASS] Outer task sample counts: train=96, validation=24, total=120",
+      "stderr_tail": ""
+    },
+    {
+      "name": "preprocessing",
+      "category": "scientific_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_preprocessing_regression.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.967916015535593,
+      "stdout_tail": "Outer task=1/1 Checks=18 PASS=18 FAIL=0\n[PASS] Outer task sample counts: train=96, validation=24, total=120\n[PASS] Static feature count: n_static=1083\n[PASS] M0_clinical preprocessing audit equality: rows=2, max_abs_diff=5.55111512313e-17, location=sex__male_vs_female:training_mean\n[PASS] M0_clinical retained feature order: V2=2, V1=2\n[PASS] M0_clinical standardized training matrix: max_abs_mean=1.75785312232e-16, max_abs_sd_minus_1=4.4408920985e-16\n[PASS] M0_clinical finite validation matrix: shape=(24, 2), unseen={'sex': 0}\n[PASS] M1_static_igh preprocessing audit equality: rows=1085, max_abs_diff=3.5527136788e-15, location=median_aa_length:training_mean\n[PASS] M1_static_igh retained feature order: V2=1085, V1=1085\n[PASS] M1_static_igh standardized training matrix: max_abs_mean=2.41658545027e-14, max_abs_sd_minus_1=6.66133814775e-16\n[PASS] M1_static_igh finite validation matrix: shape=(24, 1085), unseen={'sex': 0}\n[PASS] M2_static_igh_public preprocessing audit equality: rows=1093, max_abs_diff=3.5527136788e-15, location=median_aa_length:training_mean\n[PASS] M2_static_igh_public retained feature order: V2=1093, V1=1093\n[PASS] M2_static_igh_public standardized training matrix: max_abs_mean=2.41658545027e-14, max_abs_sd_minus_1=6.66133814775e-16\n[PASS] M2_static_igh_public finite validation matrix: shape=(24, 1093), unseen={'sex': 0}\n[PASS] M3_static_igh_public_material preprocessing audit equality: rows=1094, max_abs_diff=3.5527136788e-15, location=median_aa_length:training_mean\n[PASS] M3_static_igh_public_material retained feature order: V2=1094, V1=1094\n[PASS] M3_static_igh_public_material standardized training matrix: max_abs_mean=2.41658545027e-14, max_abs_sd_minus_1=1.11022302463e-15\n[PASS] M3_static_igh_public_material finite validation matrix: shape=(24, 1094), unseen={'sex': 0, 'material': 0}",
+      "stderr_tail": ""
+    },
+    {
+      "name": "modeling",
+      "category": "scientific_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_modeling_regression.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 1.7893072254955769,
+      "stdout_tail": "[PASS] M1_static_igh selected Youden threshold: recomputed=0.5000789206541839, V1=0.5000789206541839\n[PASS] M1_static_igh metric calculation: metrics=['roc_auc', 'pr_auc', 'threshold', 'accuracy', 'sensitivity_recall', 'specificity', 'precision', 'f1', 'TN', 'FP', 'FN', 'TP']\n[PASS] M1_static_igh threshold application: n_discordant=0\n[PASS] M1_static_igh refit probability equality: max_abs_diff=0, location=MGI260115R01-33, rtol=1e-10, atol=1e-12\n[PASS] M1_static_igh fit audit equality: fit_converged:V2=True,V1=True; iterations_used:V2=42,V1=42; n_final_predictors:V2=1085,V1=1085; n_nonzero_coefficients:V2=0,V1=0\n[PASS] M1_static_igh coefficient equality: max_abs_diff=7.88214979397e-17, location=__INTERCEPT__, rtol=1e-10, atol=1e-12, nonzero_discordant=0\n[PASS] M2_static_igh_public selected Youden threshold: recomputed=0.5000923650896193, V1=0.5000923650896193\n[PASS] M2_static_igh_public metric calculation: metrics=['roc_auc', 'pr_auc', 'threshold', 'accuracy', 'sensitivity_recall', 'specificity', 'precision', 'f1', 'TN', 'FP', 'FN', 'TP']\n[PASS] M2_static_igh_public threshold application: n_discordant=0\n[PASS] M2_static_igh_public refit probability equality: max_abs_diff=0, location=MGI260115R01-33, rtol=1e-10, atol=1e-12\n[PASS] M2_static_igh_public fit audit equality: fit_converged:V2=True,V1=True; iterations_used:V2=4,V1=4; n_final_predictors:V2=1093,V1=1093; n_nonzero_coefficients:V2=0,V1=0\n[PASS] M2_static_igh_public coefficient equality: max_abs_diff=9.67108337857e-17, location=__INTERCEPT__, rtol=1e-10, atol=1e-12, nonzero_discordant=0\n[PASS] M3_static_igh_public_material selected Youden threshold: recomputed=0.4996202460358929, V1=0.4996202460358929\n[PASS] M3_static_igh_public_material metric calculation: metrics=['roc_auc', 'pr_auc', 'threshold', 'accuracy', 'sensitivity_recall', 'specificity', 'precision', 'f1', 'TN', 'FP', 'FN', 'TP']\n[PASS] M3_static_igh_public_material threshold application: n_discordant=0\n[PASS] M3_static_igh_public_material refit probability equality: max_abs_diff=5.55111512313e-17, location=MGI260115R01-33, rtol=1e-10, atol=1e-12\n[PASS] M3_static_igh_public_material fit audit equality: fit_converged:V2=True,V1=True; iterations_used:V2=35,V1=35; n_final_predictors:V2=1094,V1=1094; n_nonzero_coefficients:V2=0,V1=0\n[PASS] M3_static_igh_public_material coefficient equality: max_abs_diff=7.74120351155e-17, location=__INTERCEPT__, rtol=1e-10, atol=1e-12, nonzero_discordant=0\n[PASS] Independent-test metric calculation: metrics=['n_test', 'n_RA', 'n_ILD', 'positive_prevalence', 'roc_auc', 'pr_auc', 'accuracy', 'sensitivity_recall', 'specificity', 'precision', 'f1', 'brier_score', 'TN', 'FP', 'FN', 'TP']\n[PASS] Independent-test threshold application: n_discordant=0",
+      "stderr_tail": ""
+    },
+    {
+      "name": "specifications",
+      "category": "scientific_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_specification_regression.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.42749660089612007,
+      "stdout_tail": "Checks=19 PASS=19 FAIL=0\n[PASS] Training base sample count: observed=120, expected=120\n[PASS] Static feature count: observed=1083, expected=1083\n[PASS] Static feature exact order: V2=1083, V1=1083\n[PASS] Static features present in base matrix: n_features=1083\n[PASS] Resolved model set: models=['M0_clinical', 'M1_static_igh', 'M2_static_igh_public', 'M3_static_igh_public_material']\n[PASS] M0_clinical resolved column counts: numeric=1/1, categorical=1/1\n[PASS] M1_static_igh resolved column counts: numeric=1084/1084, categorical=1/1\n[PASS] M2_static_igh_public resolved column counts: numeric=1092/1092, categorical=1/1\n[PASS] M3_static_igh_public_material resolved column counts: numeric=1092/1092, categorical=2/2\n[PASS] Dynamic public feature order: n_dynamic=8\n[PASS] Configured candidate grid size: observed=24, expected=24\n[PASS] V1 tuning grid exact coverage: rows=96, expected=96\n[PASS] V1 tuning result row count: observed=96, expected=96\n[PASS] M0_clinical selected tuning pair: ranked=(0.5,1), V1=(0.5,1)\n[PASS] M1_static_igh selected tuning pair: ranked=(0.5,30), V1=(0.5,30)\n[PASS] M2_static_igh_public selected tuning pair: ranked=(0.9,30), V1=(0.9,30)\n[PASS] M3_static_igh_public_material selected tuning pair: ranked=(0.5,30), V1=(0.5,30)\n[PASS] Final candidate subset and locked pair: candidate_pairs=[(0.9, 10.0), (0.5, 10.0)], selected=(0.9,10)\n[PASS] Step 07 selected pair: Step07=(0.9,10), config=(0.9,10)",
+      "stderr_tail": ""
+    },
+    {
+      "name": "nested_cv_full",
+      "category": "scientific_regression",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/check_nested_cv_regression.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--full"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 713.1786884106696,
+      "stdout_tail": "[PASS] M2_static_igh_public outer metric equality: max_abs_diff=0, audit integers/bool compared\n[PASS] M2_static_igh_public coefficient equality: max_abs_diff=9.77950359582e-17\n[PASS] M3_static_igh_public_material outer probability equality: max_abs_diff=5.55111512313e-17\n[PASS] M3_static_igh_public_material outer classification equality: n_rows=24\n[PASS] M3_static_igh_public_material outer metric equality: max_abs_diff=0, audit integers/bool compared\n[PASS] M3_static_igh_public_material coefficient equality: max_abs_diff=8.05562214157e-17\n[PASS] Outer preprocessing audit equality: rows=3274, type=True, keep=True, max_abs_diff=3.5527136788e-15\n[PASS] Outer public-reference audit row count: V2=97, V1=97\n[PASS] Outer LOO assignment count: V2=96, V1=96\n[PASS] M0_clinical full inner tuning equality: max_abs_diff=0.0011961722488, location=alpha=0.1,lambda=0.03,column=pooled_inner_pr_auc,V2=0.4930086637223686,V1=0.4918124914735647, legacy_M0_nonselected_compatibility=True, selected=(0.5, 1.0), selected_row_exact=True, selected_differing_cells=0, nonselected_differing_cells=4, C_exact=True, audit_exact=True, cap=0.00125\n[PASS] M0_clinical selected inner OOF equality: rows=96, max_abs_diff=1.11022302463e-16\n[PASS] M1_static_igh full inner tuning equality: max_abs_diff=4.4408920985e-16, audit compared\n[PASS] M1_static_igh selected inner OOF equality: rows=96, max_abs_diff=5.55111512313e-17\n[PASS] M2_static_igh_public full inner tuning equality: max_abs_diff=4.4408920985e-16, audit compared\n[PASS] M2_static_igh_public selected inner OOF equality: rows=96, max_abs_diff=0\n[PASS] M3_static_igh_public_material full inner tuning equality: max_abs_diff=4.4408920985e-16, audit compared\n[PASS] M3_static_igh_public_material selected inner OOF equality: rows=96, max_abs_diff=5.55111512313e-17\n[PASS] Full inner preprocessing audit completeness: V1 exported inner rows=0 (expected); V2 rows=16370, expected=16370, models=['M0_clinical', 'M1_static_igh', 'M2_static_igh_public', 'M3_static_igh_public_material'], folds=[1, 2, 3, 4, 5], duplicate_keys=0, per_fold_counts=True, finite=True, source_types=True\n[PASS] Full public-reference context counts: V2={'inner_training_leave_one_out': 384, 'inner_validation_application': 5, 'outer_training_leave_one_out': 96, 'outer_validation_application': 1}, V1={'inner_training_leave_one_out': 384, 'inner_validation_application': 5, 'outer_training_leave_one_out': 96, 'outer_validation_application': 1}\n[PASS] Full LOO-assignment context counts: V2={'inner_training_leave_one_out': 384, 'outer_training_leave_one_out': 96}, V1={'inner_training_leave_one_out': 384, 'outer_training_leave_one_out': 96}",
+      "stderr_tail": ""
+    },
+    {
+      "name": "frozen_split",
+      "category": "frozen_resources",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/validate_repeated_holdout_split_set.py",
+        "--spec",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/split_sets/igh_ra_ild_repeat3_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--frozen"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 1.0229741632938385,
+      "stdout_tail": "RA-ILD IGH repeated holdout validation: PASS\nMode:              frozen\nSplit set:         igh_ra_ild_repeat3_v1\nRepeats:           3\nPer split:         train=120, holdout=49\nFixed train IDs:   MGI260202N01-31\nAssignment SHA256: 5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030\nIGH_REPEATED_HOLDOUT_VALIDATION_PASS",
+      "stderr_tail": ""
+    },
+    {
+      "name": "frozen_training_bundle",
+      "category": "frozen_resources",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/validate_repeated_holdout_training_bundle.py",
+        "--spec",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/repeated_holdout_training/igh_repeat3_training_v1.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--mode",
+        "frozen"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 32.9671384729445,
+      "stdout_tail": "RA-ILD IGH Batch 04 training-bundle validation: PASS\nMode:              frozen\nSamples:           169\nStatic features:   1083\nAA tables:         169\nOuter rows:        507\nInner rows:        360\nInner candidates:  [20360772, 20460856, 20560764]\nMax inner balance: 0.11666667\nCatalog size:      11427248\nMatrix nnz:        11533528\nGenerated scheme: /data/users/chenhaisheng/RA-ILD/IGH/set/configs/schemes/generated/igh_scheme_003_repeat3_no_clinical.generated.yaml\nIGH_REPEATED_HOLDOUT_TRAINING_VALIDATION_PASS",
+      "stderr_tail": "/data/users/chenhaisheng/RA-ILD/IGH/set/src/ra_ild_igh/repeated_holdout_training.py:413: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`\n  combined = combined.set_index(spec.sample_id_column).loc[cohort_order].reset_index()"
+    },
+    {
+      "name": "outer_task_tree",
+      "category": "task_tree",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/run_all_outer_tasks.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/00_config/resolved_config.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--status-only"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 1.0620674677193165,
+      "stdout_tail": "IGH V2 outer-task status\nManifest: /data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/02_tasks/outer_nested_cv/07_outer_task_manifest.csv\nStatus:   /data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/02_tasks/outer_nested_cv/07_outer_task_status.csv\nCounts: complete=3, missing=0, incomplete=0, invalid=0\nNo tasks executed. Add --execute to start selected pending tasks.",
+      "stderr_tail": ""
+    },
+    {
+      "name": "repeated_holdout_aggregation",
+      "category": "aggregation",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/validate_repeated_holdout_aggregation.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/00_config/resolved_config.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.37570685520768166,
+      "stdout_tail": "RA-ILD IGH repeated-holdout aggregation validation: PASS\nExperiment:       igh_scheme_003_repeat3_no_clinical\nCompleted splits: 3/3\nModels:           3\nMetric rows:      9\nPrediction rows:  441\nMetric summaries: 21\nPairwise rows:    21\nCoverage rows:    507\nStable features:  22\nOutput:           /data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/03_summary\nIGH_REPEATED_HOLDOUT_AGGREGATION_VALIDATION_PASS",
+      "stderr_tail": ""
+    },
+    {
+      "name": "release_contract",
+      "category": "release",
+      "command": [
+        "/data/users/chenhaisheng/anaconda3/envs/ra-ild/bin/python3",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/scripts_v2/validate_release_contract.py",
+        "--config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/experiments/igh_scheme_003_repeat3_no_clinical/00_config/resolved_config.yaml",
+        "--repository-root",
+        "/data/users/chenhaisheng/RA-ILD",
+        "--baseline-config",
+        "/data/users/chenhaisheng/RA-ILD/IGH/set/configs/igh_baseline_m2_v1.yaml"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "duration_seconds": 0.4096936285495758,
+      "stdout_tail": "RA-ILD IGH release contract validation: PASS\nExperiment:          igh_scheme_003_repeat3_no_clinical\nHistorical baseline: igh_baseline_m2_v1\nRuntime files scanned:25\nCompleted tasks:     3\nMetric rows:         9\nPrediction rows:     441\nStable features:     22\nSHM fixture:         PASS (2 NT -> 1 AA)\nSource clean strict: True\nIGH_RELEASE_CONTRACT_VALIDATION_PASS",
+      "stderr_tail": ""
+    }
+  ],
+  "prior_full_nested_cv_validation": {
+    "date": "2026-07-26",
+    "outer_task": {
+      "repeat": 1,
+      "fold": 1
+    },
+    "inner_fits": 480,
+    "status": "required_in_full_release_mode"
+  },
+  "locked_model": {},
+  "scientific_contract": {
+    "receptor": "IGH",
+    "positive_class": "ILD",
+    "public_reference_training_partition_only": true,
+    "fitting_public_features_exact_leave_one_out": true,
+    "holdout_transform_training_reference_only": true,
+    "alpha_lambda_selected_from_inner_cv": true,
+    "threshold_selected_from_inner_oof": true,
+    "full_cohort_catalog_is_indexing_universe_only": true,
+    "shm_nt_to_aa_aggregation_fixture": {
+      "passed": true,
+      "aa": "K",
+      "nt_clone_number": 2,
+      "read_count": 10,
+      "frequency_sum": 0.1,
+      "top_nt_cdr3": "AAA"
+    }
+  },
+  "repeated_holdout": {
+    "split_set_id": "igh_ra_ild_repeat3_v1",
+    "assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+    "splits": 3,
+    "train_size": 120,
+    "holdout_size": 49,
+    "models": [
+      "M1_static_igh",
+      "M2_static_igh_public",
+      "M3_static_igh_public_material"
+    ],
+    "metric_rows": 9,
+    "prediction_rows": 441,
+    "results_are_not_an_independent_test": true
+  },
+  "provenance_hashes": {
+    "split_marker_sha256": "9baf973c4cd160d6eb2391d9434ecd8a3f15b6f058f4c103d9eaac03bc2bbe14",
+    "training_bundle_marker_sha256": "20b1828ed2e2fdc73ea0c150ab46b55526ce2688322aa901d6ccfed9c65b7138",
+    "aggregation_marker_sha256": "5b4538b9b399ef1ed0369aeebc2a74503d862c13a52d85363dd9ee47934b9a18"
+  },
+  "final_model": {
+    "status": "not_selected",
+    "automatic_final_model_selection": false,
+    "deployable_joblib_built": false,
+    "selection_protocol_required_before_final_fit": true
+  },
+  "independent_test_policy": {
+    "historical_independent_test_outputs_read_only_for_baseline_regression": true,
+    "repeated_holdout_engine_reads_historical_independent_test": false,
+    "historical_test_refit_or_reprediction_performed": false,
+    "nested_cv_engine_reads_independent_test": false,
+    "independent_test_refit_or_reprediction_in_v2": false,
+    "frozen_v1_test_outputs_read_by_regression_checks": true
+  },
+  "outer_task_status": {
+    "full_v2_recomputation_required_for_release": false,
+    "remaining_tasks_are_optional_mirror_computation": false,
+    "repeated_holdout_tasks_complete": true
+  },
+  "git_delivery": {
+    "source_only": true,
+    "generated_training_bundles_committed": false,
+    "experiment_results_committed": false,
+    "recommended_order": "merge TRB framework PR first, then rebase or cherry-pick IGH-only commits onto updated main"
+  }
+}
