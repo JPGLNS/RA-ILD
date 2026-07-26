@@ -1,0 +1,29 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH06",
+  "hotfix_version": "1.0.3",
+  "status": "INSTALLED",
+  "purpose": "Narrow historical M0 non-selected candidate tuning-score compatibility contract",
+  "scientific_engine_changed": false,
+  "model_fitting_changed": false,
+  "ranking_algorithm_changed": false,
+  "repeated_holdout_outputs_changed": false,
+  "scope": {
+    "model": "M0_clinical",
+    "selected_candidate_must_equal": [
+      0.5,
+      1.0
+    ],
+    "selected_candidate_must_be_exact": true,
+    "nonselected_score_max_abs_diff": 0.00125,
+    "M1_M2_M3_remain_strict": true
+  },
+  "source_branch": "feature/igh-scheme-upgrade-v1",
+  "source_head": "d7a0d2b7668bfb9af86324d82f1ae73e901c1c76",
+  "original_sha256": "b557990f1dba830cff96f652bc0c1d1ceba635778245ae6882cf8237c6d19fb8",
+  "patched_sha256": "c6bc5bb522de8a6260d852bb7866f9202923d98f19aba235fa6a0ab7f4689386",
+  "generated_at_utc": "2026-07-26T14:52:04.134790+00:00",
+  "files": [
+    "IGH/set/scripts_v2/check_nested_cv_regression.py",
+    "IGH/set/scripts_v2/BATCH06_V103_M0_TUNING_COMPATIBILITY.json"
+  ]
+}
