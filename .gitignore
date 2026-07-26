@@ -49,6 +49,30 @@ IGH/set/*
 !IGH/set/scripts/
 !IGH/set/scripts/**
 
+
+# ---------- IGH V2 framework ----------
+!IGH/set/README_V2.md
+!IGH/set/FRAMEWORK_V2_COMPLETE.json
+!IGH/set/configs/
+!IGH/set/configs/**
+!IGH/set/src/
+!IGH/set/src/**
+!IGH/set/scripts_v2/
+!IGH/set/scripts_v2/**
+!IGH/set/tests/
+!IGH/set/tests/**
+
+# ---------- IGH V2 generated resources ----------
+IGH/set/train/result_v2/
+IGH/set/test/result_v2/
+IGH/set/split_sets/
+IGH/set/training_bundles/
+IGH/set/experiments/
+IGH/set/scheme_comparisons/
+IGH_framework_v2_batch*.zip
+IGH_framework_v2_step*.zip
+IGH/set/FRAMEWORK_V2_COMPLETE.json.tmp
+
 # ---------- TRB + IGH ----------
 !TRB_IGH/
 TRB_IGH/*

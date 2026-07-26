@@ -1,0 +1,221 @@
+{
+  "status": "INSTALLED",
+  "installer_version": "1.0.0-IGH-Batch01-Installer",
+  "generated_at_utc": "2026-07-26T09:37:14.396182+00:00",
+  "branch": "feature/igh-scheme-upgrade-v1",
+  "head_before_install": "c772f367f5ad8865f1217ab760dcb8a2f18d158b",
+  "trb_framework_base": "c772f367f5ad8865f1217ab760dcb8a2f18d158b",
+  "historical_igh_results_modified": false,
+  "independent_test_read_by_installer": false,
+  "staged_python_compile": "PASS",
+  "post_install_tests_requested": false,
+  "post_install_tests": [],
+  "files": {
+    "IGH/set/src/ra_ild_igh/__init__.py": {
+      "source": "TRB/set/src/ra_ild_trb/__init__.py",
+      "source_sha256": "cf7c23572f22d1b2eeb1d77e4c36fd1e8e0acd6084b081f444ae3b7f3db064a9",
+      "output_sha256": "bc8dabfbfb5f5546915acdcaa02b2e145db1b01d66f248dc12ff744170afd6a3"
+    },
+    "IGH/set/src/ra_ild_igh/config.py": {
+      "source": "TRB/set/src/ra_ild_trb/config.py",
+      "source_sha256": "85fe4715b195632fd735fdafd6a3febc4b46ea479157c3945ebcabb908d7a952",
+      "output_sha256": "923701e3995cad5926a88744713a5fe4c030c107e8a2d97c730020248fe72a9a"
+    },
+    "IGH/set/src/ra_ild_igh/metrics.py": {
+      "source": "TRB/set/src/ra_ild_trb/metrics.py",
+      "source_sha256": "d930cbb99a85d2573ae79d6ff55da92557060129ca58053d764a83aa25c6eef4",
+      "output_sha256": "e36f29474102fea851353c99b70a9db11c636ef7cefb08ac5e6fc19497205aec"
+    },
+    "IGH/set/src/ra_ild_igh/modeling.py": {
+      "source": "TRB/set/src/ra_ild_trb/modeling.py",
+      "source_sha256": "7ba34e468011238b6ef6d384a09857cfdb0b5dc0c715239c2c231d49f214a977",
+      "output_sha256": "6949df7614a065597ff0ee3db45a238f351510a890fd1b6ef0a5ec824ba15477"
+    },
+    "IGH/set/src/ra_ild_igh/nested_cv.py": {
+      "source": "TRB/set/src/ra_ild_trb/nested_cv.py",
+      "source_sha256": "1254d90f3a9fd0a10bf4c39d65b17e772f130de01196c11a3cdd1dbbfb40a9af",
+      "output_sha256": "adc2326b2be1e4d1d108510e3c8f3d3716080d1b4ed43c3f6428f02b08e4559b"
+    },
+    "IGH/set/src/ra_ild_igh/outer_cv.py": {
+      "source": "TRB/set/src/ra_ild_trb/outer_cv.py",
+      "source_sha256": "5c079ecd5c5b22c3da9a1640e71e93f8746e869d4df58408374284c455c245a9",
+      "output_sha256": "19bcb6eeda54a6f7e58af0d01263247508d9bc27b8b0b0df5ba53eb93fba2bfa"
+    },
+    "IGH/set/src/ra_ild_igh/paths.py": {
+      "source": "TRB/set/src/ra_ild_trb/paths.py",
+      "source_sha256": "c88b438baeeeae12e56bdee2d91bd1cda76b6d0f7a893a106a3a8db64eb37402",
+      "output_sha256": "620beefe8fa51371972b5da799b568e8758595883278229eeacf91e9dfd90613"
+    },
+    "IGH/set/src/ra_ild_igh/preprocessing.py": {
+      "source": "TRB/set/src/ra_ild_trb/preprocessing.py",
+      "source_sha256": "5db27975a240e9c170166fa1843d7fb3c6cca51d0fbdd173012708de6e1205a1",
+      "output_sha256": "e26edb1722a4cc85f0a518ce724ebfd4f797f8ab7c2da1cb67046f356ac1c6d7"
+    },
+    "IGH/set/src/ra_ild_igh/public_reference.py": {
+      "source": "TRB/set/src/ra_ild_trb/public_reference.py",
+      "source_sha256": "07f3e838fe475ce1165fc42cb9d5c1f72cea82c6d52d91494d53db1cd45294c3",
+      "output_sha256": "0a885714119fabc71cd2a9761f5ef5a98ad536367a4f4b347dfb59c6b28b33e1"
+    },
+    "IGH/set/src/ra_ild_igh/release.py": {
+      "source": "TRB/set/src/ra_ild_trb/release.py",
+      "source_sha256": "992de5f3aedb23a8a4397b72a690412a8779a42a7b1cd2e73dec57746948c867",
+      "output_sha256": "4097f37a49f20a8db71abfd0c8bf97ba663b0bfa4e9ebeb3a1e091291e45910f"
+    },
+    "IGH/set/src/ra_ild_igh/scheme_management.py": {
+      "source": "TRB/set/src/ra_ild_trb/scheme_management.py",
+      "source_sha256": "ad8b1802e8abdd26221e32871f7fb64abdac33361481997cd4785350dc0eb93e",
+      "output_sha256": "40682459796d629d995a350714f443a41055450b49ccf608fbb07415099d3be9"
+    },
+    "IGH/set/src/ra_ild_igh/specifications.py": {
+      "source": "TRB/set/src/ra_ild_trb/specifications.py",
+      "source_sha256": "5e2bf5cd25d9948845f4b7e09e035a2c519cb0d28a14e34e2df62ac78cbca280",
+      "output_sha256": "b0fcdc7e3283ebd092d5adf626bde7ae361fc2709ce540fb1c3ef5c376331058"
+    },
+    "IGH/set/src/ra_ild_igh/thresholds.py": {
+      "source": "TRB/set/src/ra_ild_trb/thresholds.py",
+      "source_sha256": "42b1dbd22a462e8ddafd57b3d3c8e66cee01f10b381927ec40a9bac8632a987a",
+      "output_sha256": "44a232a8b16428001216d585059ab9ee542d6ef9bd49ecc5e379e5a31a088afe"
+    },
+    "IGH/set/scripts_v2/validate_experiment_config.py": {
+      "source": "TRB/set/scripts_v2/validate_experiment_config.py",
+      "source_sha256": "5910acf003f3fd4d5707e83eca176e3a053929d800522c17763b06350e5cf1e6",
+      "output_sha256": "fcf57853e3cc736cc7961752950b1c86e941824b2ebb6980afceabd9d4bf32f3"
+    },
+    "IGH/set/scripts_v2/check_v1_baseline_outputs.py": {
+      "source": "TRB/set/scripts_v2/check_v1_baseline_outputs.py",
+      "source_sha256": "c4c16e6954341496814ff8efe28593c7e122806466ff6b8f552201569c9397ca",
+      "output_sha256": "1285a280e9739bd8fcc0d882de6e4cb5dc0f29290f204c202efd1947982e1f05"
+    },
+    "IGH/set/scripts_v2/check_public_reference_regression.py": {
+      "source": "TRB/set/scripts_v2/check_public_reference_regression.py",
+      "source_sha256": "45906636d96f66df21715d2bae2ffa45c0bb965dc5b3909af66637ced52b40d9",
+      "output_sha256": "038cee0fcd317408314397ad285d272072967c48ddfe97d1345037d7a13b2f31"
+    },
+    "IGH/set/scripts_v2/check_preprocessing_regression.py": {
+      "source": "TRB/set/scripts_v2/check_preprocessing_regression.py",
+      "source_sha256": "eefab28baadf0d70a1d85c2ee1db2c03931c7bde7013970707c58d6628534b6f",
+      "output_sha256": "b0d712857ac866a88cc0dcb83522d12ea60775301d739b3bd33a08e60f31dc06"
+    },
+    "IGH/set/scripts_v2/check_modeling_regression.py": {
+      "source": "TRB/set/scripts_v2/check_modeling_regression.py",
+      "source_sha256": "1639efc25e04d9ab115a4ee9c44ce75498793a318be6495432631260149b8fb7",
+      "output_sha256": "52ea89df32f4e06718a378aff4b526b5ca0fd95ac3f16b99660e563a62c307a7"
+    },
+    "IGH/set/scripts_v2/check_specification_regression.py": {
+      "source": "TRB/set/scripts_v2/check_specification_regression.py",
+      "source_sha256": "b58985a68375308cd8e13f80a579c446a7ed22b21b0e4955adfce9f9ce33a7e5",
+      "output_sha256": "6824019f36efe98a335dece4dcab3311bfc04590608d5c3874af0b7859e66483"
+    },
+    "IGH/set/scripts_v2/check_nested_cv_regression.py": {
+      "source": "TRB/set/scripts_v2/check_nested_cv_regression.py",
+      "source_sha256": "df14146a00fed1e3cbdf6dc6ae18afc15efd0753e10ac0834a7c39a0a518e59e",
+      "output_sha256": "4a3b1a56e5577c705d8fd13374da4b4034956c5ec29f891bbe59ce9d0ad1f7bf"
+    },
+    "IGH/set/scripts_v2/check_outer_orchestration.py": {
+      "source": "TRB/set/scripts_v2/check_outer_orchestration.py",
+      "source_sha256": "cd00d04b6aabc1a6078af435ea8e11301960fe98dcbff256263ea3a31e85a6d4",
+      "output_sha256": "cf60cc17c0b7f0c2538be32c3f9f43125c7b4c3997e3490ab5c4132bff3e7b45"
+    },
+    "IGH/set/scripts_v2/run_nested_cv_task.py": {
+      "source": "TRB/set/scripts_v2/run_nested_cv_task.py",
+      "source_sha256": "bddf9c45d3b9457c2227d44c44755f504afffe9920495280adb11c1ccef63727",
+      "output_sha256": "07bb3ce888abd621b92399bdda12fccd0f09db0a46902ec6b4aa4ac50ceae321"
+    },
+    "IGH/set/scripts_v2/run_all_outer_tasks.py": {
+      "source": "TRB/set/scripts_v2/run_all_outer_tasks.py",
+      "source_sha256": "de2e5cc2f72d4dfd44e1228080c718e2b1b3f6ab248e68cf8361e5fe71ad8d90",
+      "output_sha256": "813e9bf180219015f9a43d7c9df5378d2d6cfa4d94d9ffd3ae5dbc6c8e9acc64"
+    },
+    "IGH/set/scripts_v2/aggregate_outer_results.py": {
+      "source": "TRB/set/scripts_v2/aggregate_outer_results.py",
+      "source_sha256": "08caf3c1db3e41369d95bfea50c95e8e564d01c3d196e2e210917bdbe010f07c",
+      "output_sha256": "fca0f9201fed07ef6a31207b90bd38dc6f66d0555b4785fbb7c4bd0c4b67cef8"
+    },
+    "IGH/set/scripts_v2/run_all_checks.py": {
+      "source": "TRB/set/scripts_v2/run_all_checks.py",
+      "source_sha256": "f7955c287ed3d3a03c98104fbb8144b3e6c565137cbc3eb2327540217404afec",
+      "output_sha256": "2db471884b0d933963b6847b4d15b646f45ad04f626a710b844e4329491773c8"
+    },
+    "IGH/set/scripts_v2/prepare_analysis_scheme.py": {
+      "source": "TRB/set/scripts_v2/prepare_analysis_scheme.py",
+      "source_sha256": "24534eb0418b66b106bd7b24bf32c205e9c99653d66afc7aab850b3db54efef4",
+      "output_sha256": "a1d577ef25f1b9c463516946391702340712569275bc0a8b3a7c0df2ddf9c61e"
+    },
+    "IGH/set/tests/test_config.py": {
+      "source": "TRB/set/tests/test_config.py",
+      "source_sha256": "39a784411269cd95740b1824bd1a1ffb2cb61d597f31971a79c079f28cb92234",
+      "output_sha256": "5b4f69bc113b44b93b87772e525df2599db7b64aed33a5a01b885454443322fd"
+    },
+    "IGH/set/tests/test_metrics.py": {
+      "source": "TRB/set/tests/test_metrics.py",
+      "source_sha256": "3f38ffecfa21e3a01148d59de69f6c4e9692ff9fe6c2393f1437cd1c2396cba0",
+      "output_sha256": "1ec5f40ee84e78414997a7dafaf1aebd2da43423293ccf7f9966f8d945ddf2b1"
+    },
+    "IGH/set/tests/test_modeling.py": {
+      "source": "TRB/set/tests/test_modeling.py",
+      "source_sha256": "368ed115e4227f2ca5b45a64a756344169bc90c4b0c91b70784ac8a3d943c1b8",
+      "output_sha256": "9c33a2f52bf4ad0faeaddc889424af9b3493e65e7e61fcaa5a82096e25db03b8"
+    },
+    "IGH/set/tests/test_nested_cv.py": {
+      "source": "TRB/set/tests/test_nested_cv.py",
+      "source_sha256": "b0959f1b43d79ab1499a199a4ccd6896a8515530ed8ea631a39d30e9f265187f",
+      "output_sha256": "a39ba7ce0497238ea26c6740603688c5ed51d6704feb8faaf447014f92cd30a0"
+    },
+    "IGH/set/tests/test_outer_cv.py": {
+      "source": "TRB/set/tests/test_outer_cv.py",
+      "source_sha256": "c44d929d4769c7b0b69182ed4931ee19ba0c6a3b8464598405a313e8ec70d503",
+      "output_sha256": "2d6002999be3886e544da6616f97a69cc65558d77582244ef3f68f3b21c1278e"
+    },
+    "IGH/set/tests/test_preprocessing.py": {
+      "source": "TRB/set/tests/test_preprocessing.py",
+      "source_sha256": "a5e736fcae0b3d2d8c478909f85d3b5423a8bc870cf62f64cce33c3b4ddee9a5",
+      "output_sha256": "3baa3ba05049caa86fba049aaf878418375ea3e5a34cc6662146f892a4ab8d5b"
+    },
+    "IGH/set/tests/test_public_reference.py": {
+      "source": "TRB/set/tests/test_public_reference.py",
+      "source_sha256": "c84287737127efc1daa3e4496c10f713bd5c52d63ea58f4ba316fcba4b985542",
+      "output_sha256": "445892f068cbacf43abc716e738f53779d404a170531cf8e18051706fbb7eae1"
+    },
+    "IGH/set/tests/test_release.py": {
+      "source": "TRB/set/tests/test_release.py",
+      "source_sha256": "71804a96cd14197cc2527725366194f2885fe4c17d48de29a9c6d8ad93c9a73f",
+      "output_sha256": "9fb8f68bf2f6bf4cc518a2dbb7380f0e8aab39832dbe268a33431cbd89d1f449"
+    },
+    "IGH/set/tests/test_specifications.py": {
+      "source": "TRB/set/tests/test_specifications.py",
+      "source_sha256": "02eff803568967999fac3472e668e4b1e9677d52c1632ce42718cc5a94d977cf",
+      "output_sha256": "b0ce6f86781741ae451de4db94a21c07627c85f5337541cda33880b0e966b2f7"
+    },
+    "IGH/set/tests/test_thresholds.py": {
+      "source": "TRB/set/tests/test_thresholds.py",
+      "source_sha256": "28019d077589d29d3b08885569b84871e9f537f3a98c97532632865ff2aa2b63",
+      "output_sha256": "2be1d67a29b1ea00af32914cc88a1fc264c6b6837986b393b3855ec393824b19"
+    },
+    "IGH/set/configs/igh_baseline_m2_v1.yaml": {
+      "source": "Batch01 delivery template",
+      "source_sha256": null,
+      "output_sha256": "5fb83307212e71fa6a49e5b18788b08f7ee486c17ccbec85c806c894f85e0942"
+    },
+    "IGH/set/README_V2.md": {
+      "source": "Batch01 delivery template",
+      "source_sha256": null,
+      "output_sha256": "d0702c7cb359fcaeb1324fd3c358ad56da86a7fa8904c59c6b0e660702414c65"
+    },
+    "IGH/set/scripts_v2/README_upgrade_batch01.md": {
+      "source": "Batch01 delivery template",
+      "source_sha256": null,
+      "output_sha256": "48c1c51ef569dfe68d25c98998b38118c81b077728a2309052d8159c60ccacc4"
+    },
+    "IGH/set/scripts_v2/check_batch01_igh_installation.py": {
+      "source": "Batch01 delivery template",
+      "source_sha256": null,
+      "output_sha256": "5c9b3200535c4959d4e11e083d9e14a98e050a859299def148fab734bee212a8"
+    },
+    "IGH/set/scripts_v2/BATCH01_IGH_MIGRATION_MANIFEST.json": {
+      "source": "Batch01 delivery template",
+      "source_sha256": null,
+      "output_sha256": "5e758edb522e27baf124c54b87c3e5075018c08fad05353fea5c8e5415f37185"
+    }
+  },
+  "gitignore_sha256": "b28d7dd590cc41cdb873b72bf8029ee16455ffd76b60c908719946b241b98b24"
+}

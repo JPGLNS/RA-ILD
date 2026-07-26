@@ -1,0 +1,251 @@
+schema_version: "1.0"
+
+experiment:
+  id: "igh_baseline_m2_v1"
+  description: "Frozen configuration for the reproducible historical IGH baseline and final M2 model."
+  receptor: "IGH"
+  status: "baseline_locked"
+  random_seed: 20260711
+  baseline_git_tag: "igh-baseline-v1.0"
+
+data:
+  train:
+    expected_samples: 120
+    metadata: "IGH/set/train/metadata_train_70.csv"
+    base_matrix: "IGH/set/train/result/04_final_feature_matrix/04_train_base_feature_matrix.csv"
+    feature_manifest: "IGH/set/train/result/04_final_feature_matrix/04_feature_manifest.csv"
+    aa_clone_table_dir: "IGH/set/train/result/01_AA_clone_table"
+    public_catalog: "IGH/set/train/result/03_public_features/03_public_aa_catalog.csv.gz"
+    reference_definition: "IGH/set/train/result/03_public_features/03_reference_definition.json"
+    additional_feature_tables: []
+  test:
+    expected_samples: 49
+    metadata: "IGH/set/test/metadata_test_30.csv"
+    final_matrix: "IGH/set/test/result/04_final_feature_matrix/04_test_final_feature_matrix.csv"
+    reference_features: "IGH/set/test/result/03_public_features/03_test_reference_public_features.csv"
+    reference_definition_used: "IGH/set/test/result/03_public_features/03_reference_definition_used.json"
+    additional_feature_tables: []
+
+public_reference:
+  scheme_name: "main"
+  global_min_prevalence: 0.02
+  global_min_count: 3
+  group_min_prevalence: 0.05
+  group_min_count: 3
+  specific_prevalence_delta: 0.05
+  epsilon: 1.0e-8
+  feature_set: "raw_bilateral"
+  expected_sizes:
+    catalog: 41052
+    global: 6387
+    RA_specific: 210
+    ILD_specific: 504
+    shared: 263
+  cache:
+    presence: "IGH/set/train/result/05_modeling/cache/05_train_public_presence.npz"
+    frequency: "IGH/set/train/result/05_modeling/cache/05_train_public_frequency.npz"
+    metadata: "IGH/set/train/result/05_modeling/cache/05_train_public_sparse_cache.json"
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
+  dynamic_features:
+    - "all_ref_public_clone_ratio"
+    - "all_ref_public_frequency_sum"
+    - "shared_ref_clone_ratio"
+    - "shared_ref_frequency_sum"
+    - "RA_specific_ref_clone_ratio"
+    - "RA_specific_ref_frequency_sum"
+    - "ILD_specific_ref_clone_ratio"
+    - "ILD_specific_ref_frequency_sum"
+
+cross_validation:
+  outer_repeats: 20
+  outer_folds: 5
+  inner_folds: 5
+  outer_assignments: "IGH/set/train/result/05_modeling/cv_splits/05_outer_fold_assignments.csv"
+  inner_assignments: "IGH/set/train/result/05_modeling/cv_splits/05_inner_fold_assignments.csv.gz"
+  balance_columns: ["batch", "material", "sex"]
+
+model_engine:
+  engine: "elastic_net_logistic"
+  solver: "saga"
+  class_weight: "balanced"
+  alpha_grid: [0.1, 0.5, 0.9]
+  lambda_grid: [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
+  max_iter: 10000
+  tolerance: 1.0e-4
+  zero_sd_tolerance: 1.0e-12
+  inner_selection_primary_metric: "roc_auc"
+  threshold_rule: "youden"
+
+models:
+  M0_clinical:
+    description: "Age and sex clinical comparator."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: []
+    dynamic_public: []
+  M1_static_igh:
+    description: "Clinical variables plus static IGH repertoire features."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: ["static_igh_candidate_predictors"]
+    dynamic_public: []
+  M2_static_igh_public:
+    description: "Clinical variables, static IGH features, and dynamic public-reference features."
+    numeric: ["age"]
+    categorical: ["sex"]
+    static_feature_groups: ["static_igh_candidate_predictors"]
+    dynamic_public:
+      - "all_ref_public_clone_ratio"
+      - "all_ref_public_frequency_sum"
+      - "shared_ref_clone_ratio"
+      - "shared_ref_frequency_sum"
+      - "RA_specific_ref_clone_ratio"
+      - "RA_specific_ref_frequency_sum"
+      - "ILD_specific_ref_clone_ratio"
+      - "ILD_specific_ref_frequency_sum"
+  M3_static_igh_public_material:
+    description: "M2 plus material as a sensitivity model."
+    numeric: ["age"]
+    categorical: ["sex", "material"]
+    static_feature_groups: ["static_igh_candidate_predictors"]
+    dynamic_public:
+      - "all_ref_public_clone_ratio"
+      - "all_ref_public_frequency_sum"
+      - "shared_ref_clone_ratio"
+      - "shared_ref_frequency_sum"
+      - "RA_specific_ref_clone_ratio"
+      - "RA_specific_ref_frequency_sum"
+      - "ILD_specific_ref_clone_ratio"
+      - "ILD_specific_ref_frequency_sum"
+
+preprocessing:
+  numeric_standardization: "zscore_population_ddof0"
+  categorical_encoding: "sorted_reference_dummy"
+  zero_variance_filter: true
+  unseen_category_policy: "reference_all_zero_with_audit"
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
+    preprocessing_summary: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_preprocessing_summary.csv"
+    static_feature_list: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_static_igh_feature_list.csv"
+    outer_train_public: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_train_loo.csv"
+    outer_validation_public: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
+    coefficients: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+
+modeling:
+  positive_label: "ILD"
+  negative_label: "RA"
+  threshold_selection: "youden_closest_to_0.5"
+  coefficient_nonzero_tolerance: 1.0e-12
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    inner_selected_oof: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_selected_oof_predictions.csv"
+    outer_predictions: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_predictions.csv"
+    outer_metrics: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_metrics.csv"
+    coefficients: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+    independent_predictions: "IGH/set/test/result/08_final_M2_validation/08_independent_test_predictions.csv"
+    independent_metrics: "IGH/set/test/result/08_final_M2_validation/08_independent_test_metrics.csv"
+
+model_selection:
+  static_feature_group: "static_igh_candidate_predictors"
+  expected_static_feature_count: 1083
+  manifest_rule:
+    present_in_train_base: true
+    feature_group_prefix: "igh_"
+    feature_role: "candidate_predictor"
+    reference_drop: false
+  hyperparameter_grid_order: "alpha_then_lambda"
+  candidate_sort:
+    - {field: "pooled_inner_roc_auc", ascending: false}
+    - {field: "pooled_inner_pr_auc", ascending: false}
+    - {field: "lambda", ascending: false}
+    - {field: "l1_ratio_alpha", ascending: false}
+  expected_resolved_columns:
+    M0_clinical: {numeric: 1, categorical: 1}
+    M1_static_igh: {numeric: 1084, categorical: 1}
+    M2_static_igh_public: {numeric: 1092, categorical: 1}
+    M3_static_igh_public_material: {numeric: 1092, categorical: 2}
+  regression_task:
+    inner_tuning_results: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_tuning_results.csv"
+
+nested_cv:
+  assignment_policy: "fixed_precomputed"
+  training_public_policy: "exact_leave_one_out"
+  validation_public_policy: "training_reference_only"
+  preprocessing_policy: "fit_on_current_training_partition"
+  candidate_selection_policy: "pooled_roc_pr_lambda_alpha"
+  expected_outer_tasks: 100
+  expected_inner_fits_per_task: 480
+  regression_task:
+    outer_repeat: 1
+    outer_fold: 1
+    task_dir: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01"
+    configuration: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_trial_configuration.json"
+    sample_roles: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_trial_sample_roles.csv"
+    public_reference_summary: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_public_reference_build_summary.csv"
+    public_loo_assignments: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_public_loo_assignments.csv"
+    inner_tuning_results: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_tuning_results.csv"
+    inner_selected_oof: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_inner_selected_oof_predictions.csv"
+    outer_predictions: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_predictions.csv"
+    outer_metrics: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_outer_validation_metrics.csv"
+    coefficients: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_final_model_coefficients.csv"
+    preprocessing_summary: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_preprocessing_summary.csv"
+    outer_train_public: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_train_loo.csv"
+    outer_validation_public: "IGH/set/train/result/05_modeling/single_outer_trial_loo/repeat_01_fold_01/05_dynamic_public_features_outer_validation.csv"
+
+outer_tasks:
+  output_root: "IGH/set/train/result_v2/06_nested_cv"
+  runner_script: "IGH/set/scripts_v2/run_nested_cv_task.py"
+  manifest: "IGH/set/train/result_v2/06_nested_cv/07_outer_task_manifest.csv"
+  status: "IGH/set/train/result_v2/06_nested_cv/07_outer_task_status.csv"
+  logs_dir: "IGH/set/train/result_v2/06_nested_cv/scheduler_logs"
+  expected_tasks: 100
+  default_workers: 1
+  max_workers: 4
+  minimum_complete_tasks_for_validation: 1
+
+aggregation:
+  output_dir: "IGH/set/train/result_v2/07_outer_summary"
+  require_all_tasks: true
+  expected_metric_rows: 400
+  expected_predictions_per_sample: 20
+  expected_prediction_rows: 9600
+
+stability:
+  minimum_selection_frequency: 0.50
+  minimum_sign_consistency: 0.80
+  coefficient_tolerance: 1.0e-12
+
+final_model:
+  status: "locked"
+  selected_model: "M2_static_igh_public"
+  tuning_mode: "stable_pairs"
+  candidate_pairs:
+    - {alpha: 0.9, lambda: 10}
+    - {alpha: 0.5, lambda: 10}
+  selection_rule: "one_se"
+  selected_alpha: 0.9
+  selected_lambda: 10
+  locked_threshold: 0.4568009623694209
+  bundle: "IGH/set/train/result/07_final_M2_model/07_final_M2_model.joblib"
+  configuration: "IGH/set/train/result/07_final_M2_model/07_final_M2_configuration.json"
+  reference_masks: "IGH/set/train/result/07_final_M2_model/07_full_training_public_reference_masks.npz"
+
+independent_validation:
+  single_use: true
+  bootstrap_reps: 5000
+  bootstrap_seed: 20260713
+  output_dir: "IGH/set/test/result/08_final_M2_validation"
+  expected_metrics:
+    roc_auc: 0.728070
+    pr_auc: 0.553879
+    sensitivity: 0.894737
+    specificity: 0.400000
+    precision: 0.485714
+    f1: 0.629630
+    brier: 0.225298
