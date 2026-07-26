@@ -1,0 +1,61 @@
+{
+  "batch_id": "IGH_SCHEME_UPGRADE_BATCH02",
+  "title": "Flexible model definitions and additional-feature management",
+  "requires": "IGH_SCHEME_UPGRADE_BATCH01",
+  "requires_commit": "1f09019",
+  "scientific_modeling_logic_changed": false,
+  "payload_files": [
+    {
+      "path": "IGH/set/README_V2.md",
+      "sha256": "f3fc7038e33a429755e31b126c866a1a4cb233cf040a38b03bdefe0bacf0b61c",
+      "size_bytes": 4261
+    },
+    {
+      "path": "IGH/set/configs/schemes/igh_scheme_001_baseline_compat.yaml",
+      "sha256": "91dd586db6ef3cd2e3b59b78b0adf1d3b402ce463a7d24edd00820395d534161",
+      "size_bytes": 372
+    },
+    {
+      "path": "IGH/set/configs/schemes/igh_scheme_002_no_clinical.yaml",
+      "sha256": "66d99351f6a4f5ff507de1e1f52df5c3647726c09b1a13a021cfa790c2993c91",
+      "size_bytes": 1852
+    },
+    {
+      "path": "IGH/set/configs/schemes/igh_scheme_additional_features_template.yaml",
+      "sha256": "73e89176459e2d5b5641dd4d13d486e320ccf6c2f5fff0915c98aec0ce6f534b",
+      "size_bytes": 1847
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch02.md",
+      "sha256": "8ec5369d979745e7a7f03d017173e6a3e0ab784c3c0775ef881e468acb94c4d4",
+      "size_bytes": 2849
+    },
+    {
+      "path": "IGH/set/scripts_v2/audit_scheme_features.py",
+      "sha256": "0b63bcb1315f83144feba89cfb5c950392a52e796de64bc978ea2e383b48d3a3",
+      "size_bytes": 8241
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch02_feature_management.py",
+      "sha256": "71081d0caff1078a2fe27d55d928afeb1e4e62f38aed4e9ce28ed377ccb8f759",
+      "size_bytes": 8168
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/feature_inputs.py",
+      "sha256": "51141c5bf75c48d274a7a8553d6c61ae9c87ef8c847e87aa78c999e07e682e81",
+      "size_bytes": 11345
+    }
+  ],
+  "verified_existing_batch01_hooks": [
+    "IGH/set/src/ra_ild_igh/config.py additional_feature_tables validation",
+    "IGH/set/src/ra_ild_igh/scheme_management.py model replacement and derived counts",
+    "IGH/set/scripts_v2/run_nested_cv_task.py feature-input loading and audit output"
+  ],
+  "capabilities": [
+    "complete scheme-level replacement of model definitions",
+    "automatic recalculation of model-dependent expected counts",
+    "development schemes with final_model.status=not_selected",
+    "strict one-to-one additional feature-table merging",
+    "effective feature and model audit outputs"
+  ]
+}

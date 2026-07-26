@@ -1,0 +1,48 @@
+scheme_version: "1.0"
+
+scheme:
+  id: "replace_with_new_igh_scheme_id"
+  description: "Template: merge scheme-specific sample-level features and assign them to selected IGH Elastic Net models."
+  status: "development"
+  base_config: "IGH/set/configs/igh_baseline_m2_v1.yaml"
+  output_root: "IGH/set/experiments/replace_with_new_igh_scheme_id"
+
+# Template only. Copy to a new filename and replace the IDs and paths.
+# The table must contain exactly one row per configured training sample.
+# Only ordinary sample-level features are allowed here. Label-derived, public-reference,
+# supervised-screened, or cross-sample features must be generated inside CV partitions.
+overrides:
+  data:
+    train:
+      additional_feature_tables:
+        - path: "IGH/set/additional_features/replace_with_feature_table.csv"
+          key: "sample_id"
+          required_columns: ["new_feature_1", "new_feature_2"]
+          numeric_columns: ["new_feature_1", "new_feature_2"]
+          categorical_columns: []
+  final_model:
+    status: "not_selected"
+
+replacements:
+  models:
+    M1_static_igh:
+      description: "Static IGH features only."
+      numeric: []
+      categorical: []
+      static_feature_groups: ["static_igh_candidate_predictors"]
+      dynamic_public: []
+
+    M2_static_igh_public_new:
+      description: "Static/public IGH features plus two additional numeric features."
+      numeric: ["new_feature_1", "new_feature_2"]
+      categorical: []
+      static_feature_groups: ["static_igh_candidate_predictors"]
+      dynamic_public:
+        - "all_ref_public_clone_ratio"
+        - "all_ref_public_frequency_sum"
+        - "shared_ref_clone_ratio"
+        - "shared_ref_frequency_sum"
+        - "RA_specific_ref_clone_ratio"
+        - "RA_specific_ref_frequency_sum"
+        - "ILD_specific_ref_clone_ratio"
+        - "ILD_specific_ref_frequency_sum"

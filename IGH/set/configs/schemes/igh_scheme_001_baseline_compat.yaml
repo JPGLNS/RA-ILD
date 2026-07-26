@@ -1,0 +1,10 @@
+scheme_version: "1.0"
+
+scheme:
+  id: "igh_scheme_001_baseline_compat"
+  description: "Baseline-compatibility scheme used to verify that the upgraded IGH framework reproduces the frozen V2/V1 analysis rules."
+  status: "development"
+  base_config: "IGH/set/configs/igh_baseline_m2_v1.yaml"
+  output_root: "IGH/set/experiments/igh_scheme_001_baseline_compat"
+
+overrides: {}
