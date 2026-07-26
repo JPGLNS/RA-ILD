@@ -1,0 +1,54 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH04",
+  "version": "1.0.0",
+  "status": "INSTALLED",
+  "installed_at_utc": "2026-07-26T12:02:48.024397+00:00",
+  "branch": "feature/igh-scheme-upgrade-v1",
+  "head_before_install": "407e15ebbdad15b69f272869a3e799319c8c668a",
+  "split_set_id": "igh_ra_ild_repeat3_v1",
+  "assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+  "files": [
+    {
+      "path": "IGH/set/README_V2.md",
+      "sha256": "d2372679ac0e10da6f1349387ceda85b3346a3823e28a4ca45b7950ab88eb71c",
+      "size_bytes": 6154
+    },
+    {
+      "path": "IGH/set/configs/repeated_holdout_training/igh_repeat3_training_v1.yaml",
+      "sha256": "a6cb1b43c3dea73153af0e02b0fccabfe06a7b41542e94070d77ced3e9304668",
+      "size_bytes": 1868
+    },
+    {
+      "path": "IGH/set/scripts_v2/BATCH04_REPEATED_HOLDOUT_TRAINING_MANIFEST.json",
+      "sha256": "93b6fc59143e42a28d2ceaca2549bd7c8f344595074daade2537e19a126c639a",
+      "size_bytes": 1461
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch04.md",
+      "sha256": "039458dc29be53c62ee6218f538dbf6a2c5402a5cf6bbdc0b17de79392ba813f",
+      "size_bytes": 2748
+    },
+    {
+      "path": "IGH/set/scripts_v2/prepare_repeated_holdout_training.py",
+      "sha256": "45004962332175ff7ea1194787d0de8f8f68d9a75c949d2945f21f06c593de7f",
+      "size_bytes": 3058
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch04_repeated_holdout_training.py",
+      "sha256": "63288ec3c57c8e2a79f4d4a82c0593386d721e492a09c9757957d23f9dcf5d84",
+      "size_bytes": 13475
+    },
+    {
+      "path": "IGH/set/scripts_v2/validate_repeated_holdout_training_bundle.py",
+      "sha256": "e7748008155973a866bdf8f971952006b9b6a61fbe0d4e7ae256bd3530da7d61",
+      "size_bytes": 8234
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/repeated_holdout_training.py",
+      "sha256": "ea3520d7638819bbd6d5df8a350e89bb4064773bbc1855f3fb2ba0ab153c5f58",
+      "size_bytes": 43763
+    }
+  ],
+  "scientific_engine_algorithms_changed": false,
+  "model_training_run_by_installer": false
+}

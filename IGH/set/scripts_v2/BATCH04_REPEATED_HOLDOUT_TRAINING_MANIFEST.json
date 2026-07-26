@@ -1,0 +1,37 @@
+{
+  "batch": "04",
+  "title": "Full-cohort bundle and leakage-controlled repeated-holdout training",
+  "prerequisites": [
+    "Batch 01 modular IGH framework",
+    "Batch 02 configurable models and feature inputs",
+    "Batch 03 frozen split set igh_ra_ild_repeat3_v1"
+  ],
+  "scientific_engine_algorithms_changed": false,
+  "existing_nested_cv_engine_reused": true,
+  "expected": {
+    "full_cohort_samples": 169,
+    "static_feature_count": 1083,
+    "aa_tables": 169,
+    "split_count": 3,
+    "train_size": 120,
+    "holdout_size": 49,
+    "models": 3,
+    "alpha_lambda_candidates_per_model": 24,
+    "inner_folds": 5,
+    "inner_fits_per_task": 360,
+    "executed_tasks": 3,
+    "expected_metric_rows": 9,
+    "expected_prediction_rows": 441
+  },
+  "split_assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+  "capabilities": [
+    "combine historical train/test static matrices into a 169-person static-only base matrix",
+    "build deterministic full-cohort sparse CDR3-AA indexing matrices",
+    "convert three frozen 120/49 assignments into fixed outer and inner assignments",
+    "reuse partition-local public-reference construction and exact training LOO",
+    "automatically tune alpha/lambda and choose thresholds from inner OOF predictions",
+    "freeze the training bundle and generate an isolated three-model scheme"
+  ],
+  "independent_test_performance_used": false,
+  "automatic_winner_selection": false
+}

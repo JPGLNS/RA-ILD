@@ -135,3 +135,23 @@ The development specification is
 `IGH/set/configs/split_sets/igh_ra_ild_repeat3_v1.yaml`. Generated split resources
 remain outside Git; source code, specifications, tests, and documentation are
 version controlled.
+
+## Batch 04 — Full-cohort repeated-holdout training preparation
+
+Batch 04 prepares a frozen 169-person static-feature and sparse CDR3-AA bundle for
+three frozen 120/49 repeated holdouts. The historical 120-person training and
+49-person test resources are treated only as two storage partitions whose union is
+the complete IGH cohort; historical independent-test performance is not used for
+split construction, tuning, thresholding, or model comparison.
+
+The generated default development scheme contains three models:
+`M1_static_igh`, `M2_static_igh_public`, and
+`M3_static_igh_public_material`. It excludes M0, age, and sex. Each split performs
+three models × 24 alpha/lambda candidates × five inner folds = 360 inner fits.
+Only outer fold 1 is executed for each repeat, producing three training tasks.
+
+Heavy bundle files under `IGH/set/training_bundles/` remain ignored by Git. The
+frozen marker records hashes for every prepared input. The generated scheme YAML
+under `IGH/set/configs/schemes/generated/` is reviewable and may be committed after
+full bundle validation.
+
