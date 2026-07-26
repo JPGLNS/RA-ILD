@@ -167,3 +167,11 @@ only when both the split-set ID and assignment SHA256 are identical, so differen
 are paired on the same frozen splits. No independent-test result is read and no
 final model is selected automatically.
 
+## Batch 06 — Final regression and release
+
+Batch 06 adds one-command quick/full validation, IGH receptor/path and SHM
+contract checks, source-only Git release provenance, and an atomic completion
+marker. The marker documents a completed framework and repeated-holdout analysis;
+it does not select a final model or create a deployable joblib. Full validation
+from a clean synchronized source commit is required before marker creation.
+

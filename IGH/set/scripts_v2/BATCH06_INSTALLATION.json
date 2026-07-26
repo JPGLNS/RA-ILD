@@ -1,0 +1,59 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH06",
+  "version": "1.0.2",
+  "hotfix_for": "1.0.1",
+  "status": "INSTALLED",
+  "installed_at_utc": "2026-07-26T14:18:59.128987+00:00",
+  "branch": "feature/igh-scheme-upgrade-v1",
+  "head_before_install": "c91b3b196dcbaa82ed48752cb5e186db9f92442e",
+  "files": [
+    {
+      "path": "IGH/set/README_V2.md",
+      "sha256": "75189203ad3f480cd5d21988c5083e2fad2d97dee010017731f47d3b23e540df",
+      "size_bytes": 7243
+    },
+    {
+      "path": "IGH/set/scripts_v2/BATCH06_RELEASE_MANIFEST.json",
+      "sha256": "cecd0f82d33e1b7990ca4214db7c2cd4d4253982638094c79101c1336cd5dbce",
+      "size_bytes": 1251
+    },
+    {
+      "path": "IGH/set/scripts_v2/PR_IGH_FRAMEWORK_V2.md",
+      "sha256": "58b759ce86255a9022f96f7dbe0de2e4faa1a4b31ed8b2444abc5f5efd9445df",
+      "size_bytes": 1549
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch06.md",
+      "sha256": "80affd7d55e5a3a342cdc28fb4feb9ecf57140af21c8187d85d85d25b2c9b6fb",
+      "size_bytes": 1685
+    },
+    {
+      "path": "IGH/set/scripts_v2/run_all_checks.py",
+      "sha256": "0fa755ab475e35036fd95088b7d4ce18ca6f71e01452e3f97f3ad35622051749",
+      "size_bytes": 4808
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch06_release.py",
+      "sha256": "d3931f7bda8060dc3959b20b4ebbf11123519dec6a7877fd91bbf8725ed0091d",
+      "size_bytes": 3158
+    },
+    {
+      "path": "IGH/set/scripts_v2/validate_release_contract.py",
+      "sha256": "fb445a0cb53bb6b4e2549f3419f3acac2964766fdbac5f8c1904001bf1121749",
+      "size_bytes": 6198
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/release.py",
+      "sha256": "e5c721b6471f5da218e5570059ffea559ff8773b116d8a2f48289e6998277e81",
+      "size_bytes": 17653
+    }
+  ],
+  "completion_marker_shipped": false,
+  "automatic_final_model_selection": false,
+  "scientific_engine_changed": false,
+  "compatibility_fixes": [
+    "Preserve the Batch 01 build_check_plan call contract",
+    "Preserve optional locked_model completion-payload compatibility",
+    "Permit lightweight marker unit-test payloads while keeping real release Git safeguards"
+  ]
+}

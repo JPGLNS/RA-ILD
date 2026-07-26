@@ -1,0 +1,34 @@
+{
+  "batch": "06",
+  "title": "Final regression, release provenance, and source-only Git delivery",
+  "framework_version": "1.0.0",
+  "scientific_engine_changed": false,
+  "model_training_changed": false,
+  "automatic_final_model_selection": false,
+  "deployable_final_model_built": false,
+  "installed_files": [
+    "IGH/set/src/ra_ild_igh/release.py",
+    "IGH/set/scripts_v2/run_all_checks.py",
+    "IGH/set/scripts_v2/validate_release_contract.py",
+    "IGH/set/scripts_v2/test_batch06_release.py",
+    "IGH/set/scripts_v2/README_upgrade_batch06.md",
+    "IGH/set/scripts_v2/PR_IGH_FRAMEWORK_V2.md",
+    "IGH/set/scripts_v2/BATCH06_RELEASE_MANIFEST.json"
+  ],
+  "server_generated_after_source_commit": "IGH/set/FRAMEWORK_V2_COMPLETE.json",
+  "release_requires": {
+    "quick_before_source_commit": true,
+    "full_after_source_commit": true,
+    "clean_tracked_tree": true,
+    "upstream_synchronized": true,
+    "no_untracked_igh_source": true
+  },
+  "scientific_contract": {
+    "split_set_id": "igh_ra_ild_repeat3_v1",
+    "assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+    "completed_tasks": 3,
+    "metric_rows": 9,
+    "prediction_rows": 441,
+    "repeated_holdout_is_independent_test": false
+  }
+}
