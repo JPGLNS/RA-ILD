@@ -118,3 +118,20 @@ python3 IGH/set/scripts_v2/audit_scheme_features.py \
 ```
 
 Batch 02 does not launch outer tasks or select a new final model.
+
+## Batch 03: configurable repeated-holdout split sets
+
+Batch 03 adds patient-level, metadata-only repeated-holdout generation under
+`IGH/set/configs/split_sets/` and `IGH/set/split_sets/`.
+
+- repeat count and train/holdout sizes are YAML-configurable;
+- exact strata and balance variables are YAML-configurable;
+- candidate ranking uses metadata only and never model performance;
+- the current IGH batch6 singleton is explicitly audited and fixed in training;
+- generated assignments are frozen with SHA256 hashes and cannot be overwritten;
+- a different split design requires a new split-set ID.
+
+The development specification is
+`IGH/set/configs/split_sets/igh_ra_ild_repeat3_v1.yaml`. Generated split resources
+remain outside Git; source code, specifications, tests, and documentation are
+version controlled.

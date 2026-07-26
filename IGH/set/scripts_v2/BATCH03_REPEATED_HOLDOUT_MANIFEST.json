@@ -1,0 +1,36 @@
+{
+  "batch_id": "IGH_SCHEME_UPGRADE_BATCH03",
+  "title": "Configurable repeated-holdout split generation and freezing",
+  "requires_commit": "8a4911b",
+  "scientific_modeling_logic_changed": false,
+  "model_fitting_performed": false,
+  "independent_test_performance_read": false,
+  "capabilities": [
+    "YAML-configurable repeat count and train/holdout sizes",
+    "patient-level exact-strata repeated holdout",
+    "metadata-only candidate ranking",
+    "explicit fixed-train handling of audited singleton strata",
+    "pairwise holdout overlap control",
+    "immutable split-set freezing with SHA256",
+    "frozen-file tamper detection"
+  ],
+  "development_specification": {
+    "split_set_id": "igh_ra_ild_repeat3_v1",
+    "samples": 169,
+    "patients": 169,
+    "repeats": 3,
+    "train_size": 120,
+    "holdout_size": 49,
+    "exact_strata": ["cohort", "batch"],
+    "fixed_train_sample_ids": ["MGI260202N01-31"]
+  },
+  "payload_files": [
+    "IGH/set/configs/split_sets/igh_ra_ild_repeat3_v1.yaml",
+    "IGH/set/configs/split_sets/igh_repeated_holdout_template.yaml",
+    "IGH/set/src/ra_ild_igh/repeated_holdout.py",
+    "IGH/set/scripts_v2/generate_repeated_holdout_splits.py",
+    "IGH/set/scripts_v2/validate_repeated_holdout_split_set.py",
+    "IGH/set/scripts_v2/test_batch03_repeated_holdout.py",
+    "IGH/set/scripts_v2/README_upgrade_batch03.md"
+  ]
+}

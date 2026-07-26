@@ -1,0 +1,61 @@
+{
+  "status": "INSTALLED",
+  "batch_id": "IGH_SCHEME_UPGRADE_BATCH03",
+  "version": "1.0.0",
+  "installed_at_utc": "2026-07-26T11:25:43.048981+00:00",
+  "repository_root": "/data/users/chenhaisheng/RA-ILD",
+  "branch": "feature/igh-scheme-upgrade-v1",
+  "head_before_install": "8a4911b52948c9741808b39b89876639bb1b03c4",
+  "required_commit": "8a4911b",
+  "scientific_modeling_logic_changed": false,
+  "model_fitting_performed": false,
+  "independent_test_performance_read": false,
+  "installed_files": [
+    {
+      "path": "IGH/set/configs/split_sets/igh_ra_ild_repeat3_v1.yaml",
+      "sha256": "5e32b8ab7603e04ef98bcba8f55d0a267b0c04505a5fff2788fccb7846af49b1",
+      "size_bytes": 1856
+    },
+    {
+      "path": "IGH/set/configs/split_sets/igh_repeated_holdout_template.yaml",
+      "sha256": "43310056145e401d2bbc37b273039d7506a81e6df32aca944030e428299f2ac6",
+      "size_bytes": 1156
+    },
+    {
+      "path": "IGH/set/scripts_v2/BATCH03_REPEATED_HOLDOUT_MANIFEST.json",
+      "sha256": "3562a253960d2cddf081ce98563e1fe5cf93b8af22d36fd5999110ddefcc3e76",
+      "size_bytes": 1369
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch03.md",
+      "sha256": "b5a229e12f7c8690ac4cd38f7b4ddda5f295f75fd8331ba38e2400de4fb9fc4f",
+      "size_bytes": 3252
+    },
+    {
+      "path": "IGH/set/scripts_v2/generate_repeated_holdout_splits.py",
+      "sha256": "e39b23239da48a9ab3e1612af10dc37247c0212e6b696f656e400c90acff4551",
+      "size_bytes": 4597
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch03_repeated_holdout.py",
+      "sha256": "b942396c48cbe63b0a34ce265e6aa57e40019ccbcaab4106899a907591ebbed0",
+      "size_bytes": 9822
+    },
+    {
+      "path": "IGH/set/scripts_v2/validate_repeated_holdout_split_set.py",
+      "sha256": "b7af50e1bb0b865d94477a69a0b79161189f0d11f1971902863c416188b44342",
+      "size_bytes": 3052
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/repeated_holdout.py",
+      "sha256": "a859d47190265f6ffde9c82e082853c93d47f29b5299d2be84cddaaea7a8f369",
+      "size_bytes": 50187
+    },
+    {
+      "path": "IGH/set/README_V2.md",
+      "sha256": "94c3e04ce623e537561be5e2813c368ea282a599fdb61044e6eea980581c7adc",
+      "size_bytes": 5074,
+      "action": "appended_batch03_section"
+    }
+  ]
+}
