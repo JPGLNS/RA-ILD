@@ -1,0 +1,35 @@
+{
+  "batch": "05",
+  "title": "Repeated-holdout aggregation and same-assignment scheme comparison",
+  "scientific_engine_changed": false,
+  "model_training_changed": false,
+  "independent_test_read": false,
+  "installed_files": [
+    "IGH/set/src/ra_ild_igh/repeated_holdout_summary.py",
+    "IGH/set/scripts_v2/aggregate_repeated_holdout_results.py",
+    "IGH/set/scripts_v2/compare_analysis_schemes.py",
+    "IGH/set/scripts_v2/test_batch05_repeated_holdout_summary.py",
+    "IGH/set/scripts_v2/validate_repeated_holdout_aggregation.py",
+    "IGH/set/scripts_v2/README_upgrade_batch05.md",
+    "IGH/set/scripts_v2/BATCH05_REPEATED_HOLDOUT_SUMMARY_MANIFEST.json"
+  ],
+  "current_scheme_expected": {
+    "scheme_id": "igh_scheme_003_repeat3_no_clinical",
+    "split_set_id": "igh_ra_ild_repeat3_v1",
+    "assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+    "split_count": 3,
+    "models": 3,
+    "holdout_size": 49,
+    "metric_rows": 9,
+    "prediction_rows": 441,
+    "metric_summary_rows": 21,
+    "pairwise_model_difference_rows": 21,
+    "sample_prediction_summary_rows": 507
+  },
+  "comparison_contract": {
+    "same_split_set_id_required": true,
+    "same_assignment_sha256_required": true,
+    "paired_split_comparison": true,
+    "automatic_winner_selection": false
+  }
+}

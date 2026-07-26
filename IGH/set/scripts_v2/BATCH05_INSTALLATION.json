@@ -1,0 +1,59 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH05",
+  "version": "1.0.0",
+  "status": "INSTALLED",
+  "installed_at_utc": "2026-07-26T13:45:24.523206+00:00",
+  "branch": "feature/igh-scheme-upgrade-v1",
+  "head_before_install": "5bec97fa359df5cd0207e5b2758915fc14dd41a8",
+  "source_ref": "feature/trb-scheme-upgrade-batch01",
+  "scheme_id": "igh_scheme_003_repeat3_no_clinical",
+  "split_set_id": "igh_ra_ild_repeat3_v1",
+  "assignment_sha256": "5537365e41ac77a144c81fa7b7167896fc1ceb9db84664cd661b546575f8a030",
+  "expected_metric_rows": 9,
+  "expected_prediction_rows": 441,
+  "files": [
+    {
+      "path": "IGH/set/README_V2.md",
+      "sha256": "160e997924f9dc5f86807e7e4db192b846be0ad4b28adc5e9f7184a4bcfe703a",
+      "size_bytes": 6805
+    },
+    {
+      "path": "IGH/set/scripts_v2/BATCH05_REPEATED_HOLDOUT_SUMMARY_MANIFEST.json",
+      "sha256": "d7ce23296cba5bbd0bae1d79b5244d5c3407cbf07f505ae2e07a34d3b1bb07c0",
+      "size_bytes": 1321
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch05.md",
+      "sha256": "0acd5d6951d0c4d4ad70fc7bf9fca04da37ee787c60f6d91fec9af32ff713af7",
+      "size_bytes": 1508
+    },
+    {
+      "path": "IGH/set/scripts_v2/aggregate_repeated_holdout_results.py",
+      "sha256": "239177acb3b41be535bb3856b929957df475a685ffe9543a799e67965453813e",
+      "size_bytes": 5311
+    },
+    {
+      "path": "IGH/set/scripts_v2/compare_analysis_schemes.py",
+      "sha256": "10419e68e4e38e8e6342b393ff121fbe1c778a16d777e5dc5f36b6ca61a97760",
+      "size_bytes": 2580
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch05_repeated_holdout_summary.py",
+      "sha256": "3da26cb7efa128d17d7a90b81b317ffb2f17de058b3cab3d06d6ba945c4c2d50",
+      "size_bytes": 7531
+    },
+    {
+      "path": "IGH/set/scripts_v2/validate_repeated_holdout_aggregation.py",
+      "sha256": "7f9a2c5da331c89f2f37a42d486b8e3341720268b54f315c9463bfe7d6ee3eb4",
+      "size_bytes": 7079
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/repeated_holdout_summary.py",
+      "sha256": "8fe521dfbce2bb7a51a17207e30f5b9810c6c7477e160e2913b4eeb7b41e4cba",
+      "size_bytes": 35561
+    }
+  ],
+  "scientific_engine_changed": false,
+  "model_training_run_by_installer": false,
+  "automatic_winner_selection": false
+}

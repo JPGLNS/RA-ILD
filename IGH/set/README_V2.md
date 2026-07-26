@@ -155,3 +155,15 @@ frozen marker records hashes for every prepared input. The generated scheme YAML
 under `IGH/set/configs/schemes/generated/` is reviewable and may be committed after
 full bundle validation.
 
+## Batch 05 — Repeated-holdout aggregation and scheme comparison
+
+Batch 05 aggregates only structurally complete frozen repeated-holdout tasks. It
+checks each task's validation membership against the frozen split assignment and
+summarizes metrics, selected hyperparameters, thresholds, coefficients, feature
+stability, and variable per-patient holdout coverage.
+
+The resulting model ranking is descriptive only. Scheme comparisons are permitted
+only when both the split-set ID and assignment SHA256 are identical, so differences
+are paired on the same frozen splits. No independent-test result is read and no
+final model is selected automatically.
+
