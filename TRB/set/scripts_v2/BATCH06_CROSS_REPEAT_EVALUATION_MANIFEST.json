@@ -1,0 +1,43 @@
+{
+  "batch": "TRB_SCHEME_UPGRADE_BATCH06_CROSS_REPEAT_EVALUATION",
+  "version": "1.0.1",
+  "created_date": "2026-07-27",
+  "repository": "JPGLNS/RA-ILD",
+  "target_branch": "feature/trb-scheme-upgrade-batch01",
+  "target_base_commit": "c772f367f5ad8865f1217ab760dcb8a2f18d158b",
+  "reviewed_igh_branch": "feature/igh-scheme-upgrade-v1",
+  "reviewed_igh_head": "d7a0d2b7668bfb9af86324d82f1ae73e901c1c76",
+  "igh_changes_to_trb_scientific_engine": false,
+  "purpose": "Use each repeat-specific saved final model on every repeated holdout, producing n x n full and unseen-only metric matrices.",
+  "installed_files": [
+    "TRB/set/src/ra_ild_trb/cross_repeat_evaluation.py",
+    "TRB/set/scripts_v2/evaluate_cross_repeat_holdouts.py",
+    "TRB/set/scripts_v2/test_batch06_cross_repeat_evaluation.py",
+    "TRB/set/scripts_v2/README_upgrade_batch06_cross_repeat.md",
+    "TRB/set/scripts_v2/BATCH06_CROSS_REPEAT_EVALUATION_MANIFEST.json"
+  ],
+  "scientific_contract": {
+    "retunes_models": false,
+    "refits_elastic_net": false,
+    "uses_saved_final_coefficients": true,
+    "uses_saved_final_intercept": true,
+    "uses_saved_threshold": true,
+    "reconstructs_and_verifies_preprocessing": true,
+    "seen_training_public": "saved exact leave-one-out",
+    "unseen_public": "source-training-reference-only",
+    "native_diagonal_reproduction_required": true,
+    "primary_output": "full requested holdout n x n matrix",
+    "supplementary_output": "unseen-only n x n matrix",
+    "independent_test_read": false,
+    "automatic_final_model_selection": false
+  },
+  "sha256": {
+    "TRB/set/src/ra_ild_trb/cross_repeat_evaluation.py": "525b3a023109f3c2111934c0db194f00b72357344918246c2480f803cb50786b",
+    "TRB/set/scripts_v2/evaluate_cross_repeat_holdouts.py": "9f9aeab186c937c441ae802c344665a68d673d1a03cddd88e7c6ef45470a87b2",
+    "TRB/set/scripts_v2/test_batch06_cross_repeat_evaluation.py": "dc5c88dbb7bea62591e4f1248088977a18d772fd2a6467395379d03b8d96214e",
+    "TRB/set/scripts_v2/README_upgrade_batch06_cross_repeat.md": "cea6aa6c5c6089168322328ba17065df0e033ca5dfff5aec1502a8ed3842ec1b"
+  },
+  "hotfix_for": "1.0.0",
+  "hotfix": "Partition evaluation rows before external public transformation so reference and target rows are always disjoint.",
+  "focused_tests": 5
+}
