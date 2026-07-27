@@ -1,0 +1,47 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH07_CROSS_REPEAT_EVALUATION",
+  "version": "1.0.0",
+  "created_date": "2026-07-27",
+  "repository": "JPGLNS/RA-ILD",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reference_implementation": {
+    "branch": "feature/trb-scheme-upgrade-batch01",
+    "commit": "78e22f31d3dffb526cb088fa9fd771ef381cab1b",
+    "component": "TRB Batch 06 v1.0.1 frozen cross-repeat holdout evaluation"
+  },
+  "purpose": "Use each IGH repeat-specific saved final model on every repeated holdout, producing R x R full and unseen-only metric matrices.",
+  "installed_files": [
+    "IGH/set/src/ra_ild_igh/cross_repeat_evaluation.py",
+    "IGH/set/scripts_v2/evaluate_cross_repeat_holdouts.py",
+    "IGH/set/scripts_v2/test_batch07_cross_repeat_evaluation.py",
+    "IGH/set/scripts_v2/README_upgrade_batch07_cross_repeat.md",
+    "IGH/set/scripts_v2/BATCH07_CROSS_REPEAT_EVALUATION_MANIFEST.json"
+  ],
+  "scientific_contract": {
+    "receptor": "IGH",
+    "retunes_models": false,
+    "refits_elastic_net": false,
+    "uses_saved_final_coefficients": true,
+    "uses_saved_final_intercept": true,
+    "uses_saved_threshold": true,
+    "reconstructs_and_verifies_preprocessing": true,
+    "seen_training_public": "saved exact leave-one-out",
+    "unseen_public": "source-training-reference-only",
+    "native_diagonal_reproduction_required": true,
+    "primary_output": "full requested holdout R x R matrix",
+    "supplementary_output": "unseen-only R x R matrix",
+    "independent_test_read": false,
+    "automatic_final_model_selection": false
+  },
+  "current_igh_scheme_expectations": {
+    "repeats": 3,
+    "models": 3,
+    "holdout_size": 49,
+    "model_instances": 9,
+    "full_metric_rows": 27,
+    "unseen_only_metric_rows": 27,
+    "prediction_rows": 1323,
+    "overlap_rows": 9
+  },
+  "focused_tests": 5
+}
