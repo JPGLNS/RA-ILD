@@ -1,0 +1,66 @@
+{
+  "batch": "09",
+  "name": "repeat_3mer_feature_groups",
+  "status": "READY_FOR_SERVER_UPGRADE",
+  "target_repository": "JPGLNS/RA-ILD",
+  "target_branch": "feature/trb-scheme-upgrade-batch01",
+  "target_existing_run_nested_cv_task_blob_sha": "ac7f51a7943d1f1207c298654a3aa9c144ea44eb",
+  "scope": [
+    "fit one unsupervised Top-500 amino-acid 3-mer vocabulary per outer repeat training set",
+    "split legacy 1083 static predictors into core83 and repeat-specific 3-mer groups",
+    "provide nested Top 50/100/200/500 weighted, unweighted, and combined groups",
+    "prepare an A1-A6 feature-ablation scheme while preserving existing modeling and aggregation"
+  ],
+  "explicit_non_scope": [
+    "inner-fold-specific 3-mer vocabulary fitting",
+    "model-engine replacement",
+    "cross-repeat frozen-model replay with different source vocabularies",
+    "automatic A7 selection"
+  ],
+  "files": [
+    {
+      "path": "README_FIRST.md",
+      "size_bytes": 571,
+      "sha256": "8b1479d8d2e55201702968004d09a51e683b9cbedb3f9a3564787c52d6ee5b7d"
+    },
+    {
+      "path": "TRB/set/configs/schemes/trb_scheme_004_feature_ablation_repeat3.yaml",
+      "size_bytes": 3522,
+      "sha256": "421a0447834b3b6cc72149545cda832fed1774b8e400f18581c1706689de2a9e"
+    },
+    {
+      "path": "TRB/set/scripts_v2/README_upgrade_batch09_repeat_3mer.md",
+      "size_bytes": 5131,
+      "sha256": "afc04dabe02f9031ce1463d2e2c095eb94f81f370e667b3d65f8564efcf933e7"
+    },
+    {
+      "path": "TRB/set/scripts_v2/prepare_feature_ablation_scheme.py",
+      "size_bytes": 13261,
+      "sha256": "684c9dbcb22eb28ab9fd6adb4e5ab62c6a5acf643d6104cf281d4f6e657cacd1"
+    },
+    {
+      "path": "TRB/set/scripts_v2/run_nested_cv_task.py",
+      "size_bytes": 19829,
+      "sha256": "5a56139a75268345a8c89cd73c8e84d07ea1bc1a70eca653cc7474ad77fc87ee"
+    },
+    {
+      "path": "TRB/set/scripts_v2/test_batch09_repeat_3mer_feature_groups.py",
+      "size_bytes": 4980,
+      "sha256": "ea4f8dfa5870adcec6cf3baee5f98f2402338d5855c84e8625f7c977da660ece"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/repeat_3mer_features.py",
+      "size_bytes": 24975,
+      "sha256": "7bbe7d00f967b15b066a09a512f75cb575faa580914c982d3096b54a2a2c7d90"
+    },
+    {
+      "path": "apply_upgrade.sh",
+      "size_bytes": 2883,
+      "sha256": "3b3942d6688d9864aa75c7a7cc10f62a660256c3d00ea98bfac2a4e0d9e4ab9c"
+    }
+  ],
+  "validation": {
+    "python_compile": "passed",
+    "focused_tests": "2/2 passed"
+  }
+}
