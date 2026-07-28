@@ -1,0 +1,32 @@
+{
+  "batch": "10",
+  "name": "alpha_grid_ridge_endpoint",
+  "target_branch": "feature/trb-scheme-upgrade-batch01",
+  "prerequisite": "Batch 09 repeat-specific 3-mer feature groups",
+  "capabilities": [
+    "optional alpha_grid override from feature-ablation YAML",
+    "optional lambda_grid override from feature-ablation YAML",
+    "alpha=0 Ridge endpoint support",
+    "alpha=1 Lasso endpoint support",
+    "automatic candidate and inner-fit count recalculation",
+    "two-model parameter-tuning YAML template"
+  ],
+  "modified_files": [
+    "TRB/set/src/ra_ild_trb/config.py",
+    "TRB/set/src/ra_ild_trb/specifications.py",
+    "TRB/set/src/ra_ild_trb/modeling.py",
+    "TRB/set/scripts_v2/prepare_feature_ablation_scheme.py"
+  ],
+  "added_files": [
+    "TRB/set/configs/schemes/trb_scheme_005_parameter_tuning_template.yaml",
+    "TRB/set/scripts_v2/test_batch10_alpha_grid_ridge.py",
+    "TRB/set/scripts_v2/README_upgrade_batch10_alpha_grid_ridge.md",
+    "TRB/set/scripts_v2/BATCH10_ALPHA_GRID_RIDGE_MANIFEST.json"
+  ],
+  "excluded_scope": [
+    "automatic selection of the preceding experiment's top two models",
+    "automatic generation of A7 from rankings",
+    "changes to frozen repeated-holdout splits",
+    "changes to lambda defaults unless explicitly overridden"
+  ]
+}

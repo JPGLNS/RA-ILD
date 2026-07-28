@@ -36,6 +36,7 @@ from ra_ild_trb.config import validate_experiment_mapping  # noqa: E402
 
 SCHEME_VERSION = "1.0"
 SCHEME_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{2,79}$")
+ALLOWED_ENGINE_OVERRIDE_KEYS = {"alpha_grid", "lambda_grid"}
 
 
 class FeatureAblationSchemeError(ValueError):
@@ -202,6 +203,27 @@ def prepare(source_path: Path, repository_root: Path, *, overwrite: bool) -> Pat
     resolved = copy.deepcopy(dict(_load_yaml(base_path)))
     models = _mapping(source, "models", "root")
     repeat_options = copy.deepcopy(dict(_mapping(source, "repeat_3mer_features", "root")))
+
+    engine_override_raw = source.get("model_engine")
+    engine_override: Mapping[str, Any] | None
+    if engine_override_raw is None:
+        engine_override = None
+    elif not isinstance(engine_override_raw, Mapping):
+        raise FeatureAblationSchemeError("root.model_engine must be a mapping")
+    else:
+        engine_override = engine_override_raw
+        unknown_engine_keys = sorted(
+            set(engine_override) - ALLOWED_ENGINE_OVERRIDE_KEYS
+        )
+        if unknown_engine_keys:
+            raise FeatureAblationSchemeError(
+                "root.model_engine only supports alpha_grid/lambda_grid overrides; "
+                f"unknown keys: {unknown_engine_keys}"
+            )
+        if not engine_override:
+            raise FeatureAblationSchemeError(
+                "root.model_engine must contain alpha_grid and/or lambda_grid"
+            )
     repeat_options["enabled"] = True
     repeat_options.setdefault("selection_scope", "outer_repeat_train_only")
     repeat_options.setdefault("ranking_rule", "prevalence_then_total_variance")
@@ -216,6 +238,14 @@ def prepare(source_path: Path, repository_root: Path, *, overwrite: bool) -> Pat
     resolved["experiment"]["status"] = "development"
     resolved["models"] = copy.deepcopy(dict(models))
     resolved["repeat_3mer_features"] = repeat_options
+    if engine_override is not None:
+        resolved_engine = copy.deepcopy(
+            dict(_mapping(resolved, "model_engine", "base_resolved_config"))
+        )
+        for key in ALLOWED_ENGINE_OVERRIDE_KEYS:
+            if key in engine_override:
+                resolved_engine[key] = copy.deepcopy(engine_override[key])
+        resolved["model_engine"] = resolved_engine
     _rewrite_output_paths(resolved, output_root, repository_root)
 
     legacy_count = int(resolved["model_selection"].get("expected_static_feature_count", 1083))
@@ -294,6 +324,12 @@ def prepare(source_path: Path, repository_root: Path, *, overwrite: bool) -> Pat
         "models": list(models),
         "top_k_values": repeat_options["top_k_values"],
         "selection_scope": repeat_options["selection_scope"],
+        "alpha_grid": list(engine["alpha_grid"]),
+        "lambda_grid": list(engine["lambda_grid"]),
+        "candidate_count": int(candidate_count),
+        "expected_inner_fits_per_task": int(
+            resolved["nested_cv"]["expected_inner_fits_per_task"]
+        ),
         "input_files": inputs,
     }
     (config_dir / "FEATURE_ABLATION_SCHEME_PREPARED.json").write_text(

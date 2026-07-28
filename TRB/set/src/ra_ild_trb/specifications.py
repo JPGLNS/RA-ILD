@@ -298,8 +298,8 @@ def build_hyperparameter_grid(
         raise SpecificationError("Alpha and lambda grids must both be non-empty.")
     alphas = [float(value) for value in alpha_grid]
     lambdas = [float(value) for value in lambda_grid]
-    if any(not np.isfinite(value) or value <= 0 or value > 1 for value in alphas):
-        raise SpecificationError("Every alpha must be finite and in (0, 1].")
+    if any(not np.isfinite(value) or value < 0 or value > 1 for value in alphas):
+        raise SpecificationError("Every alpha must be finite and in [0, 1].")
     if any(not np.isfinite(value) or value <= 0 for value in lambdas):
         raise SpecificationError("Every lambda must be finite and > 0.")
     if len(alphas) != len(set(alphas)):

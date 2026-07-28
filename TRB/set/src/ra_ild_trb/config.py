@@ -92,6 +92,26 @@ def _positive_grid(value: Any, context: str, maximum: Optional[float] = None) ->
 
 
 
+def _nonnegative_grid(
+    value: Any,
+    context: str,
+    maximum: Optional[float] = None,
+) -> None:
+    """Validate a finite, duplicate-free grid that permits zero."""
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)) or not value:
+        raise ConfigError(f"{context} must be a non-empty list")
+    seen = set()
+    for item in value:
+        if isinstance(item, bool) or not isinstance(item, (int, float)):
+            raise ConfigError(f"{context} must contain numeric values")
+        number = float(item)
+        if number < 0 or (maximum is not None and number > maximum):
+            raise ConfigError(f"Invalid value {number} in {context}")
+        if number in seen:
+            raise ConfigError(f"Duplicate value {number} in {context}")
+        seen.add(number)
+
+
 def _validate_additional_feature_tables(
     partition: Mapping[str, Any],
     context: str,
@@ -267,7 +287,7 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
         raise ConfigError("Current framework supports only elastic_net_logistic")
     if engine.get("class_weight") not in {"balanced", "none"}:
         raise ConfigError("model_engine.class_weight must be balanced or none")
-    _positive_grid(engine.get("alpha_grid"), "model_engine.alpha_grid", 1)
+    _nonnegative_grid(engine.get("alpha_grid"), "model_engine.alpha_grid", 1)
     _positive_grid(engine.get("lambda_grid"), "model_engine.lambda_grid")
     _integer(engine, "max_iter", "model_engine", 1)
     _number(engine, "tolerance", "model_engine", 0, strict_minimum=True)
