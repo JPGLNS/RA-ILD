@@ -1,0 +1,30 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH08_REPEAT_3MER_FEATURE_GROUPS",
+  "version": "1.0.1",
+  "installed_utc": "2026-07-29T01:23:40.697586+00:00",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "trb_source_commit": "056fd2eebed0f80a138c6571a801020ff7d9b0ab",
+  "trb_source_ref": "5e154420d5e14cbab36c3422fe7518f3397499f6",
+  "installed_files": [
+    "IGH/set/configs/schemes/igh_scheme_004_feature_ablation_repeat3.yaml",
+    "IGH/set/scripts_v2/BATCH08_REPEAT_3MER_FEATURE_GROUPS_MANIFEST.json",
+    "IGH/set/scripts_v2/README_upgrade_batch08_repeat_3mer.md",
+    "IGH/set/scripts_v2/audit_igh_static_feature_composition.py",
+    "IGH/set/scripts_v2/prepare_feature_ablation_scheme.py",
+    "IGH/set/scripts_v2/run_nested_cv_task.py",
+    "IGH/set/scripts_v2/test_batch08_repeat_3mer_feature_groups.py",
+    "IGH/set/src/ra_ild_igh/repeat_3mer_features.py"
+  ],
+  "sha256": {
+    "IGH/set/configs/schemes/igh_scheme_004_feature_ablation_repeat3.yaml": "99434feba29301ea6e3cbfa0444c3e9d558efaf11a8f5e1d3798c7c7ba374a86",
+    "IGH/set/scripts_v2/BATCH08_REPEAT_3MER_FEATURE_GROUPS_MANIFEST.json": "f64abf65a77c97e3adf8b7423af919674a08c3e149179efc78aeb9c7f0256bb1",
+    "IGH/set/scripts_v2/README_upgrade_batch08_repeat_3mer.md": "50e3294cc4a12f9bc9c5ade5ff3b2c02fe394f9aa2394771eb01a8c0a7fc99b2",
+    "IGH/set/scripts_v2/audit_igh_static_feature_composition.py": "724ab120cdf56769349d813b5a1cfa9dda308b2531b5721dfc53fe7495e45830",
+    "IGH/set/scripts_v2/prepare_feature_ablation_scheme.py": "2b6dddc5b31a78ea18a0748ebea6e3064674387f89b2822aea7abd762b5161bc",
+    "IGH/set/scripts_v2/run_nested_cv_task.py": "52e0cee73a436ef1736d0ca341ed7143be990db47b3f8ecaf4a830c723482250",
+    "IGH/set/scripts_v2/test_batch08_repeat_3mer_feature_groups.py": "c79070e53f8d2a32e7cc82d68189b258717c0650216c19a61784e822f4d3f0f9",
+    "IGH/set/src/ra_ild_igh/repeat_3mer_features.py": "ea186840f8eb0c748f15314a8625ac2e26cb98c3ecfa70cc7b55a817aae58819"
+  },
+  "reviewed_igh_head": "d0ff67dc2276d88dd36c51ba3513a07bf3342f20",
+  "source_policy": "deterministic receptor-namespace port of pinned validated TRB Batch 09"
+}

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Run one IGH V2 nested-CV outer task into a separate V2 output directory."""
+"""Run one IGH V2 nested-CV outer task into a separate V2 output directory.
+
+Batch 08 adds optional outer-repeat-specific 3-mer vocabulary fitting and named
+static feature groups while preserving legacy scheme behavior when the optional
+``repeat_3mer_features`` section is absent or disabled.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +14,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -22,11 +27,22 @@ if str(SRC_DIR) not in sys.path:
 
 from ra_ild_igh.config import load_experiment_config  # noqa: E402
 from ra_ild_igh.feature_inputs import load_partition_feature_matrix  # noqa: E402
-from ra_ild_igh.nested_cv import NestedCVOptions, run_nested_outer_task  # noqa: E402
+from ra_ild_igh.nested_cv import (  # noqa: E402
+    NestedCVOptions,
+    run_nested_outer_task,
+    validate_fixed_assignments,
+)
 from ra_ild_igh.public_reference import ThresholdScheme  # noqa: E402
+from ra_ild_igh.repeat_3mer_features import (  # noqa: E402
+    build_repeat_3mer_features,
+    options_from_config,
+    split_legacy_static_features,
+    write_repeat_3mer_outputs,
+)
 from ra_ild_igh.specifications import (  # noqa: E402
     build_hyperparameter_grid,
-    resolve_all_model_specifications,
+    parse_model_specifications,
+    resolve_model_specification,
     select_static_igh_features,
 )
 
@@ -126,6 +142,10 @@ def output_paths(output_dir: Path) -> Dict[str, Path]:
         "coefficients": output_dir / "06_final_model_coefficients.csv",
         "preprocessing": output_dir / "06_preprocessing_summary.csv",
         "static_feature_list": output_dir / "06_static_igh_feature_list.csv",
+        "feature_group_manifest": output_dir / "06_feature_group_manifest.csv",
+        "repeat_3mer_vocabulary": output_dir / "06_repeat_3mer_vocabulary.csv",
+        "repeat_3mer_matrix": output_dir / "06_repeat_3mer_feature_matrix.csv.gz",
+        "repeat_3mer_audit": output_dir / "06_repeat_3mer_audit.json",
         "complete": output_dir / "06_TASK_COMPLETE.json",
     }
 
@@ -137,6 +157,90 @@ def enforce_output_policy(paths: Mapping[str, Path], overwrite: bool) -> None:
             "V2 nested-CV outputs already exist; add --overwrite only for a "
             "documented rerun:\n" + "\n".join(f"  - {path}" for path in existing)
         )
+
+
+def _legacy_feature_groups(
+    static_features: Sequence[str],
+    *,
+    group_name: str,
+) -> Mapping[str, Tuple[str, ...]]:
+    """Expose useful fixed groups for legacy schemes without repeat fitting."""
+
+    core, unweighted, weighted = split_legacy_static_features(
+        static_features,
+        expected_core_count=len(
+            [name for name in static_features if not str(name).startswith(("unweighted_3mer_", "weighted_3mer_"))]
+        ),
+    )
+    groups: Dict[str, Tuple[str, ...]] = {
+        group_name: tuple(map(str, static_features)),
+        "core83": tuple(core),
+    }
+    # The old matrices contain the same 500 k-mer sequences in both representations.
+    max_k = min(len(unweighted), len(weighted))
+    for k in (50, 100, 200, 500):
+        if k <= max_k:
+            groups[f"repeat_3mer_unweighted_top{k}"] = tuple(unweighted[:k])
+            groups[f"repeat_3mer_weighted_top{k}"] = tuple(weighted[:k])
+            groups[f"repeat_3mer_both_top{k}"] = tuple(unweighted[:k]) + tuple(weighted[:k])
+    return groups
+
+
+def _resolve_models(
+    model_mapping: Mapping[str, Mapping[str, object]],
+    *,
+    static_feature_groups: Mapping[str, Sequence[str]],
+    allowed_dynamic_public: Sequence[str],
+):
+    parsed = parse_model_specifications(model_mapping)
+    return {
+        name: resolve_model_specification(
+            specification,
+            static_feature_groups=static_feature_groups,
+            allowed_dynamic_public=allowed_dynamic_public,
+        )
+        for name, specification in parsed.items()
+    }
+
+
+def _validate_expected_columns(config, model_specs) -> None:
+    expected = config.raw.get("model_selection", {}).get("expected_resolved_columns", {})
+    if not isinstance(expected, Mapping):
+        return
+    for model_name, specification in model_specs.items():
+        counts = expected.get(model_name)
+        if not isinstance(counts, Mapping):
+            raise ValueError(
+                f"model_selection.expected_resolved_columns lacks {model_name}"
+            )
+        expected_numeric = int(counts.get("numeric", -1))
+        expected_categorical = int(counts.get("categorical", -1))
+        observed_numeric = len(specification.numeric)
+        observed_categorical = len(specification.categorical)
+        if (expected_numeric, expected_categorical) != (
+            observed_numeric,
+            observed_categorical,
+        ):
+            raise ValueError(
+                f"Resolved predictor-count mismatch for {model_name}: "
+                f"expected numeric/categorical={expected_numeric}/{expected_categorical}, "
+                f"observed={observed_numeric}/{observed_categorical}"
+            )
+
+
+def _write_static_union(path: Path, groups: Mapping[str, Sequence[str]]) -> None:
+    ordered: list[str] = []
+    for features in groups.values():
+        for feature in features:
+            value = str(feature)
+            if value not in ordered:
+                ordered.append(value)
+    pd.DataFrame(
+        {
+            "feature_order": np.arange(1, len(ordered) + 1),
+            "feature_name": ordered,
+        }
+    ).to_csv(path, index=False)
 
 
 def main() -> int:
@@ -163,18 +267,71 @@ def main() -> int:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         base, feature_input_audit, manifest, outer, inner, presence, frequency, metadata = load_inputs(config)
-        static_features = select_static_igh_features(
+        legacy_static_features = select_static_igh_features(
             manifest,
             available_columns=base.columns,
             require_all_available=True,
         )
-        public = config.section("public_reference")
-        model_specs = resolve_all_model_specifications(
-            config.section("models"),
-            static_features=static_features,
-            allowed_dynamic_public=public["dynamic_features"],
-            static_group_name=str(config.raw["model_selection"]["static_feature_group"]),
+        sample_ids = base["sample_id"].astype(str).tolist()
+        split = validate_fixed_assignments(
+            sample_ids,
+            outer,
+            inner,
+            outer_repeat=outer_repeat,
+            outer_fold=outer_fold,
+            outer_folds=int(config.raw["cross_validation"]["outer_folds"]),
+            inner_folds=int(config.raw["cross_validation"]["inner_folds"]),
         )
+
+        repeat_options = options_from_config(config)
+        repeat_audit = None
+        if repeat_options is not None:
+            repeat_build = build_repeat_3mer_features(
+                base,
+                legacy_static_features=legacy_static_features,
+                outer_train_ids=split.outer_train_ids,
+                outer_repeat=outer_repeat,
+                options=repeat_options,
+            )
+            base = repeat_build.augmented_base
+            static_feature_groups = repeat_build.static_feature_groups
+            repeat_audit = dict(repeat_build.audit)
+            write_repeat_3mer_outputs(
+                repeat_build,
+                vocabulary_path=paths["repeat_3mer_vocabulary"],
+                matrix_path=paths["repeat_3mer_matrix"],
+                group_manifest_path=paths["feature_group_manifest"],
+                audit_path=paths["repeat_3mer_audit"],
+            )
+        else:
+            legacy_group_name = str(config.raw["model_selection"]["static_feature_group"])
+            static_feature_groups = _legacy_feature_groups(
+                legacy_static_features,
+                group_name=legacy_group_name,
+            )
+            rows = []
+            for group_order, (group_name, features) in enumerate(
+                static_feature_groups.items(), start=1
+            ):
+                for feature_order, feature_name in enumerate(features, start=1):
+                    rows.append(
+                        {
+                            "group_order": group_order,
+                            "feature_group": group_name,
+                            "feature_order": feature_order,
+                            "feature_name": feature_name,
+                        }
+                    )
+            pd.DataFrame(rows).to_csv(paths["feature_group_manifest"], index=False)
+
+        public = config.section("public_reference")
+        model_specs = _resolve_models(
+            config.section("models"),
+            static_feature_groups=static_feature_groups,
+            allowed_dynamic_public=public["dynamic_features"],
+        )
+        _validate_expected_columns(config, model_specs)
+
         engine = config.section("model_engine")
         candidates = build_hyperparameter_grid(
             engine["alpha_grid"], engine["lambda_grid"]
@@ -232,12 +389,7 @@ def main() -> int:
         result.outer_metrics.to_csv(paths["outer_metrics"], index=False)
         result.coefficients.to_csv(paths["coefficients"], index=False)
         result.preprocessing_audit.to_csv(paths["preprocessing"], index=False)
-        pd.DataFrame(
-            {
-                "feature_order": np.arange(1, len(static_features) + 1),
-                "feature_name": static_features,
-            }
-        ).to_csv(paths["static_feature_list"], index=False)
+        _write_static_union(paths["static_feature_list"], static_feature_groups)
 
         selected = {
             model: {
@@ -252,13 +404,25 @@ def main() -> int:
         configuration = {
             "experiment_id": config.experiment_id,
             "merged_feature_column_count": int(len(base.columns)),
-            "additional_feature_table_count": int((feature_input_audit["source_type"] == "additional_feature_table").sum()),
+            "additional_feature_table_count": int(
+                (feature_input_audit["source_type"] == "additional_feature_table").sum()
+            ),
             "outer_repeat": outer_repeat,
             "outer_fold": outer_fold,
             "outer_train_samples": result.split.n_outer_train,
             "outer_validation_samples": result.split.n_outer_valid,
             "inner_folds": list(result.split.inner_folds),
             "models": list(model_specs),
+            "model_numeric_predictor_counts": {
+                name: len(spec.numeric) for name, spec in model_specs.items()
+            },
+            "model_categorical_predictor_counts": {
+                name: len(spec.categorical) for name, spec in model_specs.items()
+            },
+            "static_feature_group_counts": {
+                name: len(features) for name, features in static_feature_groups.items()
+            },
+            "repeat_3mer_features": repeat_audit,
             "candidate_count_per_model": len(candidates),
             "expected_inner_fit_count": len(model_specs)
             * len(candidates)
@@ -280,6 +444,7 @@ def main() -> int:
             "outer_repeat": outer_repeat,
             "outer_fold": outer_fold,
             "output_dir": str(output_dir),
+            "repeat_specific_3mer": repeat_options is not None,
             "runtime_seconds": time.time() - started,
         }
         paths["complete"].write_text(
@@ -293,6 +458,11 @@ def main() -> int:
             f"Samples: train={result.split.n_outer_train}, "
             f"validation={result.split.n_outer_valid}"
         )
+        if repeat_options is not None:
+            print(
+                f"Repeat-specific 3-mers: Top {repeat_options.max_kmers}; "
+                f"K grid={list(repeat_options.top_k_values)}"
+            )
         print(
             f"Fits: {len(model_specs)} models × {len(candidates)} candidates × "
             f"{len(result.split.inner_folds)} folds = "
