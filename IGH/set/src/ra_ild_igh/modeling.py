@@ -97,7 +97,7 @@ def _normalize_class_weight(value: ClassWeight) -> ClassWeight:
 
 @dataclass(frozen=True)
 class ElasticNetLogisticConfig:
-    """Hyperparameters required to reproduce one V1 Elastic Net fit."""
+    """Hyperparameters for Ridge/Elastic Net/Lasso logistic regression."""
 
     l1_ratio: float
     lambda_value: float
@@ -109,8 +109,8 @@ class ElasticNetLogisticConfig:
     penalty: str = "elasticnet"
 
     def __post_init__(self) -> None:
-        if not 0 < float(self.l1_ratio) <= 1:
-            raise ModelingError("l1_ratio must be in (0, 1].")
+        if not 0 <= float(self.l1_ratio) <= 1:
+            raise ModelingError("l1_ratio must be in [0, 1].")
         if float(self.lambda_value) <= 0:
             raise ModelingError("lambda_value must be > 0.")
         if isinstance(self.max_iter, bool) or int(self.max_iter) < 1:

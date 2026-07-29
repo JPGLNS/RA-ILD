@@ -43,11 +43,25 @@ class TestModeling(unittest.TestCase):
         self.assertEqual(config.solver, "saga")
         self.assertEqual(config.penalty, "elasticnet")
 
+    def test_regularization_alpha_endpoints_are_accepted(self) -> None:
+        for alpha in (0.0, 1.0):
+            config = ElasticNetLogisticConfig(
+                l1_ratio=alpha,
+                lambda_value=1.0,
+            )
+            self.assertEqual(config.l1_ratio, alpha)
+
     def test_invalid_hyperparameters_are_rejected(self) -> None:
-        with self.assertRaises(ModelingError):
-            ElasticNetLogisticConfig(l1_ratio=0.0, lambda_value=1.0)
+        for invalid_alpha in (-0.1, 1.1):
+            with self.assertRaises(ModelingError):
+                ElasticNetLogisticConfig(
+                    l1_ratio=invalid_alpha,
+                    lambda_value=1.0,
+                )
+
         with self.assertRaises(ModelingError):
             ElasticNetLogisticConfig(l1_ratio=0.5, lambda_value=0.0)
+
         with self.assertRaises(ModelingError):
             ElasticNetLogisticConfig(
                 l1_ratio=0.5,

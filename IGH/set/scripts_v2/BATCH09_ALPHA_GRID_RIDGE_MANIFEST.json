@@ -1,0 +1,24 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH09_ALPHA_GRID_RIDGE",
+  "version": "1.0.0",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reference_implementation": {
+    "trb_batch": "10",
+    "trb_commit": "056fd2eebed0f80a138c6571a801020ff7d9b0ab"
+  },
+  "capabilities": [
+    "optional alpha_grid override from feature-ablation YAML",
+    "optional lambda_grid override from feature-ablation YAML",
+    "alpha=0 Ridge endpoint support",
+    "alpha=1 Lasso endpoint support",
+    "automatic candidate and inner-fit count recalculation",
+    "two-model parameter-tuning YAML template"
+  ],
+  "excluded_scope": [
+    "automatic selection of the preceding experiment's top two models",
+    "automatic generation of A7",
+    "changes to frozen repeated-holdout splits",
+    "changes to default grids unless explicitly overridden",
+    "cross-repeat replay with repeat-specific vocabularies"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH09_ALPHA_GRID_RIDGE",
+  "version": "1.0.0",
+  "installed_utc": "2026-07-29T01:36:00.432991+00:00",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "trb_source_commit": "056fd2eebed0f80a138c6571a801020ff7d9b0ab",
+  "trb_source_ref": "056fd2eebed0f80a138c6571a801020ff7d9b0ab",
+  "installed_files": [
+    "IGH/set/configs/schemes/igh_scheme_005_parameter_tuning_template.yaml",
+    "IGH/set/scripts_v2/BATCH09_ALPHA_GRID_RIDGE_MANIFEST.json",
+    "IGH/set/scripts_v2/README_upgrade_batch09_alpha_grid_ridge.md",
+    "IGH/set/scripts_v2/prepare_feature_ablation_scheme.py",
+    "IGH/set/scripts_v2/test_batch09_alpha_grid_ridge.py",
+    "IGH/set/src/ra_ild_igh/config.py",
+    "IGH/set/src/ra_ild_igh/modeling.py",
+    "IGH/set/src/ra_ild_igh/specifications.py"
+  ],
+  "sha256": {
+    "IGH/set/configs/schemes/igh_scheme_005_parameter_tuning_template.yaml": "043980bdfe9ea7f5d53f773179eea0b5649fce4c20ed65c5f72aa3771b92f096",
+    "IGH/set/scripts_v2/BATCH09_ALPHA_GRID_RIDGE_MANIFEST.json": "2a72f2e0f2590f79433af76b144d1fe5246c944ac611956e163d57a76e9e1a4d",
+    "IGH/set/scripts_v2/README_upgrade_batch09_alpha_grid_ridge.md": "474f8b60c6de22064f13c5384f2216bcc16a83d33412cf389bbf4be577d6162a",
+    "IGH/set/scripts_v2/prepare_feature_ablation_scheme.py": "3b985a63fcd623b07d1e22857411e67e2ae4948a40e001565e34f09343e91391",
+    "IGH/set/scripts_v2/test_batch09_alpha_grid_ridge.py": "0dd47e77b6bd74043ce6d7e76bb59a090567f4e5f74ccd77366287ed75ab5966",
+    "IGH/set/src/ra_ild_igh/config.py": "2394ea97d244796f08a33131f148e5f544276c535faaf3619b0534f4852eafc9",
+    "IGH/set/src/ra_ild_igh/modeling.py": "436d621c77130460429721809c897542838ab03f49a2cb56b8d4af2b01cb3ce5",
+    "IGH/set/src/ra_ild_igh/specifications.py": "2ad33849953a18ae0f04ebbe6772020fe201ecbef2e7069ed8d3328958adb917"
+  },
+  "prerequisite": "IGH Batch 08 repeat-specific 3-mer feature groups",
+  "defaults_changed": false
+}
