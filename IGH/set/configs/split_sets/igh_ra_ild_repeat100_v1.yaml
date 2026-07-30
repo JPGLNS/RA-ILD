@@ -1,0 +1,40 @@
+split_set_version: '1.1'
+split_set:
+  id: igh_ra_ild_repeat100_v1
+  description: One hundred deterministic metadata-balanced 120/49 repeated holdouts
+    for paired IGH feature-ablation comparison.
+  status: development
+  output_root: IGH/set/split_sets/igh_ra_ild_repeat100_v1
+source:
+  metadata_files:
+  - IGH/set/train/metadata_train_70.csv
+  - IGH/set/test/metadata_test_30.csv
+  sample_id_column: libraryid
+  patient_id_column: patient
+  require_one_sample_per_patient: true
+  expected_samples: 169
+  expected_patients: 169
+split:
+  strategy: repeated_holdout
+  label_column: cohort
+  repeats: 100
+  train_size: 120
+  holdout_size: 49
+  exact_strata:
+  - cohort
+  - batch
+  singleton_strata_policy: fixed_train
+  expected_fixed_train_sample_ids:
+  - MGI260202N01-31
+  balance_categorical:
+  - material
+  - sex
+  balance_numeric:
+  - age
+  candidates_per_repeat: 5000
+  base_seed: 20260726
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+  role_names:
+    train: train
+    holdout: holdout
