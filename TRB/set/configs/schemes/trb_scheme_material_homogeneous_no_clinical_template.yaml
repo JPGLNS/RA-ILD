@@ -1,0 +1,39 @@
+scheme_version: "1.0"
+
+scheme:
+  id: trb_scheme_material_homogeneous_no_clinical_template
+  description: Template for a material-homogeneous cohort; excludes M0, age, sex, and the constant material sensitivity model.
+  status: template
+  base_config: TRB/set/configs/trb_baseline_m2_v1.yaml
+  output_root: TRB/set/experiments/trb_scheme_material_homogeneous_no_clinical_template
+
+# Complete replacement removes the inherited M0 and M3 mappings. Material remains
+# available as audit metadata but is not a predictor because it is constant within
+# PBMC-only or buffercoat-only cohorts.
+replacements:
+  models:
+    M1_static_tcr:
+      description: Static TRB repertoire features only.
+      numeric: []
+      categorical: []
+      static_feature_groups: [static_tcr_candidate_predictors]
+      dynamic_public: []
+
+    M2_static_tcr_public:
+      description: Static TRB features plus dynamic public-reference features.
+      numeric: []
+      categorical: []
+      static_feature_groups: [static_tcr_candidate_predictors]
+      dynamic_public:
+        - all_ref_public_clone_ratio
+        - all_ref_public_frequency_sum
+        - shared_ref_clone_ratio
+        - shared_ref_frequency_sum
+        - RA_specific_ref_clone_ratio
+        - RA_specific_ref_frequency_sum
+        - ILD_specific_ref_clone_ratio
+        - ILD_specific_ref_frequency_sum
+
+overrides:
+  final_model:
+    status: not_selected

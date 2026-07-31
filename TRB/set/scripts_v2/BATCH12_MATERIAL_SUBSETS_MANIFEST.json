@@ -1,0 +1,72 @@
+{
+  "batch": "12",
+  "name": "configurable_material_subset_cohorts",
+  "version": "1.0.0",
+  "target_repository": "JPGLNS/RA-ILD",
+  "target_branch_reviewed": "feature/trb-scheme-upgrade-batch01",
+  "target_commit_reviewed": "83ba7e4deae49cd1e4607500bb358052be1c3b26",
+  "scope": "Additive preparation of frozen PBMC-only and buffercoat-only source cohorts for the existing repeated-holdout modeling framework",
+  "compatibility": {
+    "existing_files_replaced": false,
+    "existing_split_code_modified": false,
+    "existing_training_bundle_code_modified": false,
+    "existing_nested_cv_code_modified": false,
+    "existing_results_modified": false,
+    "existing_v1_split_schema_reused": true,
+    "existing_v1_training_bundle_schema_reused": true,
+    "python_minimum": "3.8"
+  },
+  "files": [
+    "TRB/set/src/ra_ild_trb/cohort_subset.py",
+    "TRB/set/scripts_v2/prepare_material_subset.py",
+    "TRB/set/scripts_v2/test_batch12_material_subsets.py",
+    "TRB/set/scripts_v2/README_upgrade_batch12_material_subsets.md",
+    "TRB/set/scripts_v2/BATCH12_MATERIAL_SUBSETS_MANIFEST.json",
+    "TRB/set/configs/material_subsets/trb_pbmc_only_v1.yaml",
+    "TRB/set/configs/material_subsets/trb_buffercoat_only_v1.yaml",
+    "TRB/set/configs/repeated_holdout_splits/ra_ild_pbmc_repeat100_v1.yaml",
+    "TRB/set/configs/repeated_holdout_splits/ra_ild_buffercoat_repeat100_v1.yaml",
+    "TRB/set/configs/repeated_holdout_training/trb_pbmc_repeat100_training_v1.yaml",
+    "TRB/set/configs/repeated_holdout_training/trb_buffercoat_repeat100_training_v1.yaml",
+    "TRB/set/configs/schemes/trb_scheme_material_homogeneous_no_clinical_template.yaml",
+    "TRB/set/configs/schemes/trb_scheme_pbmc_a1_a6_repeat100_v1.yaml",
+    "TRB/set/configs/schemes/trb_scheme_buffercoat_a1_a6_repeat100_v1.yaml"
+  ],
+  "configured_populations": {
+    "PBMC": {
+      "samples": 111,
+      "RA": 67,
+      "ILD": 44,
+      "train_size": 78,
+      "holdout_size": 33,
+      "exact_strata": [
+        "cohort",
+        "batch"
+      ]
+    },
+    "buffercoat": {
+      "samples": 63,
+      "RA": 41,
+      "ILD": 22,
+      "train_size": 44,
+      "holdout_size": 19,
+      "exact_strata": [
+        "cohort"
+      ],
+      "balance_categorical": [
+        "batch",
+        "sex"
+      ],
+      "reason": "batch4 x ILD contains one patient and cannot be an exact stratum"
+    }
+  },
+  "focused_tests": {
+    "count": 10,
+    "status": "PASS",
+    "synthetic_matrix_shape": [
+      174,
+      1090
+    ],
+    "python_3_8_parse_check": "PASS"
+  }
+}

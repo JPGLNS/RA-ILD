@@ -1,0 +1,42 @@
+split_set_version: "1.0"
+
+split_set:
+  id: ra_ild_buffercoat_repeat100_v1
+  description: One hundred deterministic metadata-balanced 44/19 repeated holdouts within the 63-patient buffercoat-only cohort.
+  status: development
+  output_root: TRB/set/split_sets/ra_ild_buffercoat_repeat100_v1
+
+source:
+  metadata_files:
+    - TRB/set/cohort_subsets/trb_buffercoat_only_v1/subset_metadata.csv
+  sample_id_column: libraryid
+  patient_id_column: patient
+  require_one_sample_per_patient: true
+  expected_samples: 63
+  expected_patients: 63
+
+split:
+  strategy: repeated_holdout
+  label_column: cohort
+  repeats: 100
+  train_size: 44
+  holdout_size: 19
+
+  # batch4 x ILD has one patient, so cohort x batch cannot be an exact stratum.
+  exact_strata:
+    - cohort
+
+  # Batch is optimized as a balance variable instead of being forced exactly.
+  balance_categorical:
+    - batch
+    - sex
+  balance_numeric:
+    - age
+
+  candidates_per_repeat: 5000
+  base_seed: 20260724
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+  role_names:
+    train: train
+    holdout: holdout
