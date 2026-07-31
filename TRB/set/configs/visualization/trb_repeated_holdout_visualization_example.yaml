@@ -1,0 +1,73 @@
+visualization_version: '1.0'
+
+visualization:
+  id: scheme011_selected_models_v1
+  source_mode: native_repeated_holdout
+  aggregation_dir: TRB/set/experiments/trb_scheme_011_a1_a6_repeat100_fullgrid/03_summary
+  output_dir: TRB/set/experiments/trb_scheme_011_a1_a6_repeat100_fullgrid/06_visualization/scheme011_selected_models_v1
+  require_complete_marker: true
+  overwrite: false
+
+model_labels:
+  A1_core83: Core83
+  A3_core83_unweighted500: Core83 + Unweighted Top500
+  A5_core83_public: Core83 + Public Features
+
+figures:
+  figure1:
+    enabled: true
+    output_file: Figure1_model_performance_boxplots.pdf
+    models:
+      - A1_core83
+      - A3_core83_unweighted500
+      - A5_core83_public
+    metrics:
+      - roc_auc
+      - pr_auc
+      - f1
+      - sensitivity_recall
+      - specificity
+    max_columns: 3
+    show_repeat_points: true
+    show_mean: true
+    y_limits: [0.0, 1.0]
+
+  figure2:
+    enabled: true
+    output_file: Figure2_mean_ROC_curves.pdf
+    models:
+      - A1_core83
+      - A3_core83_unweighted500
+      - A5_core83_public
+    max_columns: 3
+    fpr_grid_points: 201
+    show_repeat_variability_band: true
+    variability_quantiles: [0.025, 0.975]
+
+  figure3:
+    enabled: true
+    output_file: Figure3_best_repeat_ROC_curves.pdf
+    models:
+      - A3_core83_unweighted500
+      - A5_core83_public
+    max_columns: 3
+    repeat_selection:
+      mode: best
+      primary_metric: roc_auc
+      tie_breakers:
+        - pr_auc
+        - f1
+        - outer_repeat
+    mark_saved_threshold_operating_point: true
+
+  figure4:
+    enabled: true
+    output_file: Figure4_best_repeat_prediction_boxplots.pdf
+    models:
+      - A3_core83_unweighted500
+      - A5_core83_public
+    max_columns: 3
+    repeat_selection:
+      reuse_selection_from: figure3
+    show_patient_points: true
+    show_saved_threshold: true

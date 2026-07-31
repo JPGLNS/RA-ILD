@@ -1,0 +1,30 @@
+{
+  "batch": "11",
+  "name": "configurable_repeated_holdout_visualization",
+  "version": "1.0.1",
+  "target_repository": "JPGLNS/RA-ILD",
+  "target_branch_reviewed": "feature/trb-scheme-upgrade-batch01",
+  "scope": "Read-only post-training visualization of native repeated-holdout aggregation outputs",
+  "files": [
+    "TRB/set/src/ra_ild_trb/repeated_holdout_visualization.py",
+    "TRB/set/scripts_v2/plot_repeated_holdout_results.py",
+    "TRB/set/scripts_v2/test_batch11_repeated_holdout_visualization.py",
+    "TRB/set/scripts_v2/README_upgrade_batch11_visualization.md",
+    "TRB/set/scripts_v2/BATCH11_REPEATED_HOLDOUT_VISUALIZATION_MANIFEST.json",
+    "TRB/set/configs/visualization/trb_repeated_holdout_visualization_example.yaml"
+  ],
+  "training_outputs_modified": false,
+  "model_refit_performed": false,
+  "cross_repeat_n_by_n_used": false,
+  "figures": {
+    "figure1": "Multiple metric panels in one PDF; each panel compares selected models across repeats",
+    "figure2": "One mean ROC panel per selected model using per-repeat interpolation and macro-averaging",
+    "figure3": "One ROC panel per selected model for the deterministic best observed repeat",
+    "figure4": "One RA/ILD probability boxplot panel per selected model using the same best repeat as Figure 3"
+  },
+  "hotfix": {
+    "issue": "NumPy 2.4+ removed numpy.trapz",
+    "resolution": "Use runtime-compatible trapezoid integration with numpy.trapezoid and legacy fallback",
+    "reported_environment": "NumPy 2.5.1 / pandas 3.0.3 / matplotlib 3.11.1 / scikit-learn 1.9.0"
+  }
+}
