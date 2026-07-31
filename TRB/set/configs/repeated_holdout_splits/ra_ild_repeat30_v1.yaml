@@ -1,0 +1,36 @@
+split_set_version: '1.0'
+split_set:
+  id: ra_ild_repeat30_v1
+  description: Thirty deterministic metadata-balanced 123/51 repeated holdout splits.
+  status: development
+  output_root: TRB/set/split_sets/ra_ild_repeat30_v1
+source:
+  metadata_files:
+  - TRB/set/train/metadata_train_70.csv
+  - TRB/set/test/metadata_test_30.csv
+  sample_id_column: libraryid
+  patient_id_column: patient
+  require_one_sample_per_patient: true
+  expected_samples: 174
+  expected_patients: 174
+split:
+  strategy: repeated_holdout
+  label_column: cohort
+  repeats: 30
+  train_size: 123
+  holdout_size: 51
+  exact_strata:
+  - cohort
+  - batch
+  balance_categorical:
+  - material
+  - sex
+  balance_numeric:
+  - age
+  candidates_per_repeat: 5000
+  base_seed: 20260724
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+  role_names:
+    train: train
+    holdout: holdout

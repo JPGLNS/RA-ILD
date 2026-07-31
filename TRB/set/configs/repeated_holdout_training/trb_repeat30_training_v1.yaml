@@ -1,0 +1,51 @@
+training_bundle_version: '1.0'
+bundle:
+  id: trb_repeat30_training_inputs_v1
+  description: Full-cohort static and sequence inputs for thirty frozen 123/51 repeated holdouts.
+  output_root: TRB/set/training_bundles/trb_repeat30_training_inputs_v1
+split_set:
+  assignments: TRB/set/split_sets/ra_ild_repeat30_v1/repeated_holdout_assignments.csv
+  frozen_marker: TRB/set/split_sets/ra_ild_repeat30_v1/SPLITS_FROZEN.json
+  train_role: train
+  holdout_role: holdout
+source:
+  train_base_matrix: TRB/set/train/result/04_final_feature_matrix/04_train_base_feature_matrix.csv
+  test_final_matrix: TRB/set/test/result/04_final_feature_matrix/04_test_final_feature_matrix.csv
+  feature_manifest: TRB/set/train/result/04_final_feature_matrix/04_feature_manifest.csv
+  train_aa_clone_table_dir: TRB/set/train/result/01_AA_clone_table
+  test_aa_clone_table_dir: TRB/set/test/result/01_AA_clone_table
+  sample_id_column: sample_id
+  label_column: cohort
+  required_metadata_columns:
+  - cohort
+  - batch
+  - material
+  - sex
+  - age
+  - aa_clone_number
+aa_tables:
+  sequence_column: cdr3_aa
+  frequency_column_candidates:
+  - frequency_norm
+  - frequency
+  - read_fraction
+  file_globs:
+  - '**/*.csv'
+  - '**/*.csv.gz'
+inner_cv:
+  folds: 5
+  exact_strata:
+  - cohort
+  balance_categorical:
+  - batch
+  - material
+  - sex
+  balance_numeric:
+  - age
+  candidates: 500
+  base_seed: 20260724
+scheme:
+  template: TRB/set/configs/schemes/trb_scheme_002_no_clinical.yaml
+  generated_scheme: TRB/set/configs/schemes/generated/trb_scheme_003_repeat30_no_clinical.generated.yaml
+  id: trb_scheme_003_repeat30_no_clinical
+  output_root: TRB/set/experiments/trb_scheme_003_repeat30_no_clinical

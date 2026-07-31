@@ -24,6 +24,10 @@ from ra_ild_trb.outer_cv import (  # noqa: E402
 )
 
 
+DEFAULT_WORKERS = 1
+MAX_WORKERS = 8
+
+
 def parse_task_filter(text: str) -> Tuple[Tuple[int, int], ...]:
     if not text.strip():
         return tuple()
@@ -37,7 +41,9 @@ def parse_task_filter(text: str) -> Tuple[Tuple[int, int], ...]:
         try:
             repeat, fold = (int(parts[0]), int(parts[1]))
         except ValueError as exc:
-            raise argparse.ArgumentTypeError("Task repeat/fold values must be integers") from exc
+            raise argparse.ArgumentTypeError(
+                "Task repeat/fold values must be integers"
+            ) from exc
         if repeat < 1 or fold < 1:
             raise argparse.ArgumentTypeError("Task repeat/fold values must be >= 1")
         values.append((repeat, fold))
@@ -54,7 +60,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", required=True)
     parser.add_argument("--repository-root", default=None)
     parser.add_argument("--python-executable", default=sys.executable)
-    parser.add_argument("--workers", type=int, default=None)
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_WORKERS,
+        help=f"Concurrent outer tasks; allowed range is 1-{MAX_WORKERS}",
+    )
     parser.add_argument("--tasks", type=parse_task_filter, default=tuple())
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--rerun-incomplete", action="store_true")
@@ -68,7 +79,8 @@ def _subset_tasks(tasks: Sequence, requested):
     if requested:
         requested_set = set(requested)
         selected = [
-            task for task in selected
+            task
+            for task in selected
             if (task.outer_repeat, task.outer_fold) in requested_set
         ]
         observed = {(task.outer_repeat, task.outer_fold) for task in selected}
@@ -83,7 +95,9 @@ def main() -> int:
     try:
         config = load_experiment_config(
             Path(args.config),
-            repository_root=Path(args.repository_root) if args.repository_root else None,
+            repository_root=Path(args.repository_root)
+            if args.repository_root
+            else None,
         )
         cv = config.section("cross_validation")
         engine = config.section("model_engine")
@@ -92,7 +106,9 @@ def main() -> int:
         outer = config.section("outer_tasks")
 
         output_root = config.path("outer_tasks.output_root")
-        runner_script = config.path("outer_tasks.runner_script", must_exist=True, expect="file")
+        runner_script = config.path(
+            "outer_tasks.runner_script", must_exist=True, expect="file"
+        )
         manifest_path = config.path("outer_tasks.manifest")
         status_path = config.path("outer_tasks.status")
         log_dir = config.path("outer_tasks.logs_dir")
@@ -102,11 +118,14 @@ def main() -> int:
         executed_outer_folds = tuple(
             int(value)
             for value in cv.get(
-                "executed_outer_folds", range(1, int(cv["outer_folds"]) + 1)
+                "executed_outer_folds",
+                range(1, int(cv["outer_folds"]) + 1),
             )
         )
         all_tasks = tuple(
-            task for task in configured_tasks if task.outer_fold in executed_outer_folds
+            task
+            for task in configured_tasks
+            if task.outer_fold in executed_outer_folds
         )
         if len(all_tasks) != int(outer["expected_tasks"]):
             raise OuterCVError(
@@ -125,9 +144,15 @@ def main() -> int:
         status = scan_outer_tasks(
             all_tasks,
             expected_models=models,
-            expected_samples=int(config.raw["data"]["train"]["expected_samples"]),
-            expected_candidates_per_model=len(engine["alpha_grid"]) * len(engine["lambda_grid"]),
-            expected_static_features=int(selection["expected_static_feature_count"]),
+            expected_samples=int(
+                config.raw["data"]["train"]["expected_samples"]
+            ),
+            expected_candidates_per_model=(
+                len(engine["alpha_grid"]) * len(engine["lambda_grid"])
+            ),
+            expected_static_features=int(
+                selection["expected_static_feature_count"]
+            ),
         )
         status_path.parent.mkdir(parents=True, exist_ok=True)
         status.to_csv(status_path, index=False)
@@ -139,33 +164,68 @@ def main() -> int:
             "Counts: "
             + ", ".join(
                 f"{name}={int(counts.get(name, 0))}"
-                for name in ("complete", "missing", "incomplete", "invalid")
+                for name in (
+                    "complete",
+                    "missing",
+                    "incomplete",
+                    "invalid",
+                )
             )
         )
 
         if args.status_only or not args.execute:
             if not args.execute:
-                print("No tasks executed. Add --execute to start selected pending tasks.")
+                print(
+                    "No tasks executed. Add --execute to start selected "
+                    "pending tasks."
+                )
             return 0
 
         selected_ids = {task.task_id for task in tasks}
-        selected_status = status.loc[status["task_id"].isin(selected_ids)].copy()
+        selected_status = status.loc[
+            status["task_id"].isin(selected_ids)
+        ].copy()
         if args.limit is not None:
             if args.limit < 1:
                 raise OuterCVError("--limit must be >= 1")
-            pending_ids = selected_status.loc[
-                selected_status["status"] != "complete", "task_id"
-            ].astype(str).tolist()[: args.limit]
-            tasks = tuple(task for task in tasks if task.task_id in set(pending_ids))
+            pending_ids = (
+                selected_status.loc[
+                    selected_status["status"] != "complete",
+                    "task_id",
+                ]
+                .astype(str)
+                .tolist()[: args.limit]
+            )
+            tasks = tuple(
+                task for task in tasks if task.task_id in set(pending_ids)
+            )
             selected_status = selected_status.loc[
                 selected_status["task_id"].isin(pending_ids)
             ].copy()
-        workers = int(args.workers or outer["default_workers"])
-        max_workers = int(outer["max_workers"])
-        if workers > max_workers:
+
+        workers = int(args.workers)
+        if not 1 <= workers <= MAX_WORKERS:
             raise OuterCVError(
-                f"Requested workers={workers} exceeds configured max_workers={max_workers}."
+                f"--workers must be between 1 and {MAX_WORKERS}; "
+                f"observed {workers}."
             )
+
+        configured_default = int(outer["default_workers"])
+        configured_max = int(outer["max_workers"])
+        print(
+            f"Workers: {workers} "
+            f"(CLI default={DEFAULT_WORKERS}, allowed=1-{MAX_WORKERS})"
+        )
+        if (
+            configured_default != DEFAULT_WORKERS
+            or configured_max != MAX_WORKERS
+        ):
+            print(
+                "Worker note: outer_tasks.default_workers/max_workers in the "
+                f"resolved config are metadata only for this runner "
+                f"(configured={configured_default}/{configured_max})."
+            )
+
         execution = execute_outer_tasks(
             tasks,
             selected_status,
@@ -183,11 +243,18 @@ def main() -> int:
             print("Actions:")
             for name, count in execution["action"].value_counts().items():
                 print(f"  {name}: {int(count)}")
-        failed = execution["action"].isin(["failed", "scheduler_exception"]).any()
-        blocked = execution["action"].eq("blocked_incomplete_or_invalid").any()
+        failed = execution["action"].isin(
+            ["failed", "scheduler_exception"]
+        ).any()
+        blocked = execution["action"].eq(
+            "blocked_incomplete_or_invalid"
+        ).any()
         return 1 if failed or blocked else 0
     except Exception as exc:
-        print(f"TRB V2 outer-task manager: FAIL\n{exc}", file=sys.stderr)
+        print(
+            f"TRB V2 outer-task manager: FAIL\n{exc}",
+            file=sys.stderr,
+        )
         return 1
 
 

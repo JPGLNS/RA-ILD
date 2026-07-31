@@ -1,0 +1,59 @@
+feature_ablation_scheme_version: '1.0'
+scheme:
+  id: trb_scheme_009_parameter_tuning_repeat30
+  description: Thirty frozen repeated holdouts comparing weighted Top-500 and both Top-50 feature combinations
+    across Ridge, Elastic Net and Lasso parameter values.
+  base_resolved_config: TRB/set/experiments/trb_scheme_003_repeat30_no_clinical/00_config/resolved_config.yaml
+  output_root: TRB/set/experiments/trb_scheme_009_parameter_tuning_repeat30
+model_engine:
+  alpha_grid:
+  - 0.0
+  - 0.1
+  - 0.25
+  - 0.5
+  - 0.75
+  - 0.9
+  - 1.0
+  lambda_grid:
+  - 0.01
+  - 0.03
+  - 0.1
+  - 0.3
+  - 1.0
+  - 3.0
+  - 10.0
+  - 30.0
+repeat_3mer_features:
+  enabled: true
+  selection_scope: outer_repeat_train_only
+  ranking_rule: prevalence_then_total_variance
+  aa_manifest: TRB/set/training_bundles/trb_repeat30_training_inputs_v1/aa_clone_table_manifest.csv
+  sequence_column: cdr3_aa
+  min_sample_count: 5
+  min_prevalence: 0.05
+  min_unweighted_variance: 1.0e-12
+  min_weighted_variance: 1.0e-12
+  max_kmers: 500
+  top_k_values:
+  - 50
+  - 500
+  expected_core_feature_count: 83
+  core_group_name: core83
+  legacy_group_name: static_tcr_candidate_predictors
+models:
+  P1_core83_weighted500:
+    description: Core 83 plus repeat-specific Top-500 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top500
+    dynamic_public: []
+  P2_core83_both50:
+    description: Core 83 plus both representations of repeat-specific Top-50 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top50
+    dynamic_public: []
