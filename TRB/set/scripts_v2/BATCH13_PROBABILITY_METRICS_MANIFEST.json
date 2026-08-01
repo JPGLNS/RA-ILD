@@ -1,0 +1,56 @@
+{
+  "batch": "TRB_V2_BATCH13_PROBABILITY_METRICS",
+  "version": "1.0.0",
+  "reviewed_repository": "JPGLNS/RA-ILD",
+  "reviewed_branch": "feature/trb-scheme-upgrade-batch01",
+  "purpose": "Add log-loss and Brier score to native outer-holdout evaluation, aggregation, paired model comparison, bootstrap support, and completed-result backfill.",
+  "modified_files": [
+    {
+      "path": "TRB/set/src/ra_ild_trb/metrics.py",
+      "reviewed_blob_sha": "c4caf5702738ff12928d2c8f1087671912bc0818"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/nested_cv.py",
+      "reviewed_blob_sha": "54f0914ac8f9ffe5ed95ee104d5cdf692ed78827"
+    },
+    {
+      "path": "TRB/set/src/ra_ild_trb/repeated_holdout_summary.py",
+      "reviewed_blob_sha": "4a86cd47962171507c6f64de3b118f6dc87f6a2b"
+    },
+    {
+      "path": "TRB/set/scripts_v2/test_batch05_repeated_holdout_summary.py",
+      "reviewed_blob_sha": "6340a1c50e36e361858f0436292bd000bf4d63fe"
+    },
+    {
+      "path": "TRB/set/tests/test_metrics.py",
+      "reviewed_blob_sha": "2ddf31dc2ebe361ab20d28e2a091416c5efe70fa"
+    }
+  ],
+  "new_files": [
+    "TRB/set/scripts_v2/backfill_probability_metrics.py",
+    "TRB/set/scripts_v2/test_batch13_probability_metrics.py",
+    "TRB/set/scripts_v2/README_upgrade_batch13_probability_metrics.md",
+    "TRB/set/scripts_v2/BATCH13_PROBABILITY_METRICS_MANIFEST.json",
+    "TRB/set/tests/test_probability_metrics.py"
+  ],
+  "metric_contract": {
+    "higher_is_better": [
+      "roc_auc",
+      "pr_auc",
+      "accuracy",
+      "sensitivity_recall",
+      "specificity",
+      "precision",
+      "f1"
+    ],
+    "lower_is_better": [
+      "log_loss",
+      "brier_score"
+    ],
+    "inner_hyperparameter_selection_changed": false,
+    "threshold_selection_changed": false,
+    "model_predictions_changed": false
+  },
+  "acceptance_marker": "TRB_BATCH13_ACCEPTANCE_PASS",
+  "runtime_outputs_to_commit": false
+}

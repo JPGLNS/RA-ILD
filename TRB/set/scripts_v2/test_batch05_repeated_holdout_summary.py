@@ -66,7 +66,7 @@ class Batch05Tests(unittest.TestCase):
         pd.DataFrame(roles).to_csv(task.output_dir/"06_task_sample_roles.csv",index=False)
         metrics=[]; preds=[]; coefs=[]
         for mi,m in enumerate(self.models):
-            metrics.append({"model":m,"roc_auc":.60+.02*task.outer_repeat+.01*mi,"pr_auc":.55+.02*task.outer_repeat+.01*mi,"accuracy":.6,"sensitivity_recall":.5,"specificity":.7,"precision":.6,"f1":.55,"threshold":.45+.01*task.outer_repeat,"selected_l1_ratio_alpha":.5,"selected_lambda":10.0,"inner_selected_roc_auc":.65,"inner_selected_pr_auc":.60})
+            metrics.append({"model":m,"roc_auc":.60+.02*task.outer_repeat+.01*mi,"pr_auc":.55+.02*task.outer_repeat+.01*mi,"log_loss":.65-.01*task.outer_repeat-.005*mi,"brier_score":.22-.005*task.outer_repeat-.002*mi,"accuracy":.6,"sensitivity_recall":.5,"specificity":.7,"precision":.6,"f1":.55,"threshold":.45+.01*task.outer_repeat,"selected_l1_ratio_alpha":.5,"selected_lambda":10.0,"inner_selected_roc_auc":.65,"inner_selected_pr_auc":.60})
             for s in hold:
                 i=int(s[1:]); truth=1 if i%2 else 0
                 preds.append({"model":m,"sample_id":s,"true_label":truth,"true_cohort":"ILD" if truth else "RA","probability_ILD":.7 if truth else .3,"threshold":.5,"predicted_label":truth})
@@ -86,7 +86,7 @@ class Batch05Tests(unittest.TestCase):
         bad=self.status.copy(); bad.loc[0,"status"]="missing"
         with self.assertRaises(RepeatedHoldoutSummaryError): aggregate_repeated_holdout_results(self.tasks,bad,self.assignments,expected_models=self.models,expected_split_set_id="split_v1",expected_split_count=3,expected_holdout_size=4,coefficient_tolerance=1e-12,minimum_selection_frequency=.5,minimum_sign_consistency=.8)
     def test_aggregate_counts_and_summary(self):
-        a=self._aggregate(); self.assertEqual(len(a.metrics),6); self.assertEqual(len(a.predictions),24); self.assertEqual(len(a.metric_summary),14)
+        a=self._aggregate(); self.assertEqual(len(a.metrics),6); self.assertEqual(len(a.predictions),24); self.assertEqual(len(a.metric_summary),18)
     def test_membership_mismatch_rejected(self):
         p=self.tasks[0].output_dir/"06_outer_validation_predictions.csv"; f=pd.read_csv(p); f.loc[0,"sample_id"]="BAD"; f.to_csv(p,index=False)
         with self.assertRaises(RepeatedHoldoutSummaryError): self._aggregate()

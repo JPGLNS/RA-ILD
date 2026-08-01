@@ -27,12 +27,16 @@ class RepeatedHoldoutSummaryError(ValueError):
 METRIC_NAMES: Tuple[str, ...] = (
     "roc_auc",
     "pr_auc",
+    "log_loss",
+    "brier_score",
     "accuracy",
     "sensitivity_recall",
     "specificity",
     "precision",
     "f1",
 )
+
+LOWER_IS_BETTER_METRICS = frozenset({"log_loss", "brier_score"})
 
 OUTPUT_FILE_NAMES: Mapping[str, str] = {
     "manifest": "08_task_manifest.csv",
@@ -201,6 +205,8 @@ def _model_ranking(summary: pd.DataFrame) -> pd.DataFrame:
             wide[metric] = np.nan
     wide["rank_mean_roc_auc"] = wide["roc_auc"].rank(method="min", ascending=False).astype(int)
     wide["rank_mean_pr_auc"] = wide["pr_auc"].rank(method="min", ascending=False).astype(int)
+    wide["rank_mean_log_loss"] = wide["log_loss"].rank(method="min", ascending=True).astype(int)
+    wide["rank_mean_brier_score"] = wide["brier_score"].rank(method="min", ascending=True).astype(int)
     wide = wide.sort_values(
         ["roc_auc", "pr_auc", "f1", "specificity", "sensitivity_recall", "model"],
         ascending=[False, False, False, False, False, True],
@@ -319,18 +325,27 @@ def _pairwise_model_differences(metrics: pd.DataFrame) -> pd.DataFrame:
                 a = np.asarray([indexed.loc[(split_id, model_a), metric] for split_id in common], dtype=float)
                 b = np.asarray([indexed.loc[(split_id, model_b), metric] for split_id in common], dtype=float)
                 difference = b - a
+                lower_is_better = metric in LOWER_IS_BETTER_METRICS
+                comparison_wins = difference < 0 if lower_is_better else difference > 0
+                comparison_losses = difference > 0 if lower_is_better else difference < 0
                 rows.append(
                     {
                         "reference_model": model_a,
                         "comparison_model": model_b,
                         "metric": metric,
+                        "metric_direction": (
+                            "lower_is_better" if lower_is_better else "higher_is_better"
+                        ),
+                        "favorable_difference_sign": (
+                            "negative" if lower_is_better else "positive"
+                        ),
                         "n_paired_splits": int(len(common)),
                         "mean_difference_comparison_minus_reference": float(np.mean(difference)),
                         "sd_difference": float(np.std(difference, ddof=1)) if len(difference) > 1 else 0.0,
                         "median_difference": float(np.median(difference)),
-                        "comparison_win_frequency": float(np.mean(difference > 0)),
+                        "comparison_win_frequency": float(np.mean(comparison_wins)),
                         "tie_frequency": float(np.mean(np.isclose(difference, 0.0, atol=1e-15, rtol=0.0))),
-                        "comparison_loss_frequency": float(np.mean(difference < 0)),
+                        "comparison_loss_frequency": float(np.mean(comparison_losses)),
                     }
                 )
     return pd.DataFrame(rows)

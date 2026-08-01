@@ -15,6 +15,7 @@ from sklearn.metrics import (
     brier_score_loss,
     confusion_matrix,
     f1_score,
+    log_loss,
     precision_score,
     recall_score,
     roc_auc_score,
@@ -74,14 +75,17 @@ class TestMetrics(unittest.TestCase):
     def test_brier_and_sample_summary_are_optional(self) -> None:
         basic = classification_metrics(self.y, self.p, self.threshold)
         self.assertNotIn("brier_score", basic)
+        self.assertNotIn("log_loss", basic)
         observed = classification_metrics(
             self.y,
             self.p,
             self.threshold,
             include_brier=True,
+            include_log_loss=True,
             include_sample_summary=True,
         )
         self.assertAlmostEqual(observed["brier_score"], brier_score_loss(self.y, self.p))
+        self.assertAlmostEqual(observed["log_loss"], log_loss(self.y, self.p, labels=[0, 1]))
         self.assertEqual(observed["n_test"], 8)
         self.assertEqual(observed["n_RA"], 4)
         self.assertEqual(observed["n_ILD"], 4)
@@ -125,7 +129,7 @@ class TestMetrics(unittest.TestCase):
             seed=5,
         ).set_index("metric")
         observed = classification_metrics(
-            self.y, self.p, self.threshold, include_brier=True
+            self.y, self.p, self.threshold, include_brier=True, include_log_loss=True
         )
         for metric in BOOTSTRAP_METRICS:
             self.assertAlmostEqual(ci.loc[metric, "estimate"], observed[metric])

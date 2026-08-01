@@ -14,6 +14,7 @@ from sklearn.metrics import (
     brier_score_loss,
     confusion_matrix,
     f1_score,
+    log_loss,
     precision_score,
     recall_score,
     roc_auc_score,
@@ -34,6 +35,7 @@ BOOTSTRAP_METRICS: Tuple[str, ...] = (
     "specificity",
     "precision",
     "f1",
+    "log_loss",
     "brier_score",
 )
 
@@ -80,6 +82,7 @@ def classification_metrics(
     threshold: float,
     *,
     include_brier: bool = False,
+    include_log_loss: bool = False,
     include_sample_summary: bool = False,
 ) -> Dict[str, float]:
     """Calculate the V1 metric names and confusion-matrix counts."""
@@ -107,6 +110,8 @@ def classification_metrics(
         "FN": int(fn),
         "TP": int(tp),
     }
+    if include_log_loss:
+        result["log_loss"] = float(log_loss(y, p, labels=[0, 1]))
     if include_brier:
         result["brier_score"] = float(brier_score_loss(y, p))
     if include_sample_summary:
@@ -159,11 +164,14 @@ def stratified_bootstrap_ci(
             p[index],
             threshold,
             include_brier=True,
+            include_log_loss=True,
         )
         for name in names:
             values[name].append(float(metrics[name]))
 
-    observed = classification_metrics(y, p, threshold, include_brier=True)
+    observed = classification_metrics(
+        y, p, threshold, include_brier=True, include_log_loss=True
+    )
     rows = []
     for name in names:
         distribution = np.asarray(values[name], dtype=float)
