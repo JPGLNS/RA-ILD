@@ -1,0 +1,192 @@
+feature_ablation_scheme_version: "1.0"
+
+scheme:
+  id: trb_scheme_pbmc_feature14_repeat100_fullgrid_v1
+  description: >-
+    PBMC-only 14-model TRB feature-ablation study across 100 frozen
+    repeated holdouts, comparing Core83, repeat-specific Top-K weighted,
+    unweighted and combined 3-mer representations, and dynamic public
+    features under one common Ridge, Elastic Net and Lasso grid.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_pbmc_repeat100_no_clinical/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_scheme_pbmc_feature14_repeat100_fullgrid_v1
+
+repeat_3mer_features:
+  enabled: true
+  selection_scope: outer_repeat_train_only
+  ranking_rule: prevalence_then_total_variance
+  aa_manifest: >-
+    TRB/set/training_bundles/trb_pbmc_repeat100_training_inputs_v1/aa_clone_table_manifest.csv
+  sequence_column: cdr3_aa
+
+  min_sample_count: 5
+  min_prevalence: 0.05
+  min_unweighted_variance: 1.0e-12
+  min_weighted_variance: 1.0e-12
+
+  max_kmers: 500
+  top_k_values:
+    - 50
+    - 100
+    - 200
+    - 500
+
+  expected_core_feature_count: 83
+  core_group_name: core83
+  legacy_group_name: static_tcr_candidate_predictors
+
+models:
+  A1_core83:
+    description: Core83 static TRB features only.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+    dynamic_public: []
+
+  A2_core83_weighted500:
+    description: Core83 plus repeat-specific Top-500 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_weighted_top500
+    dynamic_public: []
+
+  A3_core83_unweighted500:
+    description: Core83 plus repeat-specific Top-500 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_unweighted_top500
+    dynamic_public: []
+
+  A4_core83_both500:
+    description: >-
+      Core83 plus repeat-specific Top-500 weighted and unweighted
+      3-mer representations.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_both_top500
+    dynamic_public: []
+
+  A5_core83_public:
+    description: Core83 plus eight dynamic public-reference features.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+    dynamic_public:
+      - all_ref_public_clone_ratio
+      - all_ref_public_frequency_sum
+      - shared_ref_clone_ratio
+      - shared_ref_frequency_sum
+      - RA_specific_ref_clone_ratio
+      - RA_specific_ref_frequency_sum
+      - ILD_specific_ref_clone_ratio
+      - ILD_specific_ref_frequency_sum
+
+  A6_core83_both50:
+    description: Core83 plus repeat-specific Top-50 both 3-mer representations.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_both_top50
+    dynamic_public: []
+
+  A6_core83_both100:
+    description: Core83 plus repeat-specific Top-100 both 3-mer representations.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_both_top100
+    dynamic_public: []
+
+  A6_core83_both200:
+    description: Core83 plus repeat-specific Top-200 both 3-mer representations.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_both_top200
+    dynamic_public: []
+
+  A7_core83_unweighted50:
+    description: Core83 plus repeat-specific Top-50 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_unweighted_top50
+    dynamic_public: []
+
+  A8_core83_unweighted100:
+    description: Core83 plus repeat-specific Top-100 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_unweighted_top100
+    dynamic_public: []
+
+  A9_core83_unweighted200:
+    description: Core83 plus repeat-specific Top-200 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_unweighted_top200
+    dynamic_public: []
+
+  A10_core83_weighted50:
+    description: Core83 plus repeat-specific Top-50 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_weighted_top50
+    dynamic_public: []
+
+  A11_core83_weighted100:
+    description: Core83 plus repeat-specific Top-100 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_weighted_top100
+    dynamic_public: []
+
+  A12_core83_weighted200:
+    description: Core83 plus repeat-specific Top-200 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+      - core83
+      - repeat_3mer_weighted_top200
+    dynamic_public: []
+
+model_engine:
+  alpha_grid:
+    - 0.0
+    - 0.1
+    - 0.25
+    - 0.5
+    - 0.75
+    - 0.9
+    - 1.0
+
+  lambda_grid:
+    - 0.01
+    - 0.03
+    - 0.1
+    - 0.3
+    - 1.0
+    - 3.0
+    - 10.0
+    - 30.0
