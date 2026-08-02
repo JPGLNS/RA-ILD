@@ -27,6 +27,7 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 from scipy import sparse
+from sklearn.metrics import brier_score_loss, log_loss
 
 from .metrics import classification_metrics, safe_pr_auc, safe_roc_auc
 from .modeling import (
@@ -46,6 +47,9 @@ from .public_reference import (
 from .specifications import (
     HyperparameterCandidate,
     ResolvedModelSpecification,
+    candidate_selection_policy_name,
+    normalize_tuning_primary_metric,
+    rank_tuning_candidates,
     select_best_tuning_candidate,
 )
 from .thresholds import apply_threshold, choose_threshold_youden
@@ -60,6 +64,7 @@ class NestedCVOptions:
     """Execution settings that are fixed by the experiment configuration."""
 
     base_seed: int
+    tuning_primary_metric: str = "roc_auc"
     class_weight: str = "balanced"
     max_iter: int = 10000
     tolerance: float = 1.0e-4
@@ -74,6 +79,17 @@ class NestedCVOptions:
     def __post_init__(self) -> None:
         if isinstance(self.base_seed, bool) or int(self.base_seed) < 0:
             raise NestedCVError("base_seed must be an integer >= 0.")
+        try:
+            normalized_metric = normalize_tuning_primary_metric(
+                self.tuning_primary_metric
+            )
+        except Exception as exc:
+            raise NestedCVError(str(exc)) from exc
+        object.__setattr__(
+            self,
+            "tuning_primary_metric",
+            normalized_metric,
+        )
         if self.class_weight not in {"balanced", "none"}:
             raise NestedCVError("class_weight must be balanced or none.")
         if int(self.max_iter) < 1 or float(self.tolerance) <= 0:
@@ -137,6 +153,10 @@ class SelectedTuning:
     threshold: float
     inner_roc_auc: float
     inner_pr_auc: float
+    inner_log_loss: float
+    inner_brier_score: float
+    tuning_primary_metric: str
+    candidate_selection_policy: str
 
 
 @dataclass(frozen=True)
@@ -530,7 +550,8 @@ def tune_models(
     candidates: Sequence[HyperparameterCandidate],
     options: NestedCVOptions,
 ) -> InnerTuningResult:
-    """Fit every inner-fold candidate and apply the frozen V1 ranking rule."""
+    """Fit every inner-fold candidate and apply the configured ranking rule."""
+
     if not candidates:
         raise NestedCVError("At least one hyperparameter candidate is required.")
     tuning_rows: List[Dict[str, object]] = []
@@ -538,12 +559,18 @@ def tune_models(
         Tuple[str, float, float], List[Dict[str, object]]
     ] = {}
 
+    selection_policy = candidate_selection_policy_name(
+        options.tuning_primary_metric
+    )
+
     for model_index, (model_name, folds) in enumerate(prepared.items()):
         if not folds:
             raise NestedCVError(f"No prepared inner folds for {model_name}.")
         for candidate in candidates:
             prediction_rows: List[Dict[str, object]] = []
             fold_aucs: List[float] = []
+            fold_log_losses: List[float] = []
+            fold_brier_scores: List[float] = []
             convergence: List[bool] = []
             iterations: List[int] = []
             for inner_fold, fold_data in folds.items():
@@ -566,7 +593,26 @@ def tune_models(
                     random_state=seed,
                 )
                 probability = fit.predict_probability(fold_data.X_valid)
-                fold_aucs.append(safe_roc_auc(fold_data.y_valid, probability))
+                fold_aucs.append(
+                    safe_roc_auc(fold_data.y_valid, probability)
+                )
+                fold_log_losses.append(
+                    float(
+                        log_loss(
+                            fold_data.y_valid,
+                            probability,
+                            labels=[0, 1],
+                        )
+                    )
+                )
+                fold_brier_scores.append(
+                    float(
+                        brier_score_loss(
+                            fold_data.y_valid,
+                            probability,
+                        )
+                    )
+                )
                 convergence.append(bool(fit.converged))
                 iterations.append(int(fit.n_iter))
                 for sample_id, truth, value in zip(
@@ -587,13 +633,24 @@ def tune_models(
                     )
 
             prediction_frame = pd.DataFrame(prediction_rows)
-            pooled_auc = safe_roc_auc(
-                prediction_frame["true_label"].to_numpy(int),
-                prediction_frame["probability"].to_numpy(float),
+            pooled_y = prediction_frame["true_label"].to_numpy(int)
+            pooled_probability = prediction_frame["probability"].to_numpy(
+                float
             )
-            pooled_pr = safe_pr_auc(
-                prediction_frame["true_label"].to_numpy(int),
-                prediction_frame["probability"].to_numpy(float),
+            pooled_auc = safe_roc_auc(pooled_y, pooled_probability)
+            pooled_pr = safe_pr_auc(pooled_y, pooled_probability)
+            pooled_log_loss = float(
+                log_loss(
+                    pooled_y,
+                    pooled_probability,
+                    labels=[0, 1],
+                )
+            )
+            pooled_brier_score = float(
+                brier_score_loss(
+                    pooled_y,
+                    pooled_probability,
+                )
             )
             tuning_rows.append(
                 {
@@ -603,8 +660,28 @@ def tune_models(
                     "C_inverse_lambda": float(candidate.inverse_lambda_c),
                     "pooled_inner_roc_auc": float(pooled_auc),
                     "pooled_inner_pr_auc": float(pooled_pr),
+                    "pooled_inner_log_loss": pooled_log_loss,
+                    "pooled_inner_brier_score": pooled_brier_score,
                     "mean_fold_roc_auc": float(np.mean(fold_aucs)),
-                    "sd_fold_roc_auc": float(np.std(fold_aucs, ddof=1)),
+                    "sd_fold_roc_auc": float(
+                        np.std(fold_aucs, ddof=1)
+                    ),
+                    "mean_fold_log_loss": float(
+                        np.mean(fold_log_losses)
+                    ),
+                    "sd_fold_log_loss": float(
+                        np.std(fold_log_losses, ddof=1)
+                    ),
+                    "mean_fold_brier_score": float(
+                        np.mean(fold_brier_scores)
+                    ),
+                    "sd_fold_brier_score": float(
+                        np.std(fold_brier_scores, ddof=1)
+                    ),
+                    "tuning_primary_metric": (
+                        options.tuning_primary_metric
+                    ),
+                    "candidate_selection_policy": selection_policy,
                     "all_fits_converged": bool(all(convergence)),
                     "max_iterations_used": int(max(iterations)),
                 }
@@ -618,16 +695,13 @@ def tune_models(
     selected_oof_parts: List[pd.DataFrame] = []
     for model_name in prepared:
         candidate_rows = tuning.loc[tuning["model"] == model_name].copy()
-        best_candidate = select_best_tuning_candidate(candidate_rows)
-        ranked = candidate_rows.sort_values(
-            [
-                "pooled_inner_roc_auc",
-                "pooled_inner_pr_auc",
-                "lambda",
-                "l1_ratio_alpha",
-            ],
-            ascending=[False, False, False, False],
-            kind="mergesort",
+        best_candidate = select_best_tuning_candidate(
+            candidate_rows,
+            primary_metric=options.tuning_primary_metric,
+        )
+        ranked = rank_tuning_candidates(
+            candidate_rows,
+            primary_metric=options.tuning_primary_metric,
         )
         best = ranked.iloc[0]
         prediction = pd.DataFrame(
@@ -644,17 +718,30 @@ def tune_models(
             prediction["probability"].to_numpy(float),
         )
         prediction["selected_threshold"] = float(threshold)
+        prediction["tuning_primary_metric"] = (
+            options.tuning_primary_metric
+        )
+        prediction["candidate_selection_policy"] = selection_policy
         selected_oof_parts.append(prediction)
         selected[model_name] = SelectedTuning(
             candidate=best_candidate,
             threshold=float(threshold),
             inner_roc_auc=float(best["pooled_inner_roc_auc"]),
             inner_pr_auc=float(best["pooled_inner_pr_auc"]),
+            inner_log_loss=float(best["pooled_inner_log_loss"]),
+            inner_brier_score=float(
+                best["pooled_inner_brier_score"]
+            ),
+            tuning_primary_metric=options.tuning_primary_metric,
+            candidate_selection_policy=selection_policy,
         )
 
     return InnerTuningResult(
         tuning=tuning,
-        selected_oof_predictions=pd.concat(selected_oof_parts, ignore_index=True),
+        selected_oof_predictions=pd.concat(
+            selected_oof_parts,
+            ignore_index=True,
+        ),
         selected=MappingProxyType(selected),
     )
 
@@ -785,6 +872,16 @@ def fit_outer_models(
                 "selected_lambda": float(tuning.candidate.lambda_value),
                 "inner_selected_roc_auc": float(tuning.inner_roc_auc),
                 "inner_selected_pr_auc": float(tuning.inner_pr_auc),
+                "inner_selected_log_loss": float(
+                    tuning.inner_log_loss
+                ),
+                "inner_selected_brier_score": float(
+                    tuning.inner_brier_score
+                ),
+                "tuning_primary_metric": tuning.tuning_primary_metric,
+                "candidate_selection_policy": (
+                    tuning.candidate_selection_policy
+                ),
                 "fit_converged": bool(fit.converged),
                 "iterations_used": int(fit.n_iter),
                 "n_final_predictors": int(len(design.feature_names)),

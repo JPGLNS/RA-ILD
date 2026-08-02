@@ -314,6 +314,58 @@ def _apply_top_level_replacements(
         resolved[key] = copy.deepcopy(dict(value))
 
 
+
+def _normalize_tuning_selection(resolved: MutableMapping[str, Any]) -> None:
+    """Resolve the scheme-level primary metric into an auditable sort policy."""
+
+    selection = resolved.get("model_selection")
+    nested = resolved.get("nested_cv")
+    if not isinstance(selection, MutableMapping):
+        raise SchemeError("Resolved model_selection must be a mapping")
+    if not isinstance(nested, MutableMapping):
+        raise SchemeError("Resolved nested_cv must be a mapping")
+
+    raw_metric = selection.get("tuning_primary_metric", "roc_auc")
+    if not isinstance(raw_metric, str) or not raw_metric.strip():
+        raise SchemeError(
+            "model_selection.tuning_primary_metric must be roc_auc or log_loss"
+        )
+    metric = raw_metric.strip()
+    policies = {
+        "roc_auc": {
+            "candidate_sort": [
+                {"field": "pooled_inner_roc_auc", "ascending": False},
+                {"field": "pooled_inner_pr_auc", "ascending": False},
+                {"field": "lambda", "ascending": False},
+                {"field": "l1_ratio_alpha", "ascending": False},
+            ],
+            "candidate_selection_policy": "pooled_roc_pr_lambda_alpha",
+        },
+        "log_loss": {
+            "candidate_sort": [
+                {"field": "pooled_inner_log_loss", "ascending": True},
+                {"field": "pooled_inner_brier_score", "ascending": True},
+                {"field": "pooled_inner_roc_auc", "ascending": False},
+                {"field": "lambda", "ascending": False},
+                {"field": "l1_ratio_alpha", "ascending": False},
+            ],
+            "candidate_selection_policy": (
+                "pooled_log_loss_brier_roc_lambda_alpha"
+            ),
+        },
+    }
+    if metric not in policies:
+        raise SchemeError(
+            "model_selection.tuning_primary_metric must be roc_auc or log_loss"
+        )
+
+    policy = policies[metric]
+    selection["tuning_primary_metric"] = metric
+    selection["candidate_sort"] = copy.deepcopy(policy["candidate_sort"])
+    nested["candidate_selection_policy"] = str(
+        policy["candidate_selection_policy"]
+    )
+
 def _derive_scheme_counts(resolved: MutableMapping[str, Any]) -> None:
     """Recalculate all count fields that depend on configured models or CV sizes."""
 
@@ -552,6 +604,7 @@ def build_prepared_scheme(
         raise SchemeError("replacements must be a mapping")
     _apply_top_level_replacements(resolved, replacements)
     _normalize_final_model(resolved)
+    _normalize_tuning_selection(resolved)
     _derive_scheme_counts(resolved)
 
     experiment = resolved.get("experiment")

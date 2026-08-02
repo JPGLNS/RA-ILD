@@ -1,0 +1,81 @@
+{
+  "batch": 14,
+  "name": "configurable_tuning_metric_selection",
+  "target_branch": "feature/trb-scheme-upgrade-batch01",
+  "supported_primary_metrics": [
+    "roc_auc",
+    "log_loss"
+  ],
+  "default_primary_metric": "roc_auc",
+  "backward_compatibility": {
+    "missing_tuning_primary_metric": "roc_auc",
+    "existing_completed_experiments_require_rerun": false,
+    "existing_aggregation_supported": true
+  },
+  "modified_files": [
+    "TRB/set/src/ra_ild_trb/config.py",
+    "TRB/set/src/ra_ild_trb/scheme_management.py",
+    "TRB/set/src/ra_ild_trb/specifications.py",
+    "TRB/set/src/ra_ild_trb/nested_cv.py",
+    "TRB/set/src/ra_ild_trb/repeated_holdout_summary.py",
+    "TRB/set/scripts_v2/run_nested_cv_task.py",
+    "TRB/set/scripts_v2/prepare_analysis_scheme.py"
+  ],
+  "new_files": [
+    "TRB/set/scripts_v2/BATCH14_TUNING_METRIC_SELECTION_MANIFEST.json",
+    "TRB/set/scripts_v2/README_upgrade_batch14_tuning_metric_selection.md",
+    "TRB/set/scripts_v2/test_batch14_tuning_metric_selection.py",
+    "TRB/set/tests/test_tuning_metric_selection.py"
+  ],
+  "pre_upgrade_git_blob_sha": {
+    "TRB/set/src/ra_ild_trb/config.py": "172fc98319edb793d461055d80581febab00ccbb",
+    "TRB/set/src/ra_ild_trb/scheme_management.py": "fb18e78df5d4324dfb473aa28722bc928a5c0e6b",
+    "TRB/set/src/ra_ild_trb/specifications.py": "abee743957ab66c5e47bd19c3f8f4f66a47e6993",
+    "TRB/set/src/ra_ild_trb/nested_cv.py": "c0f82bb8fd2ec4d4967fb5f45ce1dcdfe9ddca7f",
+    "TRB/set/src/ra_ild_trb/repeated_holdout_summary.py": "523bab4ca7aa495570035fa4c990414ca784819c",
+    "TRB/set/scripts_v2/run_nested_cv_task.py": "173d283de6d6b9b7734ec0cf690dae0c7b8ada57",
+    "TRB/set/scripts_v2/prepare_analysis_scheme.py": "8d9fe9fcfc70671ffa7933a4df7729e44ed05d7a"
+  },
+  "selection_policies": {
+    "roc_auc": [
+      [
+        "pooled_inner_roc_auc",
+        "descending"
+      ],
+      [
+        "pooled_inner_pr_auc",
+        "descending"
+      ],
+      [
+        "lambda",
+        "descending"
+      ],
+      [
+        "l1_ratio_alpha",
+        "descending"
+      ]
+    ],
+    "log_loss": [
+      [
+        "pooled_inner_log_loss",
+        "ascending"
+      ],
+      [
+        "pooled_inner_brier_score",
+        "ascending"
+      ],
+      [
+        "pooled_inner_roc_auc",
+        "descending"
+      ],
+      [
+        "lambda",
+        "descending"
+      ],
+      [
+        "l1_ratio_alpha",
+        "descending"
+      ]
+    ]
+  }
+}

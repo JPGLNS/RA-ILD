@@ -44,10 +44,34 @@ class TestModeling(unittest.TestCase):
         self.assertEqual(config.penalty, "elasticnet")
 
     def test_invalid_hyperparameters_are_rejected(self) -> None:
+        # Alpha endpoints are valid:
+        # 0.0 = Ridge, 1.0 = Lasso.
+        ridge = ElasticNetLogisticConfig(
+            l1_ratio=0.0,
+            lambda_value=1.0,
+        )
+        lasso = ElasticNetLogisticConfig(
+            l1_ratio=1.0,
+            lambda_value=1.0,
+        )
+        self.assertEqual(ridge.l1_ratio, 0.0)
+        self.assertEqual(lasso.l1_ratio, 1.0)
+
         with self.assertRaises(ModelingError):
-            ElasticNetLogisticConfig(l1_ratio=0.0, lambda_value=1.0)
+            ElasticNetLogisticConfig(
+                l1_ratio=-0.01,
+                lambda_value=1.0,
+            )
         with self.assertRaises(ModelingError):
-            ElasticNetLogisticConfig(l1_ratio=0.5, lambda_value=0.0)
+            ElasticNetLogisticConfig(
+                l1_ratio=1.01,
+                lambda_value=1.0,
+            )
+        with self.assertRaises(ModelingError):
+            ElasticNetLogisticConfig(
+                l1_ratio=0.5,
+                lambda_value=0.0,
+            )
         with self.assertRaises(ModelingError):
             ElasticNetLogisticConfig(
                 l1_ratio=0.5,

@@ -218,27 +218,74 @@ def _model_ranking(summary: pd.DataFrame) -> pd.DataFrame:
     return wide
 
 
-def _hyperparameter_tables(metrics: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    selected = metrics.loc[:, [
-        "split_set_id", "split_id", "task_id", "outer_repeat", "outer_fold", "model",
-        "selected_l1_ratio_alpha", "selected_lambda", "threshold",
+def _hyperparameter_tables(
+    metrics: pd.DataFrame,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    normalized = metrics.copy()
+    legacy_defaults = {
+        "inner_selected_log_loss": np.nan,
+        "inner_selected_brier_score": np.nan,
+        "tuning_primary_metric": "roc_auc",
+        "candidate_selection_policy": "pooled_roc_pr_lambda_alpha",
+    }
+    for column, default in legacy_defaults.items():
+        if column not in normalized.columns:
+            normalized[column] = default
+
+    selected = normalized.loc[:, [
+        "split_set_id", "split_id", "task_id", "outer_repeat", "outer_fold",
+        "model", "selected_l1_ratio_alpha", "selected_lambda", "threshold",
         "inner_selected_roc_auc", "inner_selected_pr_auc",
+        "inner_selected_log_loss", "inner_selected_brier_score",
+        "tuning_primary_metric", "candidate_selection_policy",
     ]].copy()
-    selected = selected.rename(columns={"selected_l1_ratio_alpha": "alpha", "selected_lambda": "lambda"})
+    selected = selected.rename(
+        columns={
+            "selected_l1_ratio_alpha": "alpha",
+            "selected_lambda": "lambda",
+        }
+    )
+
     frequency_rows: List[Dict[str, Any]] = []
     for model, model_rows in selected.groupby("model", sort=False):
+        primary_metrics = model_rows[
+            "tuning_primary_metric"
+        ].astype(str).unique().tolist()
+        selection_policies = model_rows[
+            "candidate_selection_policy"
+        ].astype(str).unique().tolist()
+        if len(primary_metrics) != 1 or len(selection_policies) != 1:
+            raise RepeatedHoldoutSummaryError(
+                f"Model {model} mixes tuning selection policies within one experiment"
+            )
+
         denominator = len(model_rows)
-        for (alpha, lambda_value), group in model_rows.groupby(["alpha", "lambda"], sort=True):
+        for (alpha, lambda_value), group in model_rows.groupby(
+            ["alpha", "lambda"],
+            sort=True,
+        ):
             frequency_rows.append(
                 {
                     "model": model,
+                    "tuning_primary_metric": primary_metrics[0],
+                    "candidate_selection_policy": selection_policies[0],
                     "alpha": float(alpha),
                     "lambda": float(lambda_value),
                     "selection_count": int(len(group)),
                     "selection_frequency": float(len(group) / denominator),
                     "n_splits": int(denominator),
-                    "mean_inner_roc_auc": float(group["inner_selected_roc_auc"].mean()),
-                    "mean_inner_pr_auc": float(group["inner_selected_pr_auc"].mean()),
+                    "mean_inner_roc_auc": float(
+                        group["inner_selected_roc_auc"].mean()
+                    ),
+                    "mean_inner_pr_auc": float(
+                        group["inner_selected_pr_auc"].mean()
+                    ),
+                    "mean_inner_log_loss": float(
+                        group["inner_selected_log_loss"].mean()
+                    ),
+                    "mean_inner_brier_score": float(
+                        group["inner_selected_brier_score"].mean()
+                    ),
                 }
             )
     frequency = pd.DataFrame(frequency_rows)
@@ -248,7 +295,12 @@ def _hyperparameter_tables(metrics: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Data
             ascending=[True, False, False, False],
         ).reset_index(drop=True)
     threshold = selected.groupby("model", sort=False)["threshold"].agg(
-        n_splits="count", mean="mean", sd="std", median="median", minimum="min", maximum="max"
+        n_splits="count",
+        mean="mean",
+        sd="std",
+        median="median",
+        minimum="min",
+        maximum="max",
     ).reset_index()
     threshold["sd"] = threshold["sd"].fillna(0.0)
     return selected, frequency, threshold

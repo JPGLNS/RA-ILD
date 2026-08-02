@@ -61,6 +61,16 @@ def main() -> int:
             if "additional_feature_tables" in str(row.get("config_key", ""))
         ]
         print(f"Models:          {len(models)} ({', '.join(models)})")
+        tuning_metric = str(
+            prepared.resolved_config.get(
+                "model_selection",
+                {},
+            ).get(
+                "tuning_primary_metric",
+                "roc_auc",
+            )
+        )
+        print(f"Tuning metric:   {tuning_metric}")
         print(f"Input paths:     {len(prepared.input_manifest)}")
         print(f"Additional tables: {len(additional_tables)}")
         print(f"Missing inputs:  {len(missing)}")
