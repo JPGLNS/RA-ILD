@@ -32,6 +32,11 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from ra_ild_trb.config import validate_experiment_mapping  # noqa: E402
+from ra_ild_trb.specifications import (  # noqa: E402
+    candidate_selection_policy_name,
+    normalize_tuning_primary_metric,
+    tuning_sort_policy,
+)
 
 
 SCHEME_VERSION = "1.0"
@@ -246,6 +251,38 @@ def prepare(source_path: Path, repository_root: Path, *, overwrite: bool) -> Pat
             if key in engine_override:
                 resolved_engine[key] = copy.deepcopy(engine_override[key])
         resolved["model_engine"] = resolved_engine
+
+    source_selection = source.get("model_selection", {})
+    if source_selection is None:
+        source_selection = {}
+    if not isinstance(source_selection, Mapping):
+        raise FeatureAblationSchemeError("root.model_selection must be a mapping")
+
+    tuning_primary_metric = normalize_tuning_primary_metric(
+        source_selection.get("tuning_primary_metric", "roc_auc")
+    )
+    sort_columns, sort_ascending = tuning_sort_policy(tuning_primary_metric)
+
+    resolved_selection = resolved.get("model_selection")
+    resolved_nested = resolved.get("nested_cv")
+    if not isinstance(resolved_selection, MutableMapping):
+        raise FeatureAblationSchemeError(
+            "base_resolved_config.model_selection must be a mapping"
+        )
+    if not isinstance(resolved_nested, MutableMapping):
+        raise FeatureAblationSchemeError(
+            "base_resolved_config.nested_cv must be a mapping"
+        )
+
+    resolved_selection["tuning_primary_metric"] = tuning_primary_metric
+    resolved_selection["candidate_sort"] = [
+        {"field": field, "ascending": bool(ascending)}
+        for field, ascending in zip(sort_columns, sort_ascending)
+    ]
+    resolved_nested["candidate_selection_policy"] = (
+        candidate_selection_policy_name(tuning_primary_metric)
+    )
+
     _rewrite_output_paths(resolved, output_root, repository_root)
 
     legacy_count = int(resolved["model_selection"].get("expected_static_feature_count", 1083))
@@ -326,6 +363,10 @@ def prepare(source_path: Path, repository_root: Path, *, overwrite: bool) -> Pat
         "selection_scope": repeat_options["selection_scope"],
         "alpha_grid": list(engine["alpha_grid"]),
         "lambda_grid": list(engine["lambda_grid"]),
+        "tuning_primary_metric": tuning_primary_metric,
+        "candidate_selection_policy": resolved["nested_cv"][
+            "candidate_selection_policy"
+        ],
         "candidate_count": int(candidate_count),
         "expected_inner_fits_per_task": int(
             resolved["nested_cv"]["expected_inner_fits_per_task"]

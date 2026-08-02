@@ -1,0 +1,19 @@
+{
+  "batch": 14,
+  "hotfix": 1,
+  "name": "feature_ablation_tuning_metric_support",
+  "purpose": "Allow prepare_feature_ablation_scheme.py to accept model_selection.tuning_primary_metric=roc_auc|log_loss.",
+  "modified_files": [
+    "TRB/set/scripts_v2/prepare_feature_ablation_scheme.py"
+  ],
+  "new_files": [
+    "TRB/set/scripts_v2/test_batch14_hotfix01_feature_ablation_tuning.py",
+    "TRB/set/scripts_v2/BATCH14_HOTFIX01_FEATURE_ABLATION_TUNING_MANIFEST.json"
+  ],
+  "default_primary_metric": "roc_auc",
+  "supported_primary_metrics": [
+    "roc_auc",
+    "log_loss"
+  ],
+  "expected_acceptance": "TRB_BATCH14_HOTFIX01_ACCEPTANCE_PASS"
+}
