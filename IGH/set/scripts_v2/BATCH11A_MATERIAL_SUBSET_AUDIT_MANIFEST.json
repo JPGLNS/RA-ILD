@@ -1,0 +1,28 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH11A_MATERIAL_SUBSET_AUDIT",
+  "version": "1.0.0",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reference_implementation": {
+    "trb_batch": "12",
+    "adaptation": "audit-only prerequisite using IGH metadata and current IGH matrix contracts"
+  },
+  "scope": "Read-only full-cohort material composition and exact-strata feasibility audit",
+  "scientific_contract": {
+    "source_data_modified": false,
+    "subsets_frozen": false,
+    "splits_generated": false,
+    "models_fitted": false,
+    "independent_test_results_read": false,
+    "automatic_final_model_selection": false,
+    "recommendations_are_preliminary": true
+  },
+  "files": [
+    "IGH/set/configs/material_subsets/igh_material_subset_audit_example.yaml",
+    "IGH/set/scripts_v2/README_upgrade_batch11a_material_subset_audit.md",
+    "IGH/set/scripts_v2/audit_material_subsets.py",
+    "IGH/set/scripts_v2/test_batch11a_material_subset_audit.py",
+    "IGH/set/src/ra_ild_igh/material_subset_audit.py",
+    "IGH/set/scripts_v2/BATCH11A_MATERIAL_SUBSET_AUDIT_MANIFEST.json"
+  ],
+  "acceptance_marker": "IGH_BATCH11A_ACCEPTANCE_PASS"
+}

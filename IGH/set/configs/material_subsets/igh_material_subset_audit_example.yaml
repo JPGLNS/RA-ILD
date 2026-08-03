@@ -1,0 +1,41 @@
+material_subset_audit_version: "1.0"
+
+audit:
+  id: "igh_full_cohort_material_audit_v1"
+  description: >-
+    Read-only audit of PBMC and buffercoat composition in the complete 169-patient
+    IGH cohort before any material-specific source cohort is frozen.
+  output_dir: "IGH/set/material_subset_audits/igh_full_cohort_material_audit_v1"
+
+source:
+  metadata_files:
+    - "IGH/set/train/metadata_train_70.csv"
+    - "IGH/set/test/metadata_test_30.csv"
+  matrix_files:
+    - "IGH/set/train/result/04_final_feature_matrix/04_train_base_feature_matrix.csv"
+    - "IGH/set/test/result/04_final_feature_matrix/04_test_final_feature_matrix.csv"
+  require_one_sample_per_patient: true
+
+columns:
+  metadata_sample_id: "libraryid"
+  matrix_sample_id: "sample_id"
+  patient_id: "patient"
+  label: "cohort"
+  material: "material"
+  batch: "batch"
+  sex: "sex"
+  age: "age"
+
+expected:
+  samples: 169
+  patients: 169
+  labels: ["RA", "ILD"]
+
+split_recommendation:
+  train_fraction: 0.70
+  minimum_exact_stratum_count: 2
+  candidate_exact_strata:
+    - ["cohort", "batch"]
+    - ["cohort"]
+  balance_categorical: ["batch", "sex"]
+  balance_numeric: ["age"]
