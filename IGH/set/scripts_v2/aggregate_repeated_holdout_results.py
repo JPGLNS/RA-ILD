@@ -87,6 +87,8 @@ OUTPUT_FILES: Mapping[str, str] = {
 PERFORMANCE_METRICS: Tuple[str, ...] = (
     "roc_auc",
     "pr_auc",
+    "log_loss",
+    "brier_score",
     "accuracy",
     "sensitivity_recall",
     "specificity",
@@ -97,10 +99,14 @@ PERFORMANCE_METRICS: Tuple[str, ...] = (
 PAIRED_METRICS: Tuple[str, ...] = (
     "roc_auc",
     "pr_auc",
+    "log_loss",
+    "brier_score",
     "sensitivity_recall",
     "specificity",
     "f1",
 )
+
+LOWER_IS_BETTER_METRICS = frozenset({"log_loss", "brier_score"})
 
 
 class AggregationError(ValueError):
@@ -578,6 +584,7 @@ def paired_differences(
         if comparison == baseline_model:
             continue
         for metric in PAIRED_METRICS:
+            lower_is_better = metric in LOWER_IS_BETTER_METRICS
             differences = []
             for repeat in repeats:
                 baseline = float(indexed.loc[(repeat, baseline_model), metric])
@@ -590,6 +597,8 @@ def paired_differences(
                         "baseline_model": baseline_model,
                         "comparison_model": comparison,
                         "metric": metric,
+                        "metric_direction": ("lower_is_better" if lower_is_better else "higher_is_better"),
+                        "favorable_difference_sign": ("negative" if lower_is_better else "positive"),
                         "baseline_value": baseline,
                         "comparison_value": value,
                         "difference_comparison_minus_baseline": difference,
@@ -597,19 +606,23 @@ def paired_differences(
                 )
             x = np.asarray(differences, dtype=float)
             ties = np.isclose(x, 0.0, atol=1e-15, rtol=0.0)
+            comparison_wins = x < 0 if lower_is_better else x > 0
+            comparison_losses = x > 0 if lower_is_better else x < 0
             summary_rows.append(
                 {
                     "baseline_model": baseline_model,
                     "comparison_model": comparison,
                     "metric": metric,
+                    "metric_direction": ("lower_is_better" if lower_is_better else "higher_is_better"),
+                    "favorable_difference_sign": ("negative" if lower_is_better else "positive"),
                     "n_paired_repeats": int(len(x)),
                     **numeric_summary(x),
-                    "comparison_win_count": int(np.sum(x > 0)),
+                    "comparison_win_count": int(np.sum(comparison_wins)),
                     "tie_count": int(np.sum(ties)),
-                    "comparison_loss_count": int(np.sum(x < 0)),
-                    "comparison_win_frequency": float(np.mean(x > 0)),
+                    "comparison_loss_count": int(np.sum(comparison_losses)),
+                    "comparison_win_frequency": float(np.mean(comparison_wins)),
                     "tie_frequency": float(np.mean(ties)),
-                    "comparison_loss_frequency": float(np.mean(x < 0)),
+                    "comparison_loss_frequency": float(np.mean(comparison_losses)),
                 }
             )
     return pd.DataFrame(detail_rows), pd.DataFrame(summary_rows)
@@ -633,16 +646,21 @@ def all_pairwise_differences(
                     dtype=float,
                 )
                 ties = np.isclose(differences, 0.0, atol=1e-15, rtol=0.0)
+                lower_is_better = metric in LOWER_IS_BETTER_METRICS
+                comparison_wins = differences < 0 if lower_is_better else differences > 0
+                comparison_losses = differences > 0 if lower_is_better else differences < 0
                 rows.append(
                     {
                         "reference_model": reference,
                         "comparison_model": comparison,
                         "metric": metric,
+                        "metric_direction": ("lower_is_better" if lower_is_better else "higher_is_better"),
+                        "favorable_difference_sign": ("negative" if lower_is_better else "positive"),
                         "n_paired_repeats": int(len(differences)),
                         **numeric_summary(differences),
-                        "comparison_win_frequency": float(np.mean(differences > 0)),
+                        "comparison_win_frequency": float(np.mean(comparison_wins)),
                         "tie_frequency": float(np.mean(ties)),
-                        "comparison_loss_frequency": float(np.mean(differences < 0)),
+                        "comparison_loss_frequency": float(np.mean(comparison_losses)),
                     }
                 )
     return pd.DataFrame(rows)
@@ -655,7 +673,10 @@ def model_ranks(
     for metric in PAIRED_METRICS:
         pivot = metrics.pivot(index="outer_repeat", columns="model", values=metric)
         pivot = pivot.loc[:, list(model_order)]
-        ranks = pivot.rank(axis=1, method="average", ascending=False)
+        ranks = pivot.rank(
+            axis=1, method="average",
+            ascending=metric in LOWER_IS_BETTER_METRICS,
+        )
         long = ranks.stack().rename("rank").reset_index()
         long["metric"] = metric
         detail_parts.append(long)

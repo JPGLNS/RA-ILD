@@ -766,7 +766,13 @@ def fit_outer_models(
         )
         probability = fit.predict_probability(design.X_valid)
         threshold = float(tuning.threshold)
-        metrics = classification_metrics(y_valid, probability, threshold)
+        metrics = classification_metrics(
+            y_valid,
+            probability,
+            threshold,
+            include_brier=True,
+            include_log_loss=True,
+        )
         metrics.update(
             {
                 "model": model_name,

@@ -1,0 +1,60 @@
+{
+  "package": "IGH_SCHEME_UPGRADE_BATCH12_PROBABILITY_METRICS",
+  "version": "1.0.1",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reviewed_head_before_upgrade": "77b8fb1a0b5111d71e021194c2e1eda02c488d75",
+  "reference": {
+    "implementation": "TRB Batch 13 probability metrics",
+    "adaptation": "IGH native metrics, both repeated-holdout aggregators, and completed-task backfill"
+  },
+  "modified_files": [
+    {
+      "path": "IGH/set/src/ra_ild_igh/metrics.py",
+      "reviewed_blob_sha": "87d6c62938ee95caa01e622406f290f21c6deda3"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/nested_cv.py",
+      "reviewed_blob_sha": "92fc8dfdbb21e61514059c66a828d0c87ddad5d5"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/repeated_holdout_summary.py",
+      "reviewed_blob_sha": "40df24ad6a8c76c623e040f39cb13dabeafd74fc"
+    },
+    {
+      "path": "IGH/set/scripts_v2/aggregate_repeated_holdout_results.py",
+      "reviewed_blob_sha": "805adee4cbff03006cdc58a44ef9a4c8c77e2dd9"
+    }
+  ],
+  "new_files": [
+    "IGH/set/scripts_v2/backfill_probability_metrics.py",
+    "IGH/set/scripts_v2/test_batch12_probability_metrics.py",
+    "IGH/set/scripts_v2/README_upgrade_batch12_probability_metrics.md",
+    "IGH/set/scripts_v2/BATCH12_PROBABILITY_METRICS_MANIFEST.json"
+  ],
+  "metric_contract": {
+    "higher_is_better": [
+      "roc_auc",
+      "pr_auc",
+      "accuracy",
+      "sensitivity_recall",
+      "specificity",
+      "precision",
+      "f1"
+    ],
+    "lower_is_better": [
+      "log_loss",
+      "brier_score"
+    ],
+    "inner_hyperparameter_selection_changed": false,
+    "threshold_selection_changed": false,
+    "model_predictions_changed": false,
+    "automatic_final_model_selection": false
+  },
+  "acceptance_marker": "IGH_BATCH12_ACCEPTANCE_PASS",
+  "runtime_outputs_to_commit": false,
+  "installer_hotfix": {
+    "id": "01",
+    "scope": "installer_only",
+    "scientific_code_change": false
+  }
+}
