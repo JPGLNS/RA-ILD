@@ -856,6 +856,14 @@ def generate_scheme_yaml(
     ).all():
         raise RepeatedHoldoutTrainingError("Repeated splits do not have constant train/holdout sizes")
 
+    # Resolve descriptive metadata from the frozen assignments rather than the
+    # historical three-repeat 120/49 development design.
+    scheme["description"] = (
+        f"{split_count} frozen {train_size}/{holdout_size} repeated holdouts with "
+        "automatic split-specific Elastic Net alpha/lambda and inner-OOF threshold "
+        "selection; no M0, age, or sex."
+    )
+
     overrides = result.get("overrides", {})
     if not isinstance(overrides, Mapping):
         raise RepeatedHoldoutTrainingError("Scheme template overrides must be a mapping")

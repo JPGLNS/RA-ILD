@@ -1,0 +1,26 @@
+material_subset_version: "1.0"
+subset:
+  id: "igh_buffercoat_only_v1"
+  description: "Frozen buffercoat-only source cohort for IGH repeated-holdout modeling."
+  output_root: "IGH/set/cohort_subsets/igh_buffercoat_only_v1"
+source:
+  metadata_files:
+    - "IGH/set/train/metadata_train_70.csv"
+    - "IGH/set/test/metadata_test_30.csv"
+  train_base_matrix: "IGH/set/train/result/04_final_feature_matrix/04_train_base_feature_matrix.csv"
+  test_final_matrix: "IGH/set/test/result/04_final_feature_matrix/04_test_final_feature_matrix.csv"
+  metadata_sample_id_column: "libraryid"
+  matrix_sample_id_column: "sample_id"
+  patient_id_column: "patient"
+  label_column: "cohort"
+  require_one_sample_per_patient: true
+filter:
+  column: "material"
+  include_values: ["buffercoat"]
+  case_insensitive: true
+  strip_whitespace: true
+expected:
+  samples: 61
+  patients: 61
+  label_counts: {RA: 39, ILD: 22}
+  filter_counts: {buffercoat: 61}

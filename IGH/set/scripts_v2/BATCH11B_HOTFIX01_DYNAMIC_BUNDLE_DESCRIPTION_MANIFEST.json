@@ -1,0 +1,23 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH11B_HOTFIX01_DYNAMIC_BUNDLE_DESCRIPTION",
+  "version": "1.0.1",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "scope": "Replace stale hard-coded repeated-holdout description with assignment-derived repeat and split sizes",
+  "scientific_contract": {
+    "cohort_membership_modified": false,
+    "split_assignments_modified": false,
+    "training_features_modified": false,
+    "models_fitted": false,
+    "runtime_outputs_overwritten": false
+  },
+  "modified_files": [
+    "IGH/set/src/ra_ild_igh/repeated_holdout_training.py",
+    "IGH/set/scripts_v2/prepare_repeated_holdout_training.py"
+  ],
+  "added_files": [
+    "IGH/set/scripts_v2/test_batch11b_hotfix01_dynamic_bundle_description.py",
+    "IGH/set/scripts_v2/README_upgrade_batch11b_hotfix01_dynamic_bundle_description.md",
+    "IGH/set/scripts_v2/BATCH11B_HOTFIX01_DYNAMIC_BUNDLE_DESCRIPTION_MANIFEST.json"
+  ],
+  "acceptance_marker": "IGH_BATCH11B_HOTFIX01_ACCEPTANCE_PASS"
+}

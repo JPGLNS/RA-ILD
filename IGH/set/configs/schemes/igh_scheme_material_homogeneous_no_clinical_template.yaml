@@ -1,0 +1,32 @@
+scheme_version: "1.0"
+scheme:
+  id: "igh_scheme_material_homogeneous_no_clinical_template"
+  description: "Template for one-material IGH cohorts without M0, age, sex, or constant material predictor."
+  status: "template"
+  base_config: "IGH/set/configs/igh_baseline_m2_v1.yaml"
+  output_root: "IGH/set/experiments/igh_scheme_material_homogeneous_no_clinical_template"
+replacements:
+  models:
+    M1_static_igh:
+      description: "Static IGH repertoire features only."
+      numeric: []
+      categorical: []
+      static_feature_groups: ["static_igh_candidate_predictors"]
+      dynamic_public: []
+    M2_static_igh_public:
+      description: "Static IGH features plus dynamic public-reference features."
+      numeric: []
+      categorical: []
+      static_feature_groups: ["static_igh_candidate_predictors"]
+      dynamic_public:
+        - "all_ref_public_clone_ratio"
+        - "all_ref_public_frequency_sum"
+        - "shared_ref_clone_ratio"
+        - "shared_ref_frequency_sum"
+        - "RA_specific_ref_clone_ratio"
+        - "RA_specific_ref_frequency_sum"
+        - "ILD_specific_ref_clone_ratio"
+        - "ILD_specific_ref_frequency_sum"
+overrides:
+  final_model:
+    status: "not_selected"

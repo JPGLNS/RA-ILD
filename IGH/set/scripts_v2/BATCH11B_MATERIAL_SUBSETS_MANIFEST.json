@@ -1,0 +1,46 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH11B_MATERIAL_SUBSETS",
+  "version": "1.0.0",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reviewed_parent_commit": "352b8c67a9b031819265af4baf005f2f12778625",
+  "reference_implementation": {
+    "trb_batch": "12",
+    "adaptation": "IGH counts and Batch 11A stratification audit"
+  },
+  "observed_populations": {
+    "PBMC": {
+      "samples": 108,
+      "RA": 63,
+      "ILD": 45,
+      "train": 76,
+      "holdout": 32,
+      "exact_strata": [
+        "cohort",
+        "batch"
+      ]
+    },
+    "buffercoat": {
+      "samples": 61,
+      "RA": 39,
+      "ILD": 22,
+      "train": 43,
+      "holdout": 18,
+      "exact_strata": [
+        "cohort"
+      ],
+      "balance_categorical": [
+        "batch",
+        "sex"
+      ]
+    }
+  },
+  "scientific_contract": {
+    "filter_before_splitting": true,
+    "filter_before_public_reference": true,
+    "filter_before_repeat_3mer_selection": true,
+    "existing_full_cohort_outputs_modified": false,
+    "material_used_as_predictor": false,
+    "automatic_final_model_selection": false
+  },
+  "acceptance_marker": "IGH_BATCH11B_ACCEPTANCE_PASS"
+}

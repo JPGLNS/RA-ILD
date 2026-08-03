@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Prepare the Batch 04 full-cohort repeated-holdout training bundle."""
+"""Prepare an IGH repeated-holdout training bundle."""
 
 from __future__ import annotations
 
@@ -24,8 +24,8 @@ from ra_ild_igh.repeated_holdout_training import (  # noqa: E402
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Prepare full-cohort static features, sparse public cache, and fixed "
-            "outer/inner assignments for the three frozen repeated holdouts."
+            "Prepare static features, sparse public cache, and fixed outer/inner "
+            "assignments for a frozen IGH repeated-holdout training bundle."
         ),
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -51,7 +51,7 @@ def main() -> int:
             dry_run=args.dry_run,
             replace_incomplete=args.replace_incomplete,
         )
-        print("RA-ILD IGH Batch 04 repeated-holdout training preparation")
+        print("RA-ILD IGH repeated-holdout training preparation")
         print(f"Bundle ID:        {spec.bundle_id}")
         print(f"Output root:      {spec.output_root}")
         if args.dry_run:
