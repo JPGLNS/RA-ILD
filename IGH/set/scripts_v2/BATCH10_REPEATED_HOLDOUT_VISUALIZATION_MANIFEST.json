@@ -1,0 +1,48 @@
+{
+  "batch": "IGH_SCHEME_UPGRADE_BATCH10_REPEATED_HOLDOUT_VISUALIZATION",
+  "version": "1.0.0",
+  "target_repository": "JPGLNS/RA-ILD",
+  "target_branch_reviewed": "feature/igh-scheme-upgrade-v1",
+  "target_commit_reviewed": "2fd45f00916c63cc5b1e7ed25732b68bfc67bbb3",
+  "reference_implementation": {
+    "receptor": "TRB",
+    "batch": "11",
+    "branch": "feature/trb-scheme-upgrade-batch01",
+    "adaptation": "IGH-native 07_* repeated-holdout aggregation contract"
+  },
+  "installed_files": [
+    "IGH/set/src/ra_ild_igh/repeated_holdout_visualization.py",
+    "IGH/set/scripts_v2/plot_repeated_holdout_results.py",
+    "IGH/set/scripts_v2/test_batch10_repeated_holdout_visualization.py",
+    "IGH/set/scripts_v2/README_upgrade_batch10_visualization.md",
+    "IGH/set/scripts_v2/BATCH10_REPEATED_HOLDOUT_VISUALIZATION_MANIFEST.json",
+    "IGH/set/configs/visualization/igh_repeated_holdout_visualization_example.yaml"
+  ],
+  "input_contract": [
+    "07_all_outer_metrics.csv",
+    "07_all_outer_predictions.csv.gz",
+    "07_aggregation_summary.json",
+    "07_REPEATED_HOLDOUT_AGGREGATION_COMPLETE.json"
+  ],
+  "figures": {
+    "figure1": "repeat-level model performance boxplots",
+    "figure2": "macro-averaged per-repeat ROC curves with across-repeat variability bands",
+    "figure3": "deterministic best observed repeat ROC curves",
+    "figure4": "best-repeat RA versus RA-ILD probability boxplots"
+  },
+  "scientific_contract": {
+    "training_outputs_modified": false,
+    "model_refit_performed": false,
+    "hyperparameter_retuning_performed": false,
+    "holdout_threshold_optimization_performed": false,
+    "cross_repeat_n_by_n_read": false,
+    "independent_test_read": false,
+    "best_repeat_figures_are_descriptive": true,
+    "variability_band_is_independent_sample_ci": false,
+    "automatic_final_model_selection": false
+  },
+  "focused_acceptance": {
+    "tests": 4,
+    "expected_marker": "IGH_BATCH10_ACCEPTANCE_PASS"
+  }
+}

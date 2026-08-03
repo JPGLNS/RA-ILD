@@ -1,0 +1,15 @@
+{
+  "batch": "IGH_BATCH10_HOTFIX01_MATPLOTLIB311",
+  "version": "1.0.1",
+  "purpose": "Restore Batch 10 boxplot compatibility after Matplotlib 3.11 removed Axes.boxplot(labels=...).",
+  "modified_files": [
+    "IGH/set/src/ra_ild_igh/repeated_holdout_visualization.py"
+  ],
+  "new_files": [
+    "IGH/set/scripts_v2/README_upgrade_batch10_hotfix01_matplotlib311.md",
+    "IGH/set/scripts_v2/BATCH10_HOTFIX01_MATPLOTLIB311_MANIFEST.json"
+  ],
+  "scientific_outputs_changed": false,
+  "training_outputs_changed": false,
+  "expected_acceptance": "IGH_BATCH10_HOTFIX01_ACCEPTANCE_PASS"
+}

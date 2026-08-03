@@ -1,0 +1,75 @@
+visualization_version: "1.0"
+
+visualization:
+  id: "igh_scheme006_repeat100_visualization_v1"
+  source_mode: "native_repeated_holdout"
+  aggregation_dir: "IGH/set/experiments/igh_scheme_006_a1_a6_repeat100_fullgrid/03_summary"
+  output_dir: "IGH/set/experiments/igh_scheme_006_a1_a6_repeat100_fullgrid/06_visualization/igh_scheme006_repeat100_visualization_v1"
+  require_complete_marker: true
+  overwrite: false
+  metric_tolerance: 1.0e-6
+
+model_labels:
+  A1_core83: "A1 Core83"
+  A5_core83_public: "A5 Core83 + public"
+
+figures:
+  figure1:
+    enabled: true
+    models: all
+    metrics:
+      - roc_auc
+      - pr_auc
+      - f1
+      - sensitivity_recall
+      - specificity
+    max_columns: 3
+    show_points: true
+    show_mean: true
+    point_alpha: 0.25
+    point_size: 8
+    jitter_width: 0.045
+    jitter_seed: 20260803
+    x_label_rotation: 55
+
+  figure2:
+    enabled: true
+    models:
+      - A1_core83
+      - A5_core83_public
+    max_columns: 2
+    grid_points: 201
+    show_variability_band: true
+    variability_lower_quantile: 0.025
+    variability_upper_quantile: 0.975
+    band_alpha: 0.20
+
+  figure3:
+    enabled: true
+    models:
+      - A1_core83
+      - A5_core83_public
+    max_columns: 2
+    selection_metrics:
+      - roc_auc
+      - pr_auc
+      - f1
+    show_operating_point: true
+
+  figure4:
+    enabled: true
+    models:
+      - A1_core83
+      - A5_core83_public
+    max_columns: 2
+    reuse_figure3_selection: true
+    show_threshold: true
+    point_alpha: 0.45
+    point_size: 14
+    jitter_width: 0.05
+    jitter_seed: 20260803
+
+style:
+  panel_width: 5.1
+  panel_height: 4.2
+  dpi: 150
