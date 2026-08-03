@@ -464,9 +464,27 @@ def metric_summaries(
 
 
 def selected_hyperparameters(
-    metrics: pd.DataFrame, model_order: Sequence[str]
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    selected = metrics.loc[
+    metrics: pd.DataFrame,
+    model_order: Sequence[str],
+) -> Tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
+    normalized = metrics.copy()
+    legacy_defaults = {
+        "inner_selected_log_loss": np.nan,
+        "inner_selected_brier_score": np.nan,
+        "tuning_primary_metric": "roc_auc",
+        "candidate_selection_policy": "pooled_roc_pr_lambda_alpha",
+    }
+    for column, default in legacy_defaults.items():
+        if column not in normalized.columns:
+            normalized[column] = default
+
+    selected = normalized.loc[
         :,
         [
             "task_id",
@@ -478,6 +496,10 @@ def selected_hyperparameters(
             "selected_lambda",
             "inner_selected_roc_auc",
             "inner_selected_pr_auc",
+            "inner_selected_log_loss",
+            "inner_selected_brier_score",
+            "tuning_primary_metric",
+            "candidate_selection_policy",
         ],
     ].copy()
     selected = selected.rename(
@@ -494,27 +516,60 @@ def selected_hyperparameters(
             return "Lasso_alpha1"
         return "ElasticNet_interior"
 
-    selected["regularization_family"] = selected["alpha"].astype(float).map(family)
-    model_order_lookup = {model: i for i, model in enumerate(model_order)}
+    selected["regularization_family"] = (
+        selected["alpha"].astype(float).map(family)
+    )
+    model_order_lookup = {
+        model: i for i, model in enumerate(model_order)
+    }
 
     pair_rows: List[Dict[str, object]] = []
     alpha_rows: List[Dict[str, object]] = []
     lambda_rows: List[Dict[str, object]] = []
     family_rows: List[Dict[str, object]] = []
     for model in model_order:
-        group = selected.loc[selected["model"].astype(str) == model]
+        group = selected.loc[
+            selected["model"].astype(str) == model
+        ]
+        primary_metrics = group[
+            "tuning_primary_metric"
+        ].astype(str).unique().tolist()
+        selection_policies = group[
+            "candidate_selection_policy"
+        ].astype(str).unique().tolist()
+        if len(primary_metrics) != 1 or len(selection_policies) != 1:
+            raise AggregationError(
+                f"Model {model} mixes tuning selection policies "
+                "within one experiment."
+            )
         denominator = len(group)
-        for (alpha, lambda_value), item in group.groupby(["alpha", "lambda"], sort=True):
+        for (alpha, lambda_value), item in group.groupby(
+            ["alpha", "lambda"], sort=True
+        ):
             pair_rows.append(
                 {
                     "model": model,
+                    "tuning_primary_metric": primary_metrics[0],
+                    "candidate_selection_policy": selection_policies[0],
                     "alpha": float(alpha),
                     "lambda": float(lambda_value),
                     "selection_count": int(len(item)),
-                    "selection_frequency": float(len(item) / denominator),
+                    "selection_frequency": float(
+                        len(item) / denominator
+                    ),
                     "n_model_repeats": int(denominator),
-                    "mean_inner_roc_auc": float(item["inner_selected_roc_auc"].mean()),
-                    "mean_inner_pr_auc": float(item["inner_selected_pr_auc"].mean()),
+                    "mean_inner_roc_auc": float(
+                        item["inner_selected_roc_auc"].mean()
+                    ),
+                    "mean_inner_pr_auc": float(
+                        item["inner_selected_pr_auc"].mean()
+                    ),
+                    "mean_inner_log_loss": float(
+                        item["inner_selected_log_loss"].mean()
+                    ),
+                    "mean_inner_brier_score": float(
+                        item["inner_selected_brier_score"].mean()
+                    ),
                 }
             )
         for alpha, item in group.groupby("alpha", sort=True):
@@ -523,33 +578,48 @@ def selected_hyperparameters(
                     "model": model,
                     "alpha": float(alpha),
                     "selection_count": int(len(item)),
-                    "selection_frequency": float(len(item) / denominator),
+                    "selection_frequency": float(
+                        len(item) / denominator
+                    ),
                     "n_model_repeats": int(denominator),
                 }
             )
-        for lambda_value, item in group.groupby("lambda", sort=True):
+        for lambda_value, item in group.groupby(
+            "lambda", sort=True
+        ):
             lambda_rows.append(
                 {
                     "model": model,
                     "lambda": float(lambda_value),
                     "selection_count": int(len(item)),
-                    "selection_frequency": float(len(item) / denominator),
+                    "selection_frequency": float(
+                        len(item) / denominator
+                    ),
                     "n_model_repeats": int(denominator),
                 }
             )
-        for family_name, item in group.groupby("regularization_family", sort=False):
+        for family_name, item in group.groupby(
+            "regularization_family", sort=False
+        ):
             family_rows.append(
                 {
                     "model": model,
                     "regularization_family": family_name,
                     "selection_count": int(len(item)),
-                    "selection_frequency": float(len(item) / denominator),
+                    "selection_frequency": float(
+                        len(item) / denominator
+                    ),
                     "n_model_repeats": int(denominator),
                 }
             )
 
-    def ordered(frame: pd.DataFrame, extra: Sequence[str]) -> pd.DataFrame:
-        frame["_model_order"] = frame["model"].map(model_order_lookup)
+    def ordered(
+        frame: pd.DataFrame,
+        extra: Sequence[str],
+    ) -> pd.DataFrame:
+        frame["_model_order"] = frame["model"].map(
+            model_order_lookup
+        )
         return (
             frame.sort_values(["_model_order", *extra])
             .drop(columns="_model_order")
@@ -558,15 +628,20 @@ def selected_hyperparameters(
 
     return (
         selected,
-        ordered(pd.DataFrame(pair_rows), ["selection_count", "lambda", "alpha"]).sort_values(
+        ordered(
+            pd.DataFrame(pair_rows),
+            ["selection_count", "lambda", "alpha"],
+        ).sort_values(
             ["model", "selection_count", "lambda", "alpha"],
             ascending=[True, False, False, False],
         ).reset_index(drop=True),
         ordered(pd.DataFrame(alpha_rows), ["alpha"]),
         ordered(pd.DataFrame(lambda_rows), ["lambda"]),
-        ordered(pd.DataFrame(family_rows), ["regularization_family"]),
+        ordered(
+            pd.DataFrame(family_rows),
+            ["regularization_family"],
+        ),
     )
-
 
 def paired_differences(
     metrics: pd.DataFrame,

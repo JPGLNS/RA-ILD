@@ -338,8 +338,15 @@ def main() -> int:
         )
         scheme = ThresholdScheme.from_mapping(public)
         modeling = config.section("modeling")
+        selection_config = config.section("model_selection")
         options = NestedCVOptions(
             base_seed=int(config.raw["experiment"]["random_seed"]),
+            tuning_primary_metric=str(
+                selection_config.get(
+                    "tuning_primary_metric",
+                    "roc_auc",
+                )
+            ),
             class_weight=str(engine["class_weight"]),
             max_iter=int(engine["max_iter"]),
             tolerance=float(engine["tolerance"]),
@@ -398,6 +405,12 @@ def main() -> int:
                 "threshold": value.threshold,
                 "inner_roc_auc": value.inner_roc_auc,
                 "inner_pr_auc": value.inner_pr_auc,
+                "inner_log_loss": value.inner_log_loss,
+                "inner_brier_score": value.inner_brier_score,
+                "tuning_primary_metric": value.tuning_primary_metric,
+                "candidate_selection_policy": (
+                    value.candidate_selection_policy
+                ),
             }
             for model, value in result.selected.items()
         }
@@ -424,6 +437,11 @@ def main() -> int:
             },
             "repeat_3mer_features": repeat_audit,
             "candidate_count_per_model": len(candidates),
+            "tuning_primary_metric": options.tuning_primary_metric,
+            "candidate_selection_policy": next(
+                iter(result.selected.values())
+            ).candidate_selection_policy,
+            "candidate_sort": selection_config["candidate_sort"],
             "expected_inner_fit_count": len(model_specs)
             * len(candidates)
             * len(result.split.inner_folds),

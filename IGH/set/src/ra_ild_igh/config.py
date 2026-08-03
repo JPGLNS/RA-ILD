@@ -374,22 +374,54 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
         raise ConfigError(
             "model_selection.hyperparameter_grid_order must be alpha_then_lambda"
         )
+    tuning_primary_metric_raw = selection.get(
+        "tuning_primary_metric", "roc_auc"
+    )
+    if (
+        not isinstance(tuning_primary_metric_raw, str)
+        or not tuning_primary_metric_raw.strip()
+    ):
+        raise ConfigError(
+            "model_selection.tuning_primary_metric must be roc_auc or log_loss"
+        )
+    tuning_primary_metric = tuning_primary_metric_raw.strip()
+    expected_sorts = {
+        "roc_auc": [
+            ("pooled_inner_roc_auc", False),
+            ("pooled_inner_pr_auc", False),
+            ("lambda", False),
+            ("l1_ratio_alpha", False),
+        ],
+        "log_loss": [
+            ("pooled_inner_log_loss", True),
+            ("pooled_inner_brier_score", True),
+            ("pooled_inner_roc_auc", False),
+            ("lambda", False),
+            ("l1_ratio_alpha", False),
+        ],
+    }
+    if tuning_primary_metric not in expected_sorts:
+        raise ConfigError(
+            "model_selection.tuning_primary_metric must be roc_auc or log_loss"
+        )
+
     candidate_sort = selection.get("candidate_sort")
-    if not isinstance(candidate_sort, Sequence) or isinstance(candidate_sort, (str, bytes)):
+    if not isinstance(candidate_sort, Sequence) or isinstance(
+        candidate_sort, (str, bytes)
+    ):
         raise ConfigError("model_selection.candidate_sort must be a list")
-    expected_sort = [
-        ("pooled_inner_roc_auc", False),
-        ("pooled_inner_pr_auc", False),
-        ("lambda", False),
-        ("l1_ratio_alpha", False),
-    ]
+    expected_sort = expected_sorts[tuning_primary_metric]
     observed_sort = []
     for index, item in enumerate(candidate_sort):
         if not isinstance(item, Mapping):
             raise ConfigError(
                 f"model_selection.candidate_sort[{index}] must be a mapping"
             )
-        field = _string(item, "field", f"model_selection.candidate_sort[{index}]")
+        field = _string(
+            item,
+            "field",
+            f"model_selection.candidate_sort[{index}]",
+        )
         ascending = item.get("ascending")
         if not isinstance(ascending, bool):
             raise ConfigError(
@@ -398,7 +430,8 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
         observed_sort.append((field, ascending))
     if observed_sort != expected_sort:
         raise ConfigError(
-            "model_selection.candidate_sort does not match the frozen V1 ranking rule"
+            "model_selection.candidate_sort does not match "
+            f"tuning_primary_metric={tuning_primary_metric}"
         )
     expected_columns = _mapping(selection, "expected_resolved_columns", "model_selection")
     if set(expected_columns) != set(models):
@@ -426,12 +459,16 @@ def validate_experiment_mapping(raw: Mapping[str, Any]) -> None:
     _string(selection_task, "inner_tuning_results", "model_selection.regression_task")
 
     nested = _mapping(raw, "nested_cv", "root")
+    expected_candidate_selection_policy = {
+        "roc_auc": "pooled_roc_pr_lambda_alpha",
+        "log_loss": "pooled_log_loss_brier_roc_lambda_alpha",
+    }[tuning_primary_metric]
     expected_policies = {
         "assignment_policy": "fixed_precomputed",
         "training_public_policy": "exact_leave_one_out",
         "validation_public_policy": "training_reference_only",
         "preprocessing_policy": "fit_on_current_training_partition",
-        "candidate_selection_policy": "pooled_roc_pr_lambda_alpha",
+        "candidate_selection_policy": expected_candidate_selection_policy,
     }
     for key, expected in expected_policies.items():
         observed = _string(nested, key, "nested_cv")

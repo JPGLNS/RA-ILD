@@ -30,13 +30,60 @@ class SpecificationError(ValueError):
 
 STATIC_FEATURE_GROUP = "static_igh_candidate_predictors"
 
-TUNING_SORT_COLUMNS: Tuple[str, ...] = (
-    "pooled_inner_roc_auc",
-    "pooled_inner_pr_auc",
-    "lambda",
-    "l1_ratio_alpha",
-)
-TUNING_SORT_ASCENDING: Tuple[bool, ...] = (False, False, False, False)
+TUNING_PRIMARY_METRICS: Tuple[str, ...] = ("roc_auc", "log_loss")
+TUNING_RANKING_POLICIES: Mapping[
+    str, Tuple[Tuple[str, ...], Tuple[bool, ...]]
+] = {
+    "roc_auc": (
+        (
+            "pooled_inner_roc_auc",
+            "pooled_inner_pr_auc",
+            "lambda",
+            "l1_ratio_alpha",
+        ),
+        (False, False, False, False),
+    ),
+    "log_loss": (
+        (
+            "pooled_inner_log_loss",
+            "pooled_inner_brier_score",
+            "pooled_inner_roc_auc",
+            "lambda",
+            "l1_ratio_alpha",
+        ),
+        (True, True, False, False, False),
+    ),
+}
+
+# Backward-compatible aliases used by older tests and callers.
+TUNING_SORT_COLUMNS: Tuple[str, ...] = TUNING_RANKING_POLICIES["roc_auc"][0]
+TUNING_SORT_ASCENDING: Tuple[bool, ...] = TUNING_RANKING_POLICIES["roc_auc"][1]
+
+
+def normalize_tuning_primary_metric(value: object) -> str:
+    metric = str(value).strip() if value is not None else "roc_auc"
+    if metric not in TUNING_PRIMARY_METRICS:
+        raise SpecificationError(
+            "tuning primary metric must be roc_auc or log_loss"
+        )
+    return metric
+
+
+def tuning_sort_policy(
+    primary_metric: str = "roc_auc",
+) -> Tuple[Tuple[str, ...], Tuple[bool, ...]]:
+    metric = normalize_tuning_primary_metric(primary_metric)
+    columns, ascending = TUNING_RANKING_POLICIES[metric]
+    return tuple(columns), tuple(ascending)
+
+
+def candidate_selection_policy_name(
+    primary_metric: str = "roc_auc",
+) -> str:
+    metric = normalize_tuning_primary_metric(primary_metric)
+    if metric == "roc_auc":
+        return "pooled_roc_pr_lambda_alpha"
+    return "pooled_log_loss_brier_roc_lambda_alpha"
 
 
 @dataclass(frozen=True)
@@ -316,14 +363,13 @@ def candidate_pairs(candidates: Sequence[HyperparameterCandidate]) -> set[Tuple[
     return {(float(item.alpha), float(item.lambda_value)) for item in candidates}
 
 
-def rank_tuning_candidates(frame: pd.DataFrame) -> pd.DataFrame:
-    """Sort one model's tuning rows using the exact V1 tie-break order."""
-    required = {
-        "pooled_inner_roc_auc",
-        "pooled_inner_pr_auc",
-        "lambda",
-        "l1_ratio_alpha",
-    }
+def rank_tuning_candidates(
+    frame: pd.DataFrame,
+    primary_metric: str = "roc_auc",
+) -> pd.DataFrame:
+    """Sort one model's tuning rows using the configured deterministic rule."""
+    columns, ascending = tuning_sort_policy(primary_metric)
+    required = set(columns)
     missing = sorted(required - set(frame.columns))
     if missing:
         raise SpecificationError(f"Tuning results missing columns: {missing}")
@@ -331,25 +377,32 @@ def rank_tuning_candidates(frame: pd.DataFrame) -> pd.DataFrame:
         raise SpecificationError("Tuning results are empty.")
 
     ranked = frame.copy()
-    for column in required:
+    for column in columns:
         ranked[column] = pd.to_numeric(ranked[column], errors="raise")
-    values = ranked[list(required)].to_numpy(dtype=float)
+    values = ranked[list(columns)].to_numpy(dtype=float)
     if not np.isfinite(values).all():
-        raise SpecificationError("Tuning results contain non-finite ranking values.")
+        raise SpecificationError(
+            "Tuning results contain non-finite ranking values."
+        )
     return ranked.sort_values(
-        list(TUNING_SORT_COLUMNS),
-        ascending=list(TUNING_SORT_ASCENDING),
+        list(columns),
+        ascending=list(ascending),
         kind="mergesort",
     ).reset_index(drop=True)
 
 
-def select_best_tuning_candidate(frame: pd.DataFrame) -> HyperparameterCandidate:
-    best = rank_tuning_candidates(frame).iloc[0]
+def select_best_tuning_candidate(
+    frame: pd.DataFrame,
+    primary_metric: str = "roc_auc",
+) -> HyperparameterCandidate:
+    best = rank_tuning_candidates(
+        frame,
+        primary_metric=primary_metric,
+    ).iloc[0]
     return HyperparameterCandidate(
         alpha=float(best["l1_ratio_alpha"]),
         lambda_value=float(best["lambda"]),
     )
-
 
 def validate_tuning_grid_frame(
     frame: pd.DataFrame,

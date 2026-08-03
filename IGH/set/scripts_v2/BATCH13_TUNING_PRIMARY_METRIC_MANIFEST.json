@@ -1,0 +1,62 @@
+{
+  "package": "IGH_SCHEME_UPGRADE_BATCH13_TUNING_PRIMARY_METRIC",
+  "version": "1.0.1",
+  "target_branch": "feature/igh-scheme-upgrade-v1",
+  "reviewed_head_before_upgrade": "7227eb37d9d311fb38b45ee753ca4b207afdebdc",
+  "reference": {
+    "implementation": "TRB Batch 14 plus feature-ablation hotfix 01",
+    "adaptation": "IGH model specification, configuration validation, nested tuning, task metadata, both repeated-holdout aggregators, and the IGH feature-ablation scheme preparer"
+  },
+  "modified_files": [
+    {
+      "path": "IGH/set/src/ra_ild_igh/specifications.py",
+      "reviewed_blob_sha": "e876505dfa16f901428211addb02863a0694f8f5"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/config.py",
+      "reviewed_blob_sha": "f6aa6d92e9d5ab4cadc01329e27594ab2bd5585a"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/nested_cv.py",
+      "reviewed_blob_sha": "ac0aa03e6721206c76ea037008aedd1138104398"
+    },
+    {
+      "path": "IGH/set/scripts_v2/run_nested_cv_task.py",
+      "reviewed_blob_sha": "80afba0a0d4c2489f6140b314cf01b1db45a08f6"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/repeated_holdout_summary.py",
+      "reviewed_blob_sha": "f3cd362834f44e0160ec73ae9060b1b814a096f0"
+    },
+    {
+      "path": "IGH/set/scripts_v2/aggregate_repeated_holdout_results.py",
+      "reviewed_blob_sha": "5c567a8be8312408ae7b3984a947f90124cbdb8b"
+    },
+    {
+      "path": "IGH/set/scripts_v2/prepare_feature_ablation_scheme.py",
+      "reviewed_blob_sha": "3a475195daff6ae2539cf827dc59d5c2124be414"
+    }
+  ],
+  "new_files": [
+    "IGH/set/scripts_v2/test_batch13_tuning_primary_metric.py",
+    "IGH/set/scripts_v2/README_upgrade_batch13_tuning_primary_metric.md",
+    "IGH/set/scripts_v2/BATCH13_TUNING_PRIMARY_METRIC_MANIFEST.json"
+  ],
+  "tuning_contract": {
+    "supported_primary_metrics": [
+      "roc_auc",
+      "log_loss"
+    ],
+    "default_primary_metric": "roc_auc",
+    "threshold_selection": "unchanged_youden_on_selected_inner_oof",
+    "existing_experiment_behavior": "unchanged_default_roc_auc",
+    "automatic_final_model_selection": false
+  },
+  "acceptance_marker": "IGH_BATCH13_ACCEPTANCE_PASS",
+  "runtime_outputs_to_commit": false,
+  "acceptance_test_hotfix": {
+    "id": "01",
+    "scope": "test_only",
+    "scientific_code_change": false
+  }
+}
