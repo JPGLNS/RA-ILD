@@ -1,0 +1,17 @@
+{
+  "status": "INSTALLED",
+  "batch": 15,
+  "version": "1.0.1",
+  "name": "configurable_linear_svm_engine",
+  "branch": "feature/trb-linear-svm-v1",
+  "base_commit": "86e1e70dbdd3c7a5d5fc022bdea7488fa87485e2",
+  "expected_base_commit": "86e1e70dbdd3c7a5d5fc022bdea7488fa87485e2",
+  "installed_at_utc": "2026-08-04T05:39:45.729321+00:00",
+  "model_engine": "linear_svc",
+  "score_type": "decision_function",
+  "probability_metrics_available": false,
+  "acceptance": "TRB_BATCH15_LINEAR_SVM_ACCEPTANCE_PASS",
+  "hotfixes": [
+    "hotfix01_matplotlib_boxplot_compatibility"
+  ]
+}

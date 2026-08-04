@@ -1,0 +1,13 @@
+visualization:
+  repository_root: .
+  aggregation_dir: >-
+    TRB/set/experiments/trb_linear_svm_all_feature14_repeat100_v1/03_summary
+  output_dir: >-
+    TRB/set/experiments/trb_linear_svm_all_feature14_repeat100_v1/06_visualization/main
+  models: all
+  performance_metrics:
+    - roc_auc
+    - average_precision
+    - f1
+    - sensitivity_recall
+    - specificity

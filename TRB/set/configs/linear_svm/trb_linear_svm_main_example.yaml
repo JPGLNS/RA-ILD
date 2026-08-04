@@ -1,0 +1,42 @@
+linear_svm_scheme_version: "1.0"
+
+scheme:
+  id: trb_linear_svm_pbmc_m0_m2_repeat100_v1
+  description: >-
+    PBMC-only TRB M0-M2 repeated-holdout comparison using a configurable
+    LinearSVC backend, pooled inner-OOF ROC-AUC tuning and an inner-OOF
+    Youden decision-score threshold.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_pbmc_m0_m2_repeat100_fullgrid_v1/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_linear_svm_pbmc_m0_m2_repeat100_v1
+
+# The model definitions, repeated-holdout assignments, material subset,
+# repeat-specific 3-mer settings and public-reference contracts are inherited
+# from base_resolved_config. A models mapping may be added here to override them.
+
+model_engine:
+  engine: linear_svc
+  candidate_blocks:
+    - id: l2_squared_hinge_balanced
+      priority: 1
+      penalty: l2
+      loss: squared_hinge
+      class_weight_grid:
+        - balanced
+      C_grid:
+        - 0.0001
+        - 0.001
+        - 0.01
+        - 0.1
+        - 1.0
+        - 10.0
+        - 100.0
+        - 1000.0
+      dual: auto
+
+  max_iter: 10000
+  tolerance: 1.0e-4
+  zero_sd_tolerance: 1.0e-12
+  fit_intercept: true
+  intercept_scaling: 1.0
