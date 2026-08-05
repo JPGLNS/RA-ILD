@@ -1,0 +1,22 @@
+{
+  "batch": 15,
+  "hotfix": 1,
+  "version": "1.0.1",
+  "name": "matplotlib_boxplot_keyword_compatibility",
+  "modified_files": [
+    "TRB/set/src/ra_ild_trb/linear_svm_visualization.py"
+  ],
+  "new_files": [
+    "TRB/set/scripts_v2/test_batch15_hotfix01_matplotlib_compatibility.py",
+    "TRB/set/scripts_v2/README_upgrade_batch15_hotfix01_matplotlib.md",
+    "TRB/set/scripts_v2/BATCH15_HOTFIX01_MATPLOTLIB_MANIFEST.json"
+  ],
+  "scope": "visualization_only",
+  "modeling_changed": false,
+  "aggregation_changed": false,
+  "expected_acceptance": [
+    "TRB_BATCH15_HOTFIX01_MATPLOTLIB_ACCEPTANCE_PASS",
+    "TRB_BATCH15_LINEAR_SVM_ACCEPTANCE_PASS",
+    "TRB_BATCH15_HOTFIX01_INSTALL_PASS"
+  ]
+}

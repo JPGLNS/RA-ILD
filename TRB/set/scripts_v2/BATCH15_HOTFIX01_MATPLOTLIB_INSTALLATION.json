@@ -1,0 +1,17 @@
+{
+  "status": "INSTALLED",
+  "batch": 15,
+  "hotfix": 1,
+  "version": "1.0.1",
+  "branch": "feature/trb-linear-svm-v1",
+  "base_commit": "86e1e70dbdd3c7a5d5fc022bdea7488fa87485e2",
+  "installed_at_utc": "2026-08-04T05:39:45.729321+00:00",
+  "scope": "visualization_only",
+  "files": [
+    "TRB/set/scripts_v2/BATCH15_HOTFIX01_MATPLOTLIB_MANIFEST.json",
+    "TRB/set/scripts_v2/README_upgrade_batch15_hotfix01_matplotlib.md",
+    "TRB/set/scripts_v2/test_batch15_hotfix01_matplotlib_compatibility.py",
+    "TRB/set/src/ra_ild_trb/linear_svm_visualization.py"
+  ],
+  "acceptance": "TRB_BATCH15_HOTFIX01_MATPLOTLIB_ACCEPTANCE_PASS"
+}
