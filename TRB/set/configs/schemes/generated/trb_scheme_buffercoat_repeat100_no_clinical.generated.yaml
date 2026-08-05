@@ -1,0 +1,85 @@
+scheme_version: '1.0'
+scheme:
+  id: trb_scheme_buffercoat_repeat100_no_clinical
+  description: Three frozen 123/51 repeated holdouts with automatic split-specific
+    Elastic Net alpha/lambda and inner-OOF threshold selection; no M0, age, or sex.
+  status: development
+  base_config: TRB/set/configs/trb_baseline_m2_v1.yaml
+  output_root: TRB/set/experiments/trb_scheme_buffercoat_repeat100_no_clinical
+replacements:
+  models:
+    M1_static_tcr:
+      description: Static TRB repertoire features only.
+      numeric: []
+      categorical: []
+      static_feature_groups:
+      - static_tcr_candidate_predictors
+      dynamic_public: []
+    M2_static_tcr_public:
+      description: Static TRB features plus dynamic public-reference features.
+      numeric: []
+      categorical: []
+      static_feature_groups:
+      - static_tcr_candidate_predictors
+      dynamic_public:
+      - all_ref_public_clone_ratio
+      - all_ref_public_frequency_sum
+      - shared_ref_clone_ratio
+      - shared_ref_frequency_sum
+      - RA_specific_ref_clone_ratio
+      - RA_specific_ref_frequency_sum
+      - ILD_specific_ref_clone_ratio
+      - ILD_specific_ref_frequency_sum
+overrides:
+  final_model:
+    status: not_selected
+  data:
+    train:
+      expected_samples: 63
+      metadata: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_metadata.csv
+      base_matrix: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_static_base_matrix.csv.gz
+      feature_manifest: TRB/set/train/result/04_final_feature_matrix/04_feature_manifest.csv
+      aa_clone_table_dir: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1
+      public_catalog: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_cdr3_aa_catalog.csv.gz
+      reference_definition: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/TRAINING_BUNDLE_FROZEN.json
+  public_reference:
+    expected_sizes:
+      catalog: 5572675
+      global: 0
+      RA_specific: 0
+      ILD_specific: 0
+      shared: 0
+    cache:
+      presence: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_public_presence.npz
+      frequency: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_public_frequency.npz
+      metadata: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/full_cohort_public_sparse_cache.json
+  cross_validation:
+    outer_repeats: 100
+    outer_folds: 2
+    executed_outer_folds:
+    - 1
+    inner_folds: 5
+    outer_assignments: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/repeated_holdout_outer_assignments.csv
+    inner_assignments: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/repeated_holdout_inner_assignments.csv.gz
+    balance_columns:
+    - cohort
+    - batch
+    - sex
+  repeated_holdout_training:
+    mode: frozen_repeated_holdout
+    split_set_id: ra_ild_buffercoat_repeat100_v1
+    assignments: TRB/set/split_sets/ra_ild_buffercoat_repeat100_v1/repeated_holdout_assignments.csv
+    frozen_marker: TRB/set/split_sets/ra_ild_buffercoat_repeat100_v1/SPLITS_FROZEN.json
+    training_bundle_marker: TRB/set/training_bundles/trb_buffercoat_repeat100_training_inputs_v1/TRAINING_BUNDLE_FROZEN.json
+    split_count: 100
+    train_size: 44
+    holdout_size: 19
+    validation_outer_fold: 1
+    catalog_role: indexing_universe_only
+    public_reference_policy: current_training_partition_only
+  outer_tasks:
+    default_workers: 1
+    max_workers: 3
+    minimum_complete_tasks_for_validation: 1
+  aggregation:
+    expected_predictions_per_sample: 100

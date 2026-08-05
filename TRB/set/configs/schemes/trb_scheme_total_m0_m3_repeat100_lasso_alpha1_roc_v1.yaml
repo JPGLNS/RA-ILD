@@ -1,0 +1,98 @@
+feature_ablation_scheme_version: '1.0'
+scheme:
+  id: trb_scheme_total_m0_m3_repeat100_lasso_alpha1_roc_v1
+  description: Total-cohort RA versus RA-ILD M0-M3 analysis across 100 frozen repeated
+    holdouts, using fixed Lasso alpha=1, the inherited eight-point lambda grid, and
+    pooled inner ROC-AUC as the primary hyperparameter-selection metric.
+  base_resolved_config: TRB/set/experiments/trb_scheme_014_m0_m3_repeat100/00_config/resolved_config.yaml
+  output_root: TRB/set/experiments/trb_scheme_total_m0_m3_repeat100_lasso_alpha1_roc_v1
+repeat_3mer_features:
+  enabled: true
+  selection_scope: outer_repeat_train_only
+  ranking_rule: prevalence_then_total_variance
+  aa_manifest: TRB/set/training_bundles/trb_repeat100_training_inputs_v1/aa_clone_table_manifest.csv
+  sequence_column: cdr3_aa
+  min_sample_count: 5
+  min_prevalence: 0.05
+  min_unweighted_variance: 1.0e-12
+  min_weighted_variance: 1.0e-12
+  max_kmers: 500
+  top_k_values:
+  - 50
+  - 100
+  - 200
+  - 500
+  expected_core_feature_count: 83
+  core_group_name: core83
+  legacy_group_name: static_tcr_candidate_predictors
+models:
+  M0_clinical:
+    description: Clinical baseline with age and sex.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups: []
+    dynamic_public: []
+  M1_static_tcr:
+    description: Age and sex plus Core83 and repeat-specific Top-500 unweighted and
+      weighted 3-mer features.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public: []
+  M2_static_tcr_public:
+    description: M1 plus eight dynamic public-reference features.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public:
+    - all_ref_public_clone_ratio
+    - all_ref_public_frequency_sum
+    - shared_ref_clone_ratio
+    - shared_ref_frequency_sum
+    - RA_specific_ref_clone_ratio
+    - RA_specific_ref_frequency_sum
+    - ILD_specific_ref_clone_ratio
+    - ILD_specific_ref_frequency_sum
+  M3_static_tcr_public_material:
+    description: M2 plus sample material.
+    numeric:
+    - age
+    categorical:
+    - sex
+    - material
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public:
+    - all_ref_public_clone_ratio
+    - all_ref_public_frequency_sum
+    - shared_ref_clone_ratio
+    - shared_ref_frequency_sum
+    - RA_specific_ref_clone_ratio
+    - RA_specific_ref_frequency_sum
+    - ILD_specific_ref_clone_ratio
+    - ILD_specific_ref_frequency_sum
+model_engine:
+  alpha_grid:
+  - 1.0
+  lambda_grid:
+  - 0.01
+  - 0.03
+  - 0.1
+  - 0.3
+  - 1.0
+  - 3.0
+  - 10.0
+  - 30.0
+model_selection:
+  tuning_primary_metric: roc_auc
