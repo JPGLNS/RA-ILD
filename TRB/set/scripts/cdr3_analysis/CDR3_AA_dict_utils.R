@@ -62,8 +62,37 @@ auc_from_scores <- function(scores, y) {
 }
 
 # 双侧完整流程置换 p（标准公式）
-perm_p_two_sided <- function(observed_stat, permuted_stats, n_perm) {
-  (1 + sum(permuted_stats >= observed_stat)) / (n_perm + 1)
+# 仅使用有限 permutation 统计量，以实际有效置换数作为分母；
+# observed 非有限或有效置换数为 0 时返回 NA。
+perm_p_two_sided <- function(observed_stat, permuted_stats) {
+  if (!is.finite(observed_stat)) return(NA_real_)
+
+  valid <- is.finite(permuted_stats)
+  n_valid <- sum(valid)
+
+  if (n_valid == 0L) return(NA_real_)
+
+  (1 + sum(permuted_stats[valid] >= observed_stat)) /
+    (n_valid + 1)
+}
+
+# maxT 多重比较校正：仅使用 8 指标全部为有限值的完整置换行
+# 返回 list(p_maxT, n_complete)；无完整行时 p_maxT 全 NA 并 warning
+#（不会因 max(..., na.rm=TRUE) 产生 -Inf）。
+maxT_p_values <- function(dev_obs, dev_perm) {
+  complete_perm <- apply(dev_perm, 1, function(x) all(is.finite(x)))
+  n_complete <- sum(complete_perm)
+  out <- setNames(rep(NA_real_, length(dev_obs)), names(dev_obs))
+  if (n_complete == 0L) {
+    warning("maxT: 无任何置换行为 8 指标全有限，p_maxT 返回 NA")
+    return(list(p_maxT = out, n_complete = n_complete))
+  }
+  max_dev <- apply(dev_perm[complete_perm, , drop = FALSE], 1, max)
+  for (j in seq_along(dev_obs)) {
+    if (!is.finite(dev_obs[j])) next
+    out[j] <- (1 + sum(max_dev >= dev_obs[j])) / (n_complete + 1)
+  }
+  list(p_maxT = out, n_complete = n_complete)
 }
 
 # ------------------------------------------------------------------
@@ -135,15 +164,23 @@ load_sample_clone_data <- function(aa_dir, aa_files_f, sample_ids, keep_clones =
   all_tab[, id := seq_len(.N)]
   U <- nrow(all_tab)
 
-  # 每样本映射到整数 id
-  clone_ids <- lapply(clones_char, function(cl) {
-    m <- chmatch(cl, all_tab$clone)
-    m[!is.na(m)]
-  })
+  # 每样本映射到整数 id；keep_clones 时用同一个 logical mask 同步裁剪
+  # clone 与 read_fraction，保证 length(clone_ids[[sid]]) == length(rf[[sid]])
+  # 且 rf 与 clone 顺序一一对应。
+  clone_ids <- vector("list", n)
+  rf_trimmed <- vector("list", n)
+  for (i in seq_len(n)) {
+    m <- chmatch(clones_char[[i]], all_tab$clone)
+    keep <- !is.na(m)
+    clone_ids[[i]] <- m[keep]
+    rf_trimmed[[i]] <- rf_list[[i]][keep]
+  }
+  names(clone_ids) <- sample_ids
+  names(rf_trimmed) <- sample_ids
   cat("克隆全集大小（预筛选后）:", U, "\n")
   list(
     clone_ids = clone_ids,
-    rf = rf_list,
+    rf = rf_trimmed,
     clone_names = all_tab$clone,
     n_universe = U,
     all_tab = all_tab

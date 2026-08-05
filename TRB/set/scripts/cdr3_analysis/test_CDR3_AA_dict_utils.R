@@ -1,15 +1,19 @@
 # ====================================================================
-# CDR3_AA_dict_utils.R 单元测试（7 项，全部 synthetic 数据）
+# CDR3_AA_dict_utils.R 单元测试（11 组，全部 synthetic 数据）
 # ====================================================================
-# 运行：Rscript TRB/scripts/test_CDR3_AA_dict_utils.R
-# 7 项：
-#   T1 对齐字典构建（回归测试：命名向量按位置回收的 bug）
-#   T2 留一法无泄漏（留出样本的私有 clone 不进入当轮字典）
-#   T3 空字典 / 常数指标 / 全 NA 列的防御性处理
-#   T4 重复 cdr3_aa 行聚合（rf 求和）+ 非法值过滤
-#   T5 完整流程置换：置换 AUC 与"手动重演同一标签序列"严格对拍
-#   T6 分层置换保持每层 RA/ILD 数量
-#   T7 同一 seed 完全可复现
+# 运行：Rscript TRB/set/scripts/cdr3_analysis/test_CDR3_AA_dict_utils.R
+# 11 组：
+#   T1  对齐字典构建（回归测试：命名向量按位置回收的 bug）
+#   T2  留一法无泄漏（留出样本的私有 clone 不进入当轮字典）
+#   T3  空字典 / 常数指标 / 全 NA 列的防御性处理
+#   T4  重复 cdr3_aa 行聚合（rf 求和）+ 非法值过滤
+#   T5  完整流程置换：置换 AUC 与"手动重演同一标签序列"严格对拍
+#   T6  分层置换保持每层 RA/ILD 数量
+#   T7  同一 seed 完全可复现
+#   T8  两个主脚本实际加载 set/ 正式目录的 utils
+#   T9  keep_clones 后 clone_id 与 rf 长度/顺序严格一致
+#   T10 perm_p_two_sided 对部分/全 NA 置换统计量的处理
+#   T11 maxT 仅使用完整置换行（分母 = 完整行数+1）
 # ====================================================================
 
 suppressMessages(library(data.table))
@@ -244,6 +248,82 @@ fp7b <- run_full_pipeline_permutation(d7$clone_ids, d7$rf, d7$sample_ids, d7$lab
 ok(identical(fp7a$perm_auc, fp7b$perm_auc) &&
      identical(fp7a$hits_obs, fp7b$hits_obs),
    "T7 同 seed 两次运行逐位一致")
+
+# ====================================================================
+# T8 主脚本实际加载的 utils 路径（GitHub 正式目录）
+# ====================================================================
+cat("\n== T8 utils 加载路径 ==\n")
+src_lo <- readLines(file.path(script_dir, "CDR3_AA_dict_LOOCV.R"))
+src_ma <- readLines(file.path(script_dir, "CDR3_AA_dict_material_analysis.R"))
+pat <- "TRB/set/scripts/cdr3_analysis/CDR3_AA_dict_utils\\.R"
+ok(any(grepl(pat, src_lo)) && any(grepl(pat, src_ma)),
+   "T8a 两个主脚本引用 set/ 正式目录的 utils")
+ok(file.exists("TRB/set/scripts/cdr3_analysis/CDR3_AA_dict_utils.R"),
+   "T8b utils 文件可从项目根解析（相对路径有效）")
+
+# ====================================================================
+# T9 keep_clones 后 clone_id 与 rf 严格对齐
+# ====================================================================
+cat("\n== T9 keep_clones 后 clone_id 与 rf 严格对齐 ==\n")
+td <- tempfile(); dir.create(td)
+write.csv(data.frame(cdr3_aa = c("A1", "A2", "A3"),
+                     read_fraction = c(0.5, 0.3, 0.2)),
+          file.path(td, "s1_AA_clone_table.csv"), row.names = FALSE)
+write.csv(data.frame(cdr3_aa = c("A2", "A3", "B1"),
+                     read_fraction = c(0.4, 0.35, 0.25)),
+          file.path(td, "s2_AA_clone_table.csv"), row.names = FALSE)
+d9 <- load_sample_clone_data(td, c("s1_AA_clone_table.csv", "s2_AA_clone_table.csv"),
+                             c("s1", "s2"), keep_clones = c("A2", "A3"))
+ok(all(lengths(d9$clone_ids) == lengths(d9$rf)),
+   "T9a 每样本 clone_id 与 rf 长度严格一致")
+ok(d9$n_universe == 2L, "T9b universe 收缩到 keep 子集")
+ok(identical(d9$clone_names[d9$clone_ids$s1], c("A2", "A3")) &&
+     isTRUE(all.equal(d9$rf$s1, c(0.3, 0.2))),
+   "T9c s1 的 clone 顺序与 rf 一一对应")
+ok(identical(d9$clone_names[d9$clone_ids$s2], c("A2", "A3")) &&
+     isTRUE(all.equal(d9$rf$s2, c(0.4, 0.35))),
+   "T9d s2 的 clone 顺序与 rf 一一对应")
+
+# ====================================================================
+# T10 perm_p_two_sided 对 NA 置换统计量的处理
+# ====================================================================
+cat("\n== T10 perm_p_two_sided 对 NA 的处理 ==\n")
+p10a <- perm_p_two_sided(0.2, c(0.1, NA, 0.3, NA, 0.15))
+ok(is.finite(p10a) && isTRUE(all.equal(p10a, 0.5)),
+   "T10a 部分 NA 时用有效置换数作分母（n_valid=3，(1+1)/4=0.5）")
+ok(is.na(perm_p_two_sided(NA_real_, c(0.1, 0.2, 0.3))),
+   "T10b observed 非有限 → NA")
+ok(is.na(perm_p_two_sided(0.2, c(NA_real_, NA_real_, NA_real_))),
+   "T10c 置换全 NA → NA（不崩溃）")
+ok(isTRUE(all.equal(perm_p_two_sided(0.2, c(0.1, 0.3)), (1 + 1) / 3)),
+   "T10d 无 NA 时与标准公式一致（n_valid = n_perm）")
+
+# ====================================================================
+# T11 maxT 仅使用完整置换行
+# ====================================================================
+cat("\n== T11 maxT 仅用完整置换行 ==\n")
+m_names <- c("RA_dict_clone_count", "ILD_dict_clone_count", "RA_dict_hit_rate",
+             "ILD_dict_hit_rate", "RA_dict_read_fraction_sum",
+             "ILD_dict_read_fraction_sum", "RA_minus_ILD_count",
+             "RA_minus_ILD_freq")
+dev_obs11 <- setNames(c(0.10, 0.20, 0.05, 0.15, 0.10, 0.08, 0.12, 0.06), m_names)
+dev_perm11 <- rbind(
+  c(0.05, 0.02, 0.01, 0.03, 0.02, 0.01, 0.04, 0.01),   # 完整行 1（max=0.05）
+  c(NA, 0.10, 0.05, 0.04, 0.03, 0.02, 0.06, 0.05),     # 不完整行
+  c(0.30, 0.25, 0.20, 0.28, 0.22, 0.18, 0.26, 0.21),   # 完整行 2（max=0.30）
+  c(0.02, NA, NA, 0.01, NA, NA, NA, NA)                # 不完整行
+)
+colnames(dev_perm11) <- m_names
+mt11 <- maxT_p_values(dev_obs11, dev_perm11)
+ok(mt11$n_complete == 2L, "T11a 完整行数正确（2/4）")
+ok(isTRUE(all.equal(mt11$p_maxT[["RA_minus_ILD_count"]], (1 + 1) / 3)),
+   "T11b p_maxT 分母 = 完整行数+1（max_dev 0.05/0.30，≥0.12 仅 0.30）")
+ok(all(is.finite(mt11$p_maxT)), "T11c 完整行存在时全部指标 p_maxT 有限")
+dev_perm11b <- matrix(NA_real_, nrow = 2, ncol = 8)
+mt11b <- suppressWarnings(maxT_p_values(dev_obs11, dev_perm11b))
+ok(mt11b$n_complete == 0L && all(is.na(mt11b$p_maxT)) &&
+     !any(mt11b$p_maxT == -Inf, na.rm = TRUE),
+   "T11d 无完整行 → 全 NA 且无 -Inf（warning 已抑制）")
 
 # ====================================================================
 cat(sprintf("\n结果：%d PASS / %d FAIL\n", n_pass, n_fail))

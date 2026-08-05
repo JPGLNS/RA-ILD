@@ -3,7 +3,10 @@ library(data.table)
 library(pROC)
 
 setwd("/data/users/chenhaisheng/RA-ILD/")
-source("TRB/scripts/CDR3_AA_dict_utils.R")
+# utils 以 GitHub 同步目录（set/）为正式版本
+utils_file <- "TRB/set/scripts/cdr3_analysis/CDR3_AA_dict_utils.R"
+stopifnot(file.exists(utils_file))
+source(utils_file)
 
 # ====================================================================
 # material 拆分（pbmc / buffycoat）enrich 字典判别分析（GPT 审查修复版）
@@ -18,9 +21,11 @@ source("TRB/scripts/CDR3_AA_dict_utils.R")
 #   2) 每轮记录 RA/ILD 字典规模，hit_rate 分母 = 当轮字典规模；
 #   3) 重复克隆聚合、空字典/常数指标防御；
 #   4) 置换升级为完整流程置换，且仅在各自 material 子集内进行
-#      （默认整体置换；PERM_STRATA=batch 可改用 batch 内分层）；
-#      p = (1+sum(|perm_stat|>=|obs_stat|))/(n_perm+1)，BH-FDR +
-#      p_maxT 控制多重比较。
+#      （默认整体置换；PERM_STRATA=batch 可改用 batch 内分层，此时
+#       子集内 material 恒定，batch 分层不涉及 material 混杂）；
+#      p = (1+sum(|perm_stat|>=|obs_stat|))/(n_valid+1)，分母为各
+#      指标实际有效（有限）置换数，BH-FDR + p_maxT 控制多重比较
+#      （maxT 仅用 8 指标全有限的完整置换行）。
 # 环境变量：N_PERM（默认 1000）、PERM_SEED（默认 20260804）、
 #           PERM_STRATA（默认 "none"，可选 "batch"）
 # ====================================================================
@@ -66,7 +71,7 @@ dir.create(plot_dir, showWarnings = FALSE, recursive = TRUE)
 
 # 裁剪到 keep 子集并重编码（trim_to_keep 见 utils，保留样本名）
 # 汇总表输出（含 fullperm p 值列）
-make_summary_df <- function(in_res, lo_res, p_raw, q_bh, p_maxT) {
+make_summary_df <- function(in_res, lo_res, p_raw, q_bh, p_maxT, fullperm_n_valid) {
   data.frame(
     metric = metric_labels,
     insample_AUC = sapply(in_res, `[[`, "auc"),
@@ -86,6 +91,7 @@ make_summary_df <- function(in_res, lo_res, p_raw, q_bh, p_maxT) {
     fullperm_q_BH = q_bh,
     fullperm_p_maxT = p_maxT,
     fullperm_n = N_PERM,
+    fullperm_n_valid = fullperm_n_valid,
     fullperm_seed = PERM_SEED,
     fullperm_scheme = PERM_STRATA
   )
@@ -220,16 +226,28 @@ for (part in c("pbmc", "buffycoat")) {
       checkpoint_every = 25L)
     perm_auc <- fp$perm_auc
 
+    n_na <- colSums(!is.finite(perm_auc))
+    if (any(n_na > 0L)) {
+      cat("置换 AUC 含 NA 的指标: ",
+          paste(sprintf("%s=%d", metric_labels[n_na > 0L], n_na[n_na > 0L]),
+                collapse = "; "), "\n")
+    } else {
+      cat("置换 AUC 全部有限（NA 数 = 0）\n")
+    }
+
     obs_auc <- sapply(loocv_res, `[[`, "auc")
     dev_obs  <- abs(obs_auc - 0.5)
     dev_perm <- abs(perm_auc - 0.5)
-    max_dev_perm <- apply(dev_perm, 1, max, na.rm = TRUE)
     p_raw  <- vapply(seq_along(metrics), function(j)
-      perm_p_two_sided(dev_obs[j], dev_perm[, j], N_PERM), numeric(1))
-    p_maxT <- vapply(seq_along(metrics), function(j)
-      (1 + sum(max_dev_perm >= dev_obs[j])) / (N_PERM + 1), numeric(1))
+      perm_p_two_sided(dev_obs[j], dev_perm[, j]), numeric(1))
+    mt <- maxT_p_values(dev_obs, dev_perm)
+    p_maxT <- mt$p_maxT
+    n_complete <- mt$n_complete
+    cat(sprintf("maxT 完整置换行数（8 指标全 finite）: %d/%d\n", n_complete, N_PERM))
     q_bh <- p.adjust(p_raw, "BH")
     names(p_raw) <- names(p_maxT) <- names(q_bh) <- metrics
+    fullperm_n_valid <- colSums(is.finite(perm_auc))
+    names(fullperm_n_valid) <- metrics
 
     fa <- as.data.frame(perm_auc)
     fa$perm <- paste0("perm_", seq_len(N_PERM))
@@ -238,13 +256,15 @@ for (part in c("pbmc", "buffycoat")) {
   } else {
     cat("N_PERM=0，跳过置换检验\n")
     p_raw <- p_maxT <- q_bh <- setNames(rep(NA_real_, length(metrics)), metrics)
+    fullperm_n_valid <- setNames(rep(0L, length(metrics)), metrics)
+    n_complete <- 0L
   }
 
   loocv_auc_all[[part]] <- sapply(loocv_res, `[[`, "auc")
   names(loocv_auc_all[[part]]) <- metrics
   print_summary(loocv_res, paste0(part, " 留一法（公平分数，T=20%, Δ=10%）"), p_raw)
 
-  lo_sum_df <- make_summary_df(in_res, loocv_res, p_raw, q_bh, p_maxT)
+  lo_sum_df <- make_summary_df(in_res, loocv_res, p_raw, q_bh, p_maxT, fullperm_n_valid)
   write.csv(lo_sum_df, file.path(out_dir, paste0("CDR3_AA_dict_LOOCV_summary_", part, "_T20_D10.csv")),
             row.names = FALSE)
 

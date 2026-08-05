@@ -3,7 +3,10 @@ library(data.table)
 library(pROC)
 
 setwd("/data/users/chenhaisheng/RA-ILD/")
-source("TRB/scripts/CDR3_AA_dict_utils.R")
+# utils 以 GitHub 同步目录（set/）为正式版本
+utils_file <- "TRB/set/scripts/cdr3_analysis/CDR3_AA_dict_utils.R"
+stopifnot(file.exists(utils_file))
+source(utils_file)
 
 # ====================================================================
 # 留一法（LOOCV）验证：enrich 字典判别力（GPT 审查修复版）
@@ -18,9 +21,12 @@ source("TRB/scripts/CDR3_AA_dict_utils.R")
 #   4) 重复克隆按 cdr3_aa 聚合、空字典 hit_rate=NA、常数指标防御；
 #   5) 置换检验升级为完整流程置换：每轮置换重跑整个 LOOCV（字典
 #      构建 + 打分），按 material 分层（保持层内 RA/ILD 数量）；
-#      p = (1 + sum(|perm_stat| >= |obs_stat|)) / (n_perm + 1)，
-#      BH-FDR + p_maxT 控制 8 指标多重比较；
-#   6) 环境变量 N_PERM / PERM_SEED / PERM_STRATA 控制置换。
+#      p = (1 + sum(|perm_stat| >= |obs_stat|)) / (n_valid + 1)，
+#      分母为各指标实际有效（有限）置换数，BH-FDR + p_maxT 控制
+#      8 指标多重比较（maxT 仅用 8 指标全有限的完整置换行）；
+#   6) 环境变量 N_PERM / PERM_SEED / PERM_STRATA 控制置换，
+#      PERM_STRATA ∈ {material, material_batch, none}，
+#      material_batch = material×batch 联合分层。
 # 输出：
 #   1) TRB/result/CDR3_AA_sample_dict_hits_LOOCV_T20_D10.csv
 #      （公平分数表，含 RA/ILD_dict_size 列）
@@ -39,8 +45,8 @@ N_PERM <- as.integer(Sys.getenv("N_PERM", unset = NA_character_))
 if (is.na(N_PERM)) N_PERM <- 1000L
 PERM_SEED <- as.integer(Sys.getenv("PERM_SEED", unset = NA_character_))
 if (is.na(PERM_SEED)) PERM_SEED <- 20260804L
-PERM_STRATA <- Sys.getenv("PERM_STRATA", unset = "material")  # material | batch | none
-stopifnot(N_PERM >= 0L, PERM_STRATA %in% c("material", "batch", "none"))
+PERM_STRATA <- Sys.getenv("PERM_STRATA", unset = "material")  # material | material_batch | none
+stopifnot(N_PERM >= 0L, PERM_STRATA %in% c("material", "material_batch", "none"))
 cat(sprintf("置换配置: N_PERM=%d, PERM_SEED=%d, PERM_STRATA=%s\n",
             N_PERM, PERM_SEED, PERM_STRATA))
 
@@ -77,8 +83,19 @@ n_ra  <- length(ra_ids)
 n_ild <- length(ild_ids)
 cat("RA:", n_ra, "样本 | ILD:", n_ild, "样本\n")
 validate_metadata(metadata, sample_ids)
-check_strata(sample_info, "material")
-if (PERM_STRATA != "none") check_strata(sample_info, PERM_STRATA)
+if (PERM_STRATA == "material_batch") {
+  # material×batch 联合分层检查（interaction 因子无对应列，手写检查）
+  strat_chk <- interaction(sample_info$material, sample_info$batch, drop = TRUE)
+  tab <- table(strat_chk, sample_info$cohort)
+  one_sided <- rownames(tab)[apply(tab, 1, function(r) any(r == 0))]
+  if (length(one_sided) > 0) {
+    warning("以下 material×batch stratum 只含单一 cohort，无法贡献标签交换: ",
+            paste(one_sided, collapse = ", "))
+  }
+} else {
+  check_strata(sample_info, "material")
+  if (PERM_STRATA != "none") check_strata(sample_info, PERM_STRATA)
+}
 
 # ====================================================================
 # 读取全部样本（整数编码）+ 标签无关安全预筛选
@@ -129,7 +146,10 @@ if (N_PERM > 0L) {
   cat(sprintf("完整流程置换检验（%d 次，seed=%d，strata=%s）...\n",
               N_PERM, PERM_SEED, PERM_STRATA))
   strata <- rep("all", length(sample_ids))
-  if (PERM_STRATA != "none") strata <- sample_info[[PERM_STRATA]]
+  if (PERM_STRATA == "material") strata <- sample_info$material
+  if (PERM_STRATA == "material_batch") {
+    strata <- interaction(sample_info$material, sample_info$batch, drop = TRUE)
+  }
   fp <- run_full_pipeline_permutation(
     clone_ids_lo, rf_lo, sample_ids, lab_obs, strata,
     N_PERM, PERM_SEED, U_lo,
@@ -138,16 +158,28 @@ if (N_PERM > 0L) {
     checkpoint_every = 25L)
   perm_auc <- fp$perm_auc
 
+  n_na <- colSums(!is.finite(perm_auc))
+  if (any(n_na > 0L)) {
+    cat("置换 AUC 含 NA 的指标: ",
+        paste(sprintf("%s=%d", metric_labels[n_na > 0L], n_na[n_na > 0L]),
+              collapse = "; "), "\n")
+  } else {
+    cat("置换 AUC 全部有限（NA 数 = 0）\n")
+  }
+
   obs_auc <- sapply(loocv_res, `[[`, "auc")
   dev_obs  <- abs(obs_auc - 0.5)                 # 统计量：偏离随机水平 0.5 的幅度
   dev_perm <- abs(perm_auc - 0.5)
-  max_dev_perm <- apply(dev_perm, 1, max, na.rm = TRUE)   # maxT：跨 8 指标最大值
   p_raw  <- vapply(seq_along(metrics), function(j)
-    perm_p_two_sided(dev_obs[j], dev_perm[, j], N_PERM), numeric(1))
-  p_maxT <- vapply(seq_along(metrics), function(j)
-    (1 + sum(max_dev_perm >= dev_obs[j])) / (N_PERM + 1), numeric(1))
+    perm_p_two_sided(dev_obs[j], dev_perm[, j]), numeric(1))
+  mt <- maxT_p_values(dev_obs, dev_perm)
+  p_maxT <- mt$p_maxT
+  n_complete <- mt$n_complete
+  cat(sprintf("maxT 完整置换行数（8 指标全 finite）: %d/%d\n", n_complete, N_PERM))
   q_bh <- p.adjust(p_raw, "BH")
   names(p_raw) <- names(p_maxT) <- names(q_bh) <- metrics
+  fullperm_n_valid <- colSums(is.finite(perm_auc))
+  names(fullperm_n_valid) <- metrics
 
   # 置换 AUC 矩阵导出
   fa <- as.data.frame(perm_auc)
@@ -157,6 +189,8 @@ if (N_PERM > 0L) {
 } else {
   cat("N_PERM=0，跳过置换检验\n")
   p_raw <- p_maxT <- q_bh <- setNames(rep(NA_real_, length(metrics)), metrics)
+  fullperm_n_valid <- setNames(rep(0L, length(metrics)), metrics)
+  n_complete <- 0L
 }
 
 # ====================================================================
@@ -213,6 +247,7 @@ summary_df <- data.frame(
   fullperm_q_BH = q_bh,
   fullperm_p_maxT = p_maxT,
   fullperm_n = N_PERM,
+  fullperm_n_valid = fullperm_n_valid,
   fullperm_seed = PERM_SEED,
   fullperm_scheme = PERM_STRATA
 )
@@ -226,8 +261,12 @@ plot_dir <- "./TRB/gradient/dict_LOOCV/"
 dir.create(plot_dir, showWarnings = FALSE, recursive = TRUE)
 perm_note <- "未做置换检验"
 if (N_PERM > 0L) {
-  perm_note <- sprintf("完整流程置换 %d 次（%s 内分层, seed=%d）",
-                       N_PERM, PERM_STRATA, PERM_SEED)
+  scheme_desc <- switch(PERM_STRATA,
+                        material = "material 内分层",
+                        material_batch = "material×batch 联合分层",
+                        none = "无分层（整体置换）")
+  perm_note <- sprintf("完整流程置换 %d 次（%s, seed=%d）",
+                       N_PERM, scheme_desc, PERM_SEED)
 }
 
 # ---- 1) LOOCV 公平分数箱线图（2×4，标注方法与 p 值） ----
