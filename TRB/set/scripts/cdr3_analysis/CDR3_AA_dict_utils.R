@@ -125,6 +125,83 @@ check_strata <- function(meta, strata_var) {
 }
 
 # ------------------------------------------------------------------
+# 样本—文件显式命名映射
+# ------------------------------------------------------------------
+
+# 建立 libraryid → AA clone table 文件名的显式映射。
+# 返回 named character vector（names = libraryid，values = 文件名）；
+# 校验：每个文件解析出唯一 libraryid、无重复 id、文件真实存在、
+# 可按 metadata 中的 libraryid 过滤。不依赖 list.files 的排序。
+build_aa_file_map <- function(aa_dir, metadata_ids = NULL,
+                              pattern = "_AA_clone_table\\.csv$",
+                              exclude_pattern = "^01_") {
+  aa_files <- list.files(aa_dir, pattern = pattern, full.names = FALSE)
+  if (length(aa_files) == 0L) stop("未找到 AA clone table 文件: ", aa_dir)
+
+  aa_ids <- sub(pattern, "", aa_files)
+  if (!is.null(exclude_pattern)) {
+    keep <- !grepl(exclude_pattern, aa_ids)
+    aa_files <- aa_files[keep]
+    aa_ids <- aa_ids[keep]
+  }
+  if (anyNA(aa_ids) || any(!nzchar(aa_ids))) {
+    stop("AA clone table 中存在无法解析的 libraryid")
+  }
+  dup_ids <- unique(aa_ids[duplicated(aa_ids)])
+  if (length(dup_ids) > 0L) {
+    stop("同一 libraryid 对应多个 AA clone table 文件: ",
+         paste(dup_ids, collapse = ", "))
+  }
+  file_map <- setNames(aa_files, aa_ids)
+  if (!is.null(metadata_ids)) {
+    file_map <- file_map[names(file_map) %in% metadata_ids]
+  }
+  if (length(file_map) == 0L) {
+    stop("AA clone table 与 metadata 没有可匹配的样本")
+  }
+  if (!all(file.exists(file.path(aa_dir, unname(file_map))))) {
+    stop("文件映射中存在实际不存在的 AA clone table")
+  }
+  file_map
+}
+
+# 按 sample_ids 顺序解析 AA clone table 文件名。
+# 返回与 sample_ids 严格同序的字符向量；缺失/错配/重复均报错。
+resolve_sample_files <- function(aa_file_map, sample_ids, aa_dir = NULL) {
+  if (is.null(names(aa_file_map))) {
+    stop("aa_file_map 必须是以 libraryid 命名的向量")
+  }
+  if (anyDuplicated(names(aa_file_map))) {
+    stop("aa_file_map 中存在重复 libraryid")
+  }
+  if (anyNA(sample_ids) || any(!nzchar(sample_ids))) {
+    stop("sample_ids 中存在 NA 或空 libraryid")
+  }
+  if (anyDuplicated(sample_ids)) {
+    stop("sample_ids 中存在重复 libraryid: ",
+         paste(unique(sample_ids[duplicated(sample_ids)]), collapse = ", "))
+  }
+  files <- unname(aa_file_map[sample_ids])
+  missing_ids <- sample_ids[is.na(files)]
+  if (length(missing_ids) > 0L) {
+    stop("以下样本缺少 AA clone table: ",
+         paste(missing_ids, collapse = ", "))
+  }
+  if (!is.null(aa_dir)) {
+    missing_files <- !file.exists(file.path(aa_dir, files))
+    if (any(missing_files)) {
+      stop("以下 AA clone table 文件不存在: ",
+           paste(files[missing_files], collapse = ", "))
+    }
+  }
+  expected_ids <- sub("_AA_clone_table\\.csv$", "", basename(files))
+  if (!identical(expected_ids, sample_ids)) {
+    stop("libraryid 与解析出的 AA clone table 文件不一致")
+  }
+  files
+}
+
+# ------------------------------------------------------------------
 # 数据读取（防御性）
 # ------------------------------------------------------------------
 
@@ -143,7 +220,26 @@ read_sample_clones <- function(f, warn_dup = TRUE) {
 }
 
 # 读取全部样本并构建整数编码（可带预筛选 keep_clones）
+# 强制断言：aa_files_f 与 sample_ids 必须严格一一对应（显式命名映射的
+# 最终防线），错序/缺文件/重复 id 立即报错而非静默错配。
 load_sample_clone_data <- function(aa_dir, aa_files_f, sample_ids, keep_clones = NULL) {
+  if (length(aa_files_f) != length(sample_ids)) {
+    stop("aa_files_f 与 sample_ids 长度不一致: ", length(aa_files_f),
+         " vs ", length(sample_ids))
+  }
+  if (anyDuplicated(sample_ids)) {
+    stop("load_sample_clone_data: sample_ids 存在重复值")
+  }
+  parsed_ids <- sub("_AA_clone_table\\.csv$", "", basename(aa_files_f))
+  if (!identical(parsed_ids, sample_ids)) {
+    bad <- which(parsed_ids != sample_ids)
+    stop("AA clone table 与 sample_ids 顺序或名称不一致。前几个错误: ",
+         paste(sprintf("sample_ids[%d]=%s, file_id=%s",
+                       head(bad, 5), sample_ids[head(bad, 5)],
+                       parsed_ids[head(bad, 5)]),
+               collapse = "; "))
+  }
+
   n <- length(sample_ids)
   clones_char <- vector("list", n)
   rf_list     <- vector("list", n)

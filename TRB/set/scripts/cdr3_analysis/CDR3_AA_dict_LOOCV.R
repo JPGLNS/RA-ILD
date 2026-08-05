@@ -60,22 +60,41 @@ metric_labels <- c("RA 字典命中数", "ILD 字典命中数",
                    "RA−ILD 命中数差", "RA−ILD read_fraction 和差")
 
 # ====================================================================
-# 元数据与样本划分
+# 元数据与样本划分（显式命名映射，不依赖 list.files/merge 顺序）
 # ====================================================================
-metadata <- read.csv("./TRB/metadata.csv")
+metadata <- read.csv("./TRB/metadata.csv", stringsAsFactors = FALSE)
+if (anyDuplicated(metadata$libraryid)) {
+  stop("metadata 中存在重复 libraryid: ",
+       paste(unique(metadata$libraryid[duplicated(metadata$libraryid)]),
+             collapse = ", "))
+}
 
 aa_dir <- "./TRB/result/01_AA_clone_table/"
-aa_files <- list.files(aa_dir, pattern = "_AA_clone_table\\.csv$")
-aa_ids <- gsub("_AA_clone_table\\.csv$", "", aa_files)
-aa_ids <- aa_ids[!grepl("^01_", aa_ids)]
-aa_ids <- aa_ids[aa_ids %in% metadata$libraryid]
-aa_files_f <- paste0(aa_ids, "_AA_clone_table.csv")
 
-sample_info <- merge(data.frame(libraryid = aa_ids),
-                     metadata[, c("libraryid", "material", "cohort", "batch")],
-                     by = "libraryid")
+# libraryid → 文件名 显式映射
+aa_file_map <- build_aa_file_map(aa_dir = aa_dir,
+                                 metadata_ids = metadata$libraryid)
+sample_ids_available <- names(aa_file_map)
+
+# 显式按名匹配 metadata（不用 merge 的隐式排序）
+meta_idx <- match(sample_ids_available, metadata$libraryid)
+if (anyNA(meta_idx)) {
+  stop("部分 AA clone table 样本无法匹配 metadata")
+}
+sample_info <- metadata[meta_idx, c("libraryid", "material", "cohort", "batch"),
+                        drop = FALSE]
+stopifnot(identical(sample_info$libraryid, sample_ids_available))
 rownames(sample_info) <- sample_info$libraryid
 sample_ids <- sample_info$libraryid
+
+# 显式解析每个样本的文件（严格按 sample_ids 顺序）
+sample_files <- resolve_sample_files(aa_file_map = aa_file_map,
+                                     sample_ids = sample_ids,
+                                     aa_dir = aa_dir)
+parsed_ids <- sub("_AA_clone_table\\.csv$", "", basename(sample_files))
+stopifnot(length(sample_files) == length(sample_ids),
+          identical(parsed_ids, sample_ids))
+cat(sprintf("样本—文件映射检查通过：%d 个样本全部一一对应\n", length(sample_ids)))
 lab_obs <- sample_info$cohort
 ra_ids  <- sample_ids[lab_obs == "RA"]
 ild_ids <- sample_ids[lab_obs == "ILD"]
@@ -101,7 +120,7 @@ if (PERM_STRATA == "material_batch") {
 # 读取全部样本（整数编码）+ 标签无关安全预筛选
 # ====================================================================
 cat("正在读取数据...\n")
-dat <- load_sample_clone_data(aa_dir, aa_files_f, sample_ids)
+dat <- load_sample_clone_data(aa_dir, sample_files, sample_ids)
 keep <- prescreen_clones(dat$all_tab, n_ra, n_ild, THRESHOLD_PCT)
 keep_ids <- match(keep, dat$clone_names)
 stopifnot(!anyNA(keep_ids), length(keep_ids) >= 2)

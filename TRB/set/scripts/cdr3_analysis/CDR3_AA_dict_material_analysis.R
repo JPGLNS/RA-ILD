@@ -51,18 +51,26 @@ metric_labels <- c("RA 字典命中数", "ILD 字典命中数",
                    "RA 命中 read_fraction 和", "ILD 命中 read_fraction 和",
                    "RA−ILD 命中数差", "RA−ILD read_fraction 和差")
 
-metadata <- read.csv("./TRB/metadata.csv")
+metadata <- read.csv("./TRB/metadata.csv", stringsAsFactors = FALSE)
+if (anyDuplicated(metadata$libraryid)) {
+  stop("metadata 中存在重复 libraryid: ",
+       paste(unique(metadata$libraryid[duplicated(metadata$libraryid)]),
+             collapse = ", "))
+}
 
 aa_dir <- "./TRB/result/01_AA_clone_table/"
-aa_files <- list.files(aa_dir, pattern = "_AA_clone_table\\.csv$")
-aa_ids <- gsub("_AA_clone_table\\.csv$", "", aa_files)
-aa_ids <- aa_ids[!grepl("^01_", aa_ids)]
-aa_ids <- aa_ids[aa_ids %in% metadata$libraryid]
-aa_files_f <- paste0(aa_ids, "_AA_clone_table.csv")
 
-sample_info <- merge(data.frame(libraryid = aa_ids),
-                     metadata[, c("libraryid", "material", "cohort", "batch")],
-                     by = "libraryid")
+# libraryid → 文件名 显式映射；sample_info 按名匹配（不用 merge 隐式排序）
+aa_file_map <- build_aa_file_map(aa_dir = aa_dir,
+                                 metadata_ids = metadata$libraryid)
+sample_ids_available <- names(aa_file_map)
+meta_idx <- match(sample_ids_available, metadata$libraryid)
+if (anyNA(meta_idx)) {
+  stop("部分 AA clone table 样本无法匹配 metadata")
+}
+sample_info <- metadata[meta_idx, c("libraryid", "material", "cohort", "batch"),
+                        drop = FALSE]
+stopifnot(identical(sample_info$libraryid, sample_ids_available))
 rownames(sample_info) <- sample_info$libraryid
 
 out_dir <- "./TRB/result/"
@@ -125,7 +133,6 @@ loocv_auc_all <- list()
 for (part in c("pbmc", "buffycoat")) {
   mat <- if (part == "pbmc") "PBMC" else "buffycoat"
   part_ids <- sample_info$libraryid[sample_info$material == mat]
-  part_idx <- match(part_ids, sample_info$libraryid)
   ra_ids  <- part_ids[sample_info[part_ids, "cohort"] == "RA"]
   ild_ids <- part_ids[sample_info[part_ids, "cohort"] == "ILD"]
   n_ra  <- length(ra_ids); n_ild <- length(ild_ids)
@@ -134,9 +141,20 @@ for (part in c("pbmc", "buffycoat")) {
   cat(" 部分：", part, "（", length(part_ids), " 样本，RA ", n_ra, " / ILD ", n_ild, "）\n", sep = "")
   cat("################################################################\n")
 
+  # ---- 按 part_ids 显式解析文件（不依赖位置索引） ----
+  part_files <- resolve_sample_files(aa_file_map = aa_file_map,
+                                     sample_ids = part_ids,
+                                     aa_dir = aa_dir)
+  parsed_part_ids <- sub("_AA_clone_table\\.csv$", "", basename(part_files))
+  stopifnot(length(part_files) == length(part_ids),
+            identical(parsed_part_ids, part_ids))
+  cat(sprintf("[%s] 样本—文件映射检查通过：%d 个样本全部一一对应\n",
+              part, length(part_ids)))
+
   # ---- 读取该 part 全部样本（整数编码，全量供样本内打分） ----
   cat("正在读取数据...\n")
-  dat <- load_sample_clone_data(aa_dir, aa_files_f[part_idx], part_ids)
+  dat <- load_sample_clone_data(aa_dir = aa_dir, aa_files_f = part_files,
+                                sample_ids = part_ids)
 
   # ============ 1) 非留一法（样本内，字典来自 enrich CSV） ============
   dicts <- list(

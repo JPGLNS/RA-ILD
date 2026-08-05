@@ -1,8 +1,8 @@
 # ====================================================================
-# CDR3_AA_dict_utils.R 单元测试（11 组，全部 synthetic 数据）
+# CDR3_AA_dict_utils.R 单元测试（13 组，全部 synthetic 数据）
 # ====================================================================
 # 运行：Rscript TRB/set/scripts/cdr3_analysis/test_CDR3_AA_dict_utils.R
-# 11 组：
+# 13 组：
 #   T1  对齐字典构建（回归测试：命名向量按位置回收的 bug）
 #   T2  留一法无泄漏（留出样本的私有 clone 不进入当轮字典）
 #   T3  空字典 / 常数指标 / 全 NA 列的防御性处理
@@ -14,6 +14,8 @@
 #   T9  keep_clones 后 clone_id 与 rf 长度/顺序严格一致
 #   T10 perm_p_two_sided 对部分/全 NA 置换统计量的处理
 #   T11 maxT 仅使用完整置换行（分母 = 完整行数+1）
+#   T12 样本—文件显式命名映射（乱序/内容级/错序/缺文件/重复/子集）
+#   T13 主脚本静态检查（不再使用隐式位置对应）
 # ====================================================================
 
 suppressMessages(library(data.table))
@@ -324,6 +326,83 @@ mt11b <- suppressWarnings(maxT_p_values(dev_obs11, dev_perm11b))
 ok(mt11b$n_complete == 0L && all(is.na(mt11b$p_maxT)) &&
      !any(mt11b$p_maxT == -Inf, na.rm = TRUE),
    "T11d 无完整行 → 全 NA 且无 -Inf（warning 已抑制）")
+
+# ====================================================================
+# T12 样本—文件显式命名映射（不依赖 list.files/merge 顺序）
+# ====================================================================
+cat("\n== T12 样本—文件命名映射 ==\n")
+td12 <- tempfile(); dir.create(td12)
+# 故意以乱序创建文件：s3, s1, s2
+write.csv(data.frame(cdr3_aa = "ONLY_S3", read_fraction = 1.0),
+          file.path(td12, "s3_AA_clone_table.csv"), row.names = FALSE)
+write.csv(data.frame(cdr3_aa = "ONLY_S1", read_fraction = 1.0),
+          file.path(td12, "s1_AA_clone_table.csv"), row.names = FALSE)
+write.csv(data.frame(cdr3_aa = "ONLY_S2", read_fraction = 1.0),
+          file.path(td12, "s2_AA_clone_table.csv"), row.names = FALSE)
+file_map12 <- build_aa_file_map(td12)
+ok(identical(sort(names(file_map12)), c("s1", "s2", "s3")),
+   "T12a 映射建立：3 个样本，names = libraryid")
+
+res12 <- resolve_sample_files(file_map12, c("s2", "s3", "s1"), td12)
+ok(identical(res12, c("s2_AA_clone_table.csv",
+                      "s3_AA_clone_table.csv",
+                      "s1_AA_clone_table.csv")),
+   "T12b 乱序请求（s2,s3,s1）按请求顺序返回文件")
+
+sf12 <- resolve_sample_files(file_map12, c("s2", "s3", "s1"), td12)
+d12 <- load_sample_clone_data(td12, sf12, c("s2", "s3", "s1"))
+ok(identical(d12$clone_names[d12$clone_ids$s2], "ONLY_S2") &&
+     identical(d12$clone_names[d12$clone_ids$s3], "ONLY_S3") &&
+     identical(d12$clone_names[d12$clone_ids$s1], "ONLY_S1"),
+   "T12c 乱序读取后克隆内容与样本一一对应（未串样本）")
+
+err12c <- tryCatch(
+  load_sample_clone_data(td12,
+                         c("s1_AA_clone_table.csv", "s2_AA_clone_table.csv"),
+                         c("s2", "s1")),
+  error = function(e) conditionMessage(e))
+ok(is.character(err12c) && grepl("顺序或名称不一致", err12c),
+   "T12d 错序平行向量报错（不静默错配）")
+
+err12d <- tryCatch(
+  resolve_sample_files(file_map12, c("s1", "missing_sample"), td12),
+  error = function(e) conditionMessage(e))
+ok(is.character(err12d) && grepl("missing_sample", err12d),
+   "T12e 缺少文件报错并在信息中指出 missing_sample")
+
+dup_map12 <- c(s1 = "a_AA_clone_table.csv", s1 = "b_AA_clone_table.csv")
+err12e1 <- tryCatch(resolve_sample_files(dup_map12, "s1"),
+                    error = function(e) conditionMessage(e))
+ok(is.character(err12e1) && grepl("重复 libraryid", err12e1),
+   "T12f 映射含重复 libraryid 报错")
+err12e2 <- tryCatch(resolve_sample_files(file_map12, c("s1", "s1"), td12),
+                    error = function(e) conditionMessage(e))
+ok(is.character(err12e2) && grepl("重复 libraryid: s1", err12e2),
+   "T12g sample_ids 含重复值报错")
+
+part_files12 <- resolve_sample_files(file_map12, c("s3", "s1"), td12)
+ok(identical(part_files12, c("s3_AA_clone_table.csv", "s1_AA_clone_table.csv")),
+   "T12h material 子集（part_ids 乱序）严格按序返回")
+
+# ====================================================================
+# T13 主脚本静态检查（不再使用隐式位置对应）
+# ====================================================================
+cat("\n== T13 主脚本静态检查 ==\n")
+src_lo13 <- readLines(file.path(script_dir, "CDR3_AA_dict_LOOCV.R"))
+src_ma13 <- readLines(file.path(script_dir, "CDR3_AA_dict_material_analysis.R"))
+ok(!any(grepl("aa_files_f\\[part_idx\\]", src_lo13)) &&
+     !any(grepl("aa_files_f\\[part_idx\\]", src_ma13)),
+   "T13a 两个主脚本不再包含 aa_files_f[part_idx]")
+ok(!any(grepl("part_idx", src_ma13)),
+   "T13b material 脚本不再定义或使用 part_idx")
+ok(!any(grepl("aa_files_f", src_lo13)),
+   "T13c total 脚本不再独立维护 aa_files_f")
+ok(any(grepl("resolve_sample_files", src_lo13)) &&
+     any(grepl("resolve_sample_files", src_ma13)),
+   "T13d 两个主脚本均调用 resolve_sample_files")
+ok(any(grepl("build_aa_file_map", src_lo13)) &&
+     any(grepl("build_aa_file_map", src_ma13)),
+   "T13e 两个主脚本均调用 build_aa_file_map")
 
 # ====================================================================
 cat(sprintf("\n结果：%d PASS / %d FAIL\n", n_pass, n_fail))
