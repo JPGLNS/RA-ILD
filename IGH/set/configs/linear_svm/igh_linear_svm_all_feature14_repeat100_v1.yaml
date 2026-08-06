@@ -148,3 +148,4 @@ model_engine:
   zero_sd_tolerance: 1.0e-12
   fit_intercept: true
   intercept_scaling: 1.0
+  final_max_iter: 100000

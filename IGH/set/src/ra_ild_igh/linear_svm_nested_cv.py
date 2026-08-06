@@ -53,6 +53,7 @@ class LinearSVMNestedCVError(ValueError):
 class LinearSVMNestedCVOptions:
     base_seed: int
     max_iter: int = 10000
+    final_max_iter: int = 100000
     tolerance: float = 1.0e-4
     zero_sd_tolerance: float = 1.0e-12
     epsilon: float = 1.0e-8
@@ -69,6 +70,13 @@ class LinearSVMNestedCVOptions:
             raise LinearSVMNestedCVError("base_seed must be an integer >= 0")
         if isinstance(self.max_iter, bool) or int(self.max_iter) < 1:
             raise LinearSVMNestedCVError("max_iter must be an integer >= 1")
+        if (
+            isinstance(self.final_max_iter, bool)
+            or int(self.final_max_iter) < int(self.max_iter)
+        ):
+            raise LinearSVMNestedCVError(
+                "final_max_iter must be an integer >= max_iter"
+            )
         if float(self.tolerance) <= 0 or float(self.intercept_scaling) <= 0:
             raise LinearSVMNestedCVError("Invalid tolerance/intercept_scaling")
         if float(self.zero_sd_tolerance) < 0:
@@ -386,9 +394,29 @@ def fit_outer_linear_svm_models(
             intercept_scaling=options.intercept_scaling,
             random_state=seed,
         )
+
+        final_fit_retry_used = False
+
+        if (
+            not fit.converged
+            and int(options.final_max_iter) > int(options.max_iter)
+        ):
+            final_fit_retry_used = True
+            fit = fit_linear_svm(
+                design.X_train,
+                y_train,
+                candidate=tuning.candidate,
+                max_iter=options.final_max_iter,
+                tolerance=options.tolerance,
+                fit_intercept=options.fit_intercept,
+                intercept_scaling=options.intercept_scaling,
+                random_state=seed,
+            )
+
         if not fit.converged:
             raise LinearSVMNestedCVError(
-                f"Final outer model did not converge: {model_name}"
+                f"Final outer model did not converge after "
+                f"max_iter={options.final_max_iter}: {model_name}"
             )
         score = fit.decision_score(design.X_valid)
         threshold = float(tuning.threshold)
@@ -425,6 +453,9 @@ def fit_outer_linear_svm_models(
                 "selected_dual_requested": tuning.candidate.dual,
                 "selected_dual_resolved": bool(fit.dual_resolved),
                 "fit_converged": bool(fit.converged),
+                "final_fit_retry_used": bool(final_fit_retry_used),
+                "inner_max_iter": int(options.max_iter),
+                "final_max_iter": int(options.final_max_iter),
                 "iterations_used": int(fit.n_iter),
                 "n_final_predictors": int(len(design.feature_names)),
                 "n_nonzero_coefficients": count_nonzero_coefficients(

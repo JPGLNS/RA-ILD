@@ -330,6 +330,12 @@ def main() -> int:
         options = LinearSVMNestedCVOptions(
             base_seed=int(config.raw["experiment"]["random_seed"]),
             max_iter=int(engine.get("max_iter", 10000)),
+            final_max_iter=int(
+                engine.get(
+                    "final_max_iter",
+                    engine.get("max_iter", 10000),
+                )
+            ),
             tolerance=float(engine.get("tolerance", 1.0e-4)),
             zero_sd_tolerance=float(engine.get("zero_sd_tolerance", 1.0e-12)),
             epsilon=float(public["epsilon"]),

@@ -146,6 +146,7 @@ def prepare(
     resolved_engine = copy.deepcopy(engine)
     resolved_engine["engine"] = "linear_svc"
     resolved_engine.setdefault("max_iter", 10000)
+    resolved_engine.setdefault("final_max_iter", 100000)
     resolved_engine.setdefault("tolerance", 1.0e-4)
     resolved_engine.setdefault("zero_sd_tolerance", 1.0e-12)
     resolved_engine.setdefault("fit_intercept", True)
