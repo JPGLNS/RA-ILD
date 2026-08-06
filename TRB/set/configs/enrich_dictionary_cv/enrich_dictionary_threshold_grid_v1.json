@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "enrich_dictionary_threshold_grid_repeated_5fold",
+  "scopes": ["total", "pbmc", "buffycoat"],
+  "folds": 5,
+  "repeats": 100,
+  "split_candidates": 300,
+  "seed": 20260711,
+  "threshold_grid": {
+    "threshold_pct": {
+      "start": 10,
+      "stop": 30,
+      "step": 2
+    },
+    "delta_pct": {
+      "start": 5,
+      "stop": 15,
+      "step": 1
+    },
+    "valid_pair_rule": "delta_pct <= threshold_pct",
+    "expected_valid_pair_count": 112
+  },
+  "parallelism": {
+    "workers_default": 1,
+    "workers_minimum": 1,
+    "workers_maximum": 16,
+    "unit_of_work": "one complete five-fold repeat within one scope"
+  },
+  "positive_class": "RA",
+  "score_direction": "raw",
+  "primary_auc_unit": "one complete five-fold repeat pooled across all five OOF folds",
+  "save_fold_auc": true,
+  "make_plots": true,
+  "primary_metrics": [
+    "RA_dict_clone_count",
+    "ILD_dict_clone_count",
+    "RA_dict_hit_rate",
+    "ILD_dict_hit_rate",
+    "RA_dict_read_fraction_sum",
+    "ILD_dict_read_fraction_sum",
+    "RA_minus_ILD_count",
+    "RA_minus_ILD_read_fraction"
+  ],
+  "diagnostic_metrics": [
+    "RA_minus_ILD_hit_rate",
+    "RA_hit_fraction_of_sample",
+    "ILD_hit_fraction_of_sample",
+    "RA_minus_ILD_sample_fraction"
+  ]
+}

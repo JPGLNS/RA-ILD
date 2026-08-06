@@ -1,0 +1,58 @@
+{
+  "batch": "17",
+  "name": "enrich_dictionary_threshold_grid_repeated_5fold",
+  "version": "1.0.0",
+  "target_repository": "JPGLNS/RA-ILD",
+  "dependency": {
+    "batch16_minimum": "1.1.1",
+    "required_module": "TRB/set/src/ra_ild_trb/enrich_dictionary_cv.py",
+    "single_threshold_workflow_modified": false
+  },
+  "scope": "Additive threshold-grid screening for total, PBMC and buffycoat with repeated five-fold pooled-OOF ROC and Linux process parallelism",
+  "threshold_grid": {
+    "T_values": [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30],
+    "Delta_values": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "valid_rule": "Delta <= T",
+    "valid_pair_count": 112
+  },
+  "parallelism": {
+    "implementation": "ProcessPoolExecutor using Linux fork",
+    "unit": "complete repeat within one scope",
+    "default_workers": 1,
+    "maximum_workers": 16,
+    "workers_18": "rejected by design"
+  },
+  "files": [
+    "TRB/set/src/ra_ild_trb/enrich_dictionary_grid.py",
+    "TRB/set/scripts_v2/run_enrich_dictionary_threshold_grid.py",
+    "TRB/set/scripts_v2/run_enrich_dictionary_threshold_grid.sh",
+    "TRB/set/scripts_v2/test_batch17_enrich_dictionary_threshold_grid.py",
+    "TRB/set/scripts_v2/README_upgrade_batch17_enrich_dictionary_threshold_grid.md",
+    "TRB/set/scripts_v2/BATCH17_ENRICH_DICTIONARY_THRESHOLD_GRID_MANIFEST.json",
+    "TRB/set/configs/enrich_dictionary_cv/enrich_dictionary_threshold_grid_v1.json"
+  ],
+  "outputs": {
+    "primary_auc_rows_per_scope": "valid_pairs * repeats * 12 metrics",
+    "diagnostic_fold_auc_rows_per_scope": "valid_pairs * repeats * 5 folds * 12 metrics",
+    "plots_per_scope": 11
+  },
+  "compatibility": {
+    "python_minimum": "3.8",
+    "linux_required_for_workers_gt_1": true,
+    "R_scripts_added": false,
+    "existing_files_replaced": false,
+    "existing_results_modified": false
+  },
+  "focused_tests": {
+    "count": 30,
+    "includes": [
+      "112-pair grid count",
+      "Delta<=T validation",
+      "workers 1-16 contract and workers=18 rejection",
+      "pooled OOF AUC invariants",
+      "serial-parallel reproducibility",
+      "dictionary Jaccard range",
+      "output and plot smoke"
+    ]
+  }
+}
