@@ -1,0 +1,150 @@
+linear_svm_scheme_version: '1.0'
+scheme:
+  id: igh_linear_svm_pbmc_feature14_repeat100_v1
+  description: PBMC-only IGH Feature14 comparison across 100 frozen repeated holdouts
+    using LinearSVC.
+  base_resolved_config: IGH/set/experiments/igh_scheme_pbmc_a1_a6_repeat100_v1/00_config/resolved_config.yaml
+  output_root: IGH/set/experiments/igh_linear_svm_pbmc_feature14_repeat100_v1
+models:
+  A1_core83:
+    description: Core 83 static IGH features only.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    dynamic_public: []
+  A2_core83_weighted500:
+    description: Core 83 plus repeat-specific Top-500 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top500
+    dynamic_public: []
+  A3_core83_unweighted500:
+    description: Core 83 plus repeat-specific Top-500 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top500
+    dynamic_public: []
+  A4_core83_both500:
+    description: Core 83 plus both representations of Top-500 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public: []
+  A5_core83_public:
+    description: Core 83 plus eight dynamic public-reference features.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    dynamic_public:
+    - all_ref_public_clone_ratio
+    - all_ref_public_frequency_sum
+    - shared_ref_clone_ratio
+    - shared_ref_frequency_sum
+    - RA_specific_ref_clone_ratio
+    - RA_specific_ref_frequency_sum
+    - ILD_specific_ref_clone_ratio
+    - ILD_specific_ref_frequency_sum
+  A6_core83_weighted50:
+    description: Core 83 plus repeat-specific Top-50 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top50
+    dynamic_public: []
+  A6_core83_weighted100:
+    description: Core 83 plus repeat-specific Top-100 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top100
+    dynamic_public: []
+  A6_core83_weighted200:
+    description: Core 83 plus repeat-specific Top-200 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top200
+    dynamic_public: []
+  A6_core83_unweighted50:
+    description: Core 83 plus repeat-specific Top-50 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top50
+    dynamic_public: []
+  A6_core83_unweighted100:
+    description: Core 83 plus repeat-specific Top-100 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top100
+    dynamic_public: []
+  A6_core83_unweighted200:
+    description: Core 83 plus repeat-specific Top-200 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top200
+    dynamic_public: []
+  A6_core83_both50:
+    description: Core 83 plus both representations of Top-50 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top50
+    dynamic_public: []
+  A6_core83_both100:
+    description: Core 83 plus both representations of Top-100 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top100
+    dynamic_public: []
+  A6_core83_both200:
+    description: Core 83 plus both representations of Top-200 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top200
+    dynamic_public: []
+model_engine:
+  engine: linear_svc
+  candidate_blocks:
+  - id: l2_squared_hinge_balanced
+    priority: 1
+    penalty: l2
+    loss: squared_hinge
+    class_weight_grid:
+    - balanced
+    C_grid:
+    - 0.0001
+    - 0.001
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10.0
+    - 100.0
+    - 1000.0
+    dual: auto
+  max_iter: 10000
+  tolerance: 0.0001
+  zero_sd_tolerance: 1.0e-12
+  fit_intercept: true
+  intercept_scaling: 1.0

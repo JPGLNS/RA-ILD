@@ -1,0 +1,137 @@
+{
+  "batch": 14,
+  "version": "1.0.0",
+  "upgrade": "IGH configurable Linear SVM additive workflow",
+  "source_commit": "1af6e1655d0ec6f369452a9a1737d77f8f3d04b9",
+  "reviewed_igh_base": "7edcc74bfb341773f177f204549c13fb0e0782f1",
+  "ignored_later_commits": [
+    "413b64a18ff71ad9869e588faa0f375954d3fa39",
+    "67330701841af4904df3624e2bb771f7258d1b76",
+    "1e003070425e92a4fbd6dec5b97d4d387548bcca",
+    "c7e6ebda18ae78a5ee4396386f1595de62acfebf"
+  ],
+  "branch": "feature/igh-linear-svm-v1",
+  "pre_install_head": "7edcc74bfb341773f177f204549c13fb0e0782f1",
+  "files": [
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_all_feature14_repeat100_v1.yaml",
+      "sha256": "f5a77a63ed117beaa9c47af3052885bb0c887814bfe151cd0ec2e8d5967aedac"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_all_m0_m3_repeat100_v1.yaml",
+      "sha256": "f3b901f5324edcaefb1d182fa3d00139e66445c5bbf81100af778b3abd57535f"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_buffercoat_feature14_repeat100_v1.yaml",
+      "sha256": "bcdce4209b166b053d654aa237c0e3a6b6038236f6eb59af1cfb68e281cb9ffb"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_buffercoat_m0_m2_repeat100_v1.yaml",
+      "sha256": "abec5ddd25d752562d72c966f20ee4787526ffc705f98dc1f7014e1fa0d79129"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_multi_block_example.yaml",
+      "sha256": "bc26931cc50216fc01f54f94939ac308f783484541691396dbe682f57ad657ab"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_pbmc_feature14_repeat100_v1.yaml",
+      "sha256": "e49e5525cce421e776becbc8796b3a537618c1d96c36c625d6235092f9774531"
+    },
+    {
+      "path": "IGH/set/configs/linear_svm/igh_linear_svm_pbmc_m0_m2_repeat100_v1.yaml",
+      "sha256": "a65c4d43dd27b174b67332f26726147cd5ad5129bb650290b0299fee29d6d5af"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_all_feature14_repeat100_v1.yaml",
+      "sha256": "4c99a2a3123df671930e349178cff62f1e5cd841ed953176993fe5f12d1dcbfe"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_all_m0_m3_repeat100_v1.yaml",
+      "sha256": "af4b35f01479fed126e8df0066b510a11fcfb70e2c79692396e5d4fcddeb7ccc"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_buffercoat_feature14_repeat100_v1.yaml",
+      "sha256": "49db238ba7c37bb2d73952fe3221c0f89426a6340bc9907737523849209661e8"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_buffercoat_m0_m2_repeat100_v1.yaml",
+      "sha256": "c832892c6c9ec3b13b320664cd72d1c7d04897e3acca84386f2e8cb5ee67da8e"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_multi_block_example.yaml",
+      "sha256": "c16305bcf3e03dcfd7a7a2a9241fb85abd3da0601b5f465893a942da08dfc980"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_pbmc_feature14_repeat100_v1.yaml",
+      "sha256": "deaeab11049aa50d676ca3e87af9feed9893f677798f02d38a8082acfae975bf"
+    },
+    {
+      "path": "IGH/set/configs/visualization/igh_linear_svm_pbmc_m0_m2_repeat100_v1.yaml",
+      "sha256": "8301bb8b5f437ff2f9c720fd104a9a0b0dad9c11811dd28a3a4a084248c7c1b0"
+    },
+    {
+      "path": "IGH/set/scripts_v2/README_upgrade_batch14_linear_svm.md",
+      "sha256": "57b54f94cc8a38b272fddc768dbac002586101fbd81a223d9cb45ba8d255b4ce"
+    },
+    {
+      "path": "IGH/set/scripts_v2/aggregate_linear_svm_results.py",
+      "sha256": "fad5e1460ace98d4aebfb515b0a1ed5afd5de3a6df8b308ab2ad52fc37044094"
+    },
+    {
+      "path": "IGH/set/scripts_v2/plot_linear_svm_results.py",
+      "sha256": "c42e682879d20aafbd249fce896a51236776e64bbd87b2930524ca2d399be1a4"
+    },
+    {
+      "path": "IGH/set/scripts_v2/prepare_linear_svm_scheme.py",
+      "sha256": "38e1ed1972ecb659e02698d965c525f6d80e3a4dd1bc9dc52aa93a612876bfff"
+    },
+    {
+      "path": "IGH/set/scripts_v2/run_all_linear_svm_tasks.py",
+      "sha256": "a66ccb648f387ded274736525ac28cca5302a054cd5e31205a9cae6100f78e9c"
+    },
+    {
+      "path": "IGH/set/scripts_v2/run_linear_svm_nested_cv_task.py",
+      "sha256": "a95785cf0f3e30f212005ea3d67b6df2be1aaff97120ea8ecc1181671bcf0689"
+    },
+    {
+      "path": "IGH/set/scripts_v2/test_batch14_linear_svm.py",
+      "sha256": "b612f759214bd43d6f44c5eee2324347f1925708e513ad91906937532797302a"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/linear_svm.py",
+      "sha256": "1dcbc99e1bfe78d1bea211e2a45a40361078dd1fe7fc93df4327aae069871a7c"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/linear_svm_config.py",
+      "sha256": "d22b019ea269d7cdfeb062f12ce0cacd3a2d264380f485b4d5d684b059c98bce"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/linear_svm_nested_cv.py",
+      "sha256": "7d89d4142a991fd979000db98f01085dd4ee3523e0ecd06ef39f3a5fa48f6b8f"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/linear_svm_summary.py",
+      "sha256": "fa091c83e5cecac203bad7d4cf20da6105ea3963c9b79fed390d424985d83c95"
+    },
+    {
+      "path": "IGH/set/src/ra_ild_igh/linear_svm_visualization.py",
+      "sha256": "beaa2697f133d0af2c4a7cf472b725f8aa961daddcb753192a1c4974dd705d5b"
+    },
+    {
+      "path": "IGH/set/tests/test_linear_svm.py",
+      "sha256": "a4e272e308568c5f07672f7db4056f363e600d0b41d36b0b9049749b7ab43dfe"
+    },
+    {
+      "path": "IGH/set/tests/test_linear_svm_config.py",
+      "sha256": "cb6f01a9f1c7096771cb1e522d6825673c684424c98b528bb85d245777adee1f"
+    }
+  ],
+  "scientific_contract": {
+    "estimator": "sklearn.svm.LinearSVC",
+    "continuous_score": "decision_function for ILD",
+    "tuning_primary": "pooled inner-OOF ROC-AUC",
+    "tuning_secondary": "pooled inner-OOF Average Precision",
+    "threshold": "inner-OOF Youden",
+    "probability_metrics": "not_applicable_without_calibration"
+  }
+}
