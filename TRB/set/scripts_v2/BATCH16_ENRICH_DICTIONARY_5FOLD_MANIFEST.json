@@ -1,0 +1,73 @@
+{
+  "batch": "16",
+  "name": "enrich_dictionary_repeated_5fold_validation",
+  "version": "1.1.1",
+  "target_repository": "JPGLNS/RA-ILD",
+  "target_branch_reviewed": "feature/trb-framework-v2",
+  "target_commit_reviewed": "c7e6ebda18ae78a5ee4396386f1595de62acfebf",
+  "scope": "Additive repeated stratified 5-fold out-of-fold validation and diagnostics for CDR3-AA RA/RA-ILD enrich dictionaries",
+  "compatibility": {
+    "existing_files_replaced": false,
+    "existing_LOOCV_code_modified": false,
+    "existing_insample_code_modified": false,
+    "existing_modeling_code_modified": false,
+    "existing_results_modified": false,
+    "python_minimum": "3.8",
+    "matplotlib_boxplot_api": "supports old labels/vert and new tick_labels/orientation APIs"
+  },
+  "design": {
+    "folds": 5,
+    "repeats": 100,
+    "candidate_partitions_per_repeat": 300,
+    "seed": 20260711,
+    "threshold_pct": 20.0,
+    "delta_pct": 10.0,
+    "positive_class": "RA",
+    "dictionary_rebuilt_inside_each_training_fold": true,
+    "same_dictionary_for_all_validation_samples_in_fold": true,
+    "total_balance_targets": [
+      "batch",
+      "material",
+      "sex"
+    ],
+    "material_subset_balance_targets": [
+      "batch",
+      "sex"
+    ],
+    "primary_auc_unit": "one_pooled_oof_auc_per_complete_5fold_repeat",
+    "primary_auc_values_per_metric": 100,
+    "fold_auc_values_per_metric": 500,
+    "fold_auc_role": "diagnostic_only_not_independent"
+  },
+  "files": [
+    "TRB/set/src/ra_ild_trb/enrich_dictionary_cv.py",
+    "TRB/set/scripts_v2/run_enrich_dictionary_5fold.py",
+    "TRB/set/scripts_v2/run_enrich_dictionary_5fold.sh",
+    "TRB/set/scripts_v2/test_batch16_enrich_dictionary_5fold.py",
+    "TRB/set/scripts_v2/README_upgrade_batch16_enrich_dictionary_5fold.md",
+    "TRB/set/scripts_v2/BATCH16_ENRICH_DICTIONARY_5FOLD_MANIFEST.json",
+    "TRB/set/configs/enrich_dictionary_cv/enrich_dictionary_5fold_v1.json"
+  ],
+  "expected_populations": {
+    "total": {
+      "samples": 174,
+      "RA": 108,
+      "ILD": 66
+    },
+    "pbmc": {
+      "samples": 111,
+      "RA": 67,
+      "ILD": 44
+    },
+    "buffycoat": {
+      "samples": 63,
+      "RA": 41,
+      "ILD": 22
+    }
+  },
+  "focused_tests": {
+    "count": 29,
+    "status_at_packaging": "PASS"
+  },
+  "hotfix": "Matplotlib 3.11+ boxplot keyword compatibility and real plot rendering test"
+}

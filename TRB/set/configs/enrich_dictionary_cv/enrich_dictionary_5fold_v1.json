@@ -1,0 +1,48 @@
+{
+  "version": "1.1.1",
+  "description": "Repeated stratified 5-fold OOF validation for T=20%, delta=10% CDR3-AA enrich dictionaries; primary result is one pooled OOF AUC per complete repeat",
+  "scopes": [
+    "total",
+    "pbmc",
+    "buffycoat"
+  ],
+  "folds": 5,
+  "repeats": 100,
+  "split_candidates": 300,
+  "seed": 20260711,
+  "threshold_pct": 20.0,
+  "delta_pct": 10.0,
+  "positive_class": "RA",
+  "raw_score_direction_preserved": true,
+  "total_balance_targets": [
+    "batch",
+    "material",
+    "sex"
+  ],
+  "material_subset_balance_targets": [
+    "batch",
+    "sex"
+  ],
+  "expected_counts": {
+    "total": {
+      "samples": 174,
+      "RA": 108,
+      "ILD": 66
+    },
+    "pbmc": {
+      "samples": 111,
+      "RA": 67,
+      "ILD": 44
+    },
+    "buffycoat": {
+      "samples": 63,
+      "RA": 41,
+      "ILD": 22
+    }
+  },
+  "primary_auc_unit": "complete_5fold_repeat_pooled_oof",
+  "primary_auc_values_per_metric": 100,
+  "fold_auc_values_per_metric": 500,
+  "fold_auc_role": "diagnostic_only_not_independent",
+  "matplotlib_boxplot_compatibility": "labels/tick_labels and vert/orientation runtime selection"
+}
