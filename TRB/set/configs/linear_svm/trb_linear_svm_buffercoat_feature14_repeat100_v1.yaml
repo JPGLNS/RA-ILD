@@ -1,0 +1,36 @@
+linear_svm_scheme_version: "1.0"
+
+scheme:
+  id: trb_linear_svm_buffercoat_feature14_repeat100_v1
+  description: >-
+    Buffy-coat-only 14-model TRB feature-ablation study across 100 frozen repeated holdouts using LinearSVC. Model definitions and material-specific feature inputs are inherited from the prepared buffy-coat Feature14 experiment. Only C is tuned.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_buffercoat_feature14_repeat100_fullgrid_roc_v1/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_linear_svm_buffercoat_feature14_repeat100_v1
+
+model_engine:
+  engine: linear_svc
+  candidate_blocks:
+    - id: l2_squared_hinge_balanced
+      priority: 1
+      penalty: l2
+      loss: squared_hinge
+      class_weight_grid:
+        - balanced
+      C_grid:
+        - 0.0001
+        - 0.001
+        - 0.01
+        - 0.1
+        - 1.0
+        - 10.0
+        - 100.0
+        - 1000.0
+      dual: auto
+
+  max_iter: 10000
+  tolerance: 1.0e-4
+  zero_sd_tolerance: 1.0e-12
+  fit_intercept: true
+  intercept_scaling: 1.0
