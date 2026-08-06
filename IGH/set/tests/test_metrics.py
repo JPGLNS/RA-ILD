@@ -125,7 +125,11 @@ class TestMetrics(unittest.TestCase):
             seed=5,
         ).set_index("metric")
         observed = classification_metrics(
-            self.y, self.p, self.threshold, include_brier=True
+            self.y,
+            self.p,
+            self.threshold,
+            include_brier=True,
+            include_log_loss=True,
         )
         for metric in BOOTSTRAP_METRICS:
             self.assertAlmostEqual(ci.loc[metric, "estimate"], observed[metric])
