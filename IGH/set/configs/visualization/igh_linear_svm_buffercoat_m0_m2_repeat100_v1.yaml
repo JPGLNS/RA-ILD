@@ -1,0 +1,11 @@
+visualization:
+  repository_root: .
+  aggregation_dir: IGH/set/experiments/igh_linear_svm_buffercoat_m0_m2_repeat100_v1/03_summary
+  output_dir: IGH/set/experiments/igh_linear_svm_buffercoat_m0_m2_repeat100_v1/06_visualization/main
+  models: all
+  performance_metrics:
+  - roc_auc
+  - average_precision
+  - f1
+  - sensitivity_recall
+  - specificity

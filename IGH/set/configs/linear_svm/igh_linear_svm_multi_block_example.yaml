@@ -1,0 +1,95 @@
+linear_svm_scheme_version: '1.0'
+scheme:
+  id: igh_linear_svm_multi_block_example
+  description: Example IGH LinearSVC scheme with multiple legal candidate blocks.
+  base_resolved_config: IGH/set/experiments/igh_scheme_006_a1_a6_repeat100_fullgrid/00_config/resolved_config.yaml
+  output_root: IGH/set/experiments/igh_linear_svm_multi_block_example
+models:
+  M0_clinical:
+    description: Clinical baseline with age and sex.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups: []
+    dynamic_public: []
+  M1_static_igh:
+    description: Age and sex plus Core83 and repeat-specific Top-500 weighted and
+      unweighted 3-mers.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public: []
+  M2_static_igh_public:
+    description: M1 plus eight leakage-controlled dynamic public-reference features.
+    numeric:
+    - age
+    categorical:
+    - sex
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public:
+    - all_ref_public_clone_ratio
+    - all_ref_public_frequency_sum
+    - shared_ref_clone_ratio
+    - shared_ref_frequency_sum
+    - RA_specific_ref_clone_ratio
+    - RA_specific_ref_frequency_sum
+    - ILD_specific_ref_clone_ratio
+    - ILD_specific_ref_frequency_sum
+model_engine:
+  engine: linear_svc
+  candidate_blocks:
+  - id: l2_squared_hinge_balanced
+    priority: 1
+    penalty: l2
+    loss: squared_hinge
+    class_weight_grid:
+    - balanced
+    - none
+    C_grid:
+    - 0.001
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10.0
+    - 100.0
+    dual: auto
+  - id: l2_hinge_balanced
+    priority: 2
+    penalty: l2
+    loss: hinge
+    class_weight_grid:
+    - balanced
+    C_grid:
+    - 0.001
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10.0
+    - 100.0
+    dual: auto
+  - id: l1_squared_hinge_balanced
+    priority: 3
+    penalty: l1
+    loss: squared_hinge
+    class_weight_grid:
+    - balanced
+    C_grid:
+    - 0.001
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10.0
+    - 100.0
+    dual: false
+  max_iter: 10000
+  tolerance: 0.0001
+  zero_sd_tolerance: 1.0e-12
+  fit_intercept: true
+  intercept_scaling: 1.0
