@@ -1,0 +1,103 @@
+xgboost_scheme_version: "1.0"
+
+scheme:
+  id: trb_xgboost_all_m0_m3_repeat50_v1
+  description: >-
+    All-sample TRB M0-M3 hierarchical comparison across the first 50 frozen
+    repeated holdouts using XGBoost, deterministic Random Search and pooled
+    inner-OOF tuning. The candidate bank is sampled once and frozen for all repeats.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_011_a1_a6_repeat100_fullgrid/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_xgboost_all_m0_m3_repeat50_v1
+
+# Reuse repeats 1-50 from the inherited frozen repeat100 assignments.
+outer_repeats: 50
+
+# Can be roc_auc or log_loss.
+tuning_primary_metric: roc_auc
+
+models:
+  M0_clinical:
+    description: Clinical baseline with age and sex.
+    numeric: [age]
+    categorical: [sex]
+    static_feature_groups: []
+    dynamic_public: []
+
+  M1_static_tcr:
+    description: Age and sex plus Core83 and repeat-specific Top-500 3-mer features.
+    numeric: [age]
+    categorical: [sex]
+    static_feature_groups: [core83, repeat_3mer_both_top500]
+    dynamic_public: []
+
+  M2_static_tcr_public:
+    description: M1 plus eight leakage-controlled dynamic public-reference features.
+    numeric: [age]
+    categorical: [sex]
+    static_feature_groups: [core83, repeat_3mer_both_top500]
+    dynamic_public:
+      - all_ref_public_clone_ratio
+      - all_ref_public_frequency_sum
+      - shared_ref_clone_ratio
+      - shared_ref_frequency_sum
+      - RA_specific_ref_clone_ratio
+      - RA_specific_ref_frequency_sum
+      - ILD_specific_ref_clone_ratio
+      - ILD_specific_ref_frequency_sum
+
+  M3_static_tcr_public_material:
+    description: M2 plus sample material.
+    numeric: [age]
+    categorical: [sex, material]
+    static_feature_groups: [core83, repeat_3mer_both_top500]
+    dynamic_public:
+      - all_ref_public_clone_ratio
+      - all_ref_public_frequency_sum
+      - shared_ref_clone_ratio
+      - shared_ref_frequency_sum
+      - RA_specific_ref_clone_ratio
+      - RA_specific_ref_frequency_sum
+      - ILD_specific_ref_clone_ratio
+      - ILD_specific_ref_frequency_sum
+
+model_engine:
+  engine: xgboost
+
+  # Fixed estimator arguments. These remain YAML-configurable.
+  fixed_parameters:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    verbosity: 0
+
+  # Batch 18 v1 intentionally disables early stopping to keep nested-CV
+  # candidate evaluation and leakage control simple and auditable.
+  early_stopping: false
+
+  # Scalar = fixed value; list = dimension of the candidate pool.
+  hyperparameters:
+    max_depth: [1, 2, 3]
+    min_child_weight: [3, 5, 10]
+    learning_rate: [0.03, 0.05]
+    subsample: [0.70, 0.85]
+    colsample_bytree: [0.30, 0.50, 0.70]
+    reg_alpha: [0.1, 0.5, 1.0]
+    reg_lambda: [3.0, 5.0, 10.0]
+    gamma: 0.0
+    scale_pos_weight: 1.0
+    n_estimators: 300
+
+  search:
+    strategy: random
+    n_iter: 100
+    random_state: 20260807
+    replacement: false
+
+  # Outer tasks are parallelized by run_all_xgboost_tasks.py. Keep one
+  # thread per fit by default to avoid workers × XGBoost thread contention.
+  runtime:
+    n_jobs_per_fit: 1
+
+  zero_sd_tolerance: 1.0e-12
