@@ -1,0 +1,18 @@
+{
+  "batch": 18,
+  "version": "1.0.0",
+  "name": "configurable_xgboost_engine",
+  "base_branch": "feature/trb-framework-v2",
+  "target_branch": "feature/trb-xgboost-v1",
+  "expected_base_commit": "9ec43d4ddeb7482bf3ca56a89aeed926f11af5bd",
+  "design": "additive_parallel_engine",
+  "model_engine": "xgboost",
+  "score_type": "probability",
+  "probability_metrics_available": true,
+  "search": "deterministic_frozen_random_candidate_bank",
+  "supported_tuning_primary_metrics": ["roc_auc", "log_loss"],
+  "threshold": "inner_oof_youden_closest_to_0.5",
+  "early_stopping": false,
+  "runtime_parallelism": "outer_workers_plus_configurable_n_jobs_per_fit",
+  "acceptance_marker": "TRB_BATCH18_XGBOOST_ACCEPTANCE_PASS"
+}

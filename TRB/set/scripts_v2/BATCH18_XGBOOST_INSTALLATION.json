@@ -1,0 +1,21 @@
+{
+  "status": "INSTALLED",
+  "batch": 18,
+  "version": "1.0.0",
+  "name": "configurable_xgboost_engine",
+  "branch": "feature/trb-xgboost-v1",
+  "base_commit": "9ec43d4ddeb7482bf3ca56a89aeed926f11af5bd",
+  "expected_base_commit": "9ec43d4ddeb7482bf3ca56a89aeed926f11af5bd",
+  "applied_at_utc": "2026-08-09T10:23:39.547201+00:00",
+  "model_engine": "xgboost",
+  "score_type": "probability",
+  "probability_metrics_available": true,
+  "acceptance": "TRB_BATCH18_XGBOOST_ACCEPTANCE_PASS",
+  "accepted_at_utc": "2026-08-09T10:38:13.466730+00:00",
+  "smoke_experiment": "trb_xgboost_smoke_m0_v1",
+  "smoke_task": "1:1",
+  "smoke_tuning_candidates": 2,
+  "smoke_probability_metrics": true,
+  "smoke_feature_importance": true,
+  "smoke_aggregation": true
+}

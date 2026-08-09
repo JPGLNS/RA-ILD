@@ -1,0 +1,50 @@
+xgboost_scheme_version: "1.0"
+
+scheme:
+  id: trb_xgboost_smoke_m0_v1
+  description: >-
+    Installation/acceptance smoke test. Reuses frozen TRB assignments and runs
+    only M0 with two small XGBoost candidates. This is not a scientific analysis.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_011_a1_a6_repeat100_fullgrid/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_xgboost_smoke_m0_v1
+
+outer_repeats: 1
+tuning_primary_metric: roc_auc
+
+models:
+  M0_clinical:
+    description: Clinical smoke-test baseline with age and sex.
+    numeric: [age]
+    categorical: [sex]
+    static_feature_groups: []
+    dynamic_public: []
+
+model_engine:
+  engine: xgboost
+  fixed_parameters:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    verbosity: 0
+  early_stopping: false
+  hyperparameters:
+    max_depth: [1, 2]
+    min_child_weight: 3
+    learning_rate: 0.05
+    subsample: 0.85
+    colsample_bytree: 0.70
+    reg_alpha: 0.1
+    reg_lambda: 3.0
+    gamma: 0.0
+    scale_pos_weight: 1.0
+    n_estimators: 20
+  search:
+    strategy: random
+    n_iter: 2
+    random_state: 20260807
+    replacement: false
+  runtime:
+    n_jobs_per_fit: 1
+  zero_sd_tolerance: 1.0e-12

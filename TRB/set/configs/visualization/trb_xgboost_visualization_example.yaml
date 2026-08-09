@@ -1,0 +1,80 @@
+visualization_version: '1.0'
+
+visualization:
+  id: trb_xgboost_all_m0_m3_repeat50_v1_figures
+  source_mode: native_repeated_holdout
+  aggregation_dir: TRB/set/experiments/trb_xgboost_all_m0_m3_repeat50_v1/03_summary
+  output_dir: TRB/set/experiments/trb_xgboost_all_m0_m3_repeat50_v1/06_visualization/trb_xgboost_all_m0_m3_repeat50_v1_figures
+  require_complete_marker: true
+  overwrite: false
+
+model_labels:
+  M0_clinical: M0 Clinical
+  M1_static_tcr: M1 Static TRB
+  M2_static_tcr_public: M2 + Public
+  M3_static_tcr_public_material: M3 + Material
+
+figures:
+  figure1:
+    enabled: true
+    output_file: Figure1_model_performance_boxplots.pdf
+    models:
+      - M0_clinical
+      - M1_static_tcr
+      - M2_static_tcr_public
+      - M3_static_tcr_public_material
+    metrics:
+      - roc_auc
+      - pr_auc
+      - f1
+      - sensitivity_recall
+      - specificity
+    max_columns: 3
+    show_repeat_points: true
+    show_mean: true
+    y_limits: [0.0, 1.0]
+
+  figure2:
+    enabled: true
+    output_file: Figure2_mean_ROC_curves.pdf
+    models:
+      - M0_clinical
+      - M1_static_tcr
+      - M2_static_tcr_public
+      - M3_static_tcr_public_material
+    max_columns: 3
+    fpr_grid_points: 201
+    show_repeat_variability_band: true
+    variability_quantiles: [0.025, 0.975]
+
+  figure3:
+    enabled: true
+    output_file: Figure3_best_repeat_ROC_curves.pdf
+    models:
+      - M0_clinical
+      - M1_static_tcr
+      - M2_static_tcr_public
+      - M3_static_tcr_public_material
+    max_columns: 3
+    repeat_selection:
+      mode: best
+      primary_metric: roc_auc
+      tie_breakers:
+        - pr_auc
+        - f1
+        - outer_repeat
+    mark_saved_threshold_operating_point: true
+
+  figure4:
+    enabled: true
+    output_file: Figure4_best_repeat_prediction_boxplots.pdf
+    models:
+      - M0_clinical
+      - M1_static_tcr
+      - M2_static_tcr_public
+      - M3_static_tcr_public_material
+    max_columns: 3
+    repeat_selection:
+      reuse_selection_from: figure3
+    show_patient_points: true
+    show_saved_threshold: true
