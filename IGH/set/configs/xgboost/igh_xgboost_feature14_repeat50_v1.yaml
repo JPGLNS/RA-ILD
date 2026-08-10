@@ -1,0 +1,178 @@
+xgboost_scheme_version: '1.0'
+scheme:
+  id: igh_xgboost_feature14_repeat50_v1
+  description: All-sample IGH Feature14 comparison across the first 50 frozen repeated holdouts using
+    XGBoost, preserving the IGH Feature14 model definitions.
+  base_resolved_config: IGH/set/experiments/igh_scheme_006_a1_a6_repeat100_fullgrid/00_config/resolved_config.yaml
+  output_root: IGH/set/experiments/igh_xgboost_feature14_repeat50_v1
+outer_repeats: 50
+tuning_primary_metric: roc_auc
+models:
+  A1_core83:
+    description: Core 83 static IGH features only.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    dynamic_public: []
+  A2_core83_weighted500:
+    description: Core 83 plus repeat-specific Top-500 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top500
+    dynamic_public: []
+  A3_core83_unweighted500:
+    description: Core 83 plus repeat-specific Top-500 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top500
+    dynamic_public: []
+  A4_core83_both500:
+    description: Core 83 plus both representations of Top-500 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top500
+    dynamic_public: []
+  A5_core83_public:
+    description: Core 83 plus eight dynamic public-reference features.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    dynamic_public:
+    - all_ref_public_clone_ratio
+    - all_ref_public_frequency_sum
+    - shared_ref_clone_ratio
+    - shared_ref_frequency_sum
+    - RA_specific_ref_clone_ratio
+    - RA_specific_ref_frequency_sum
+    - ILD_specific_ref_clone_ratio
+    - ILD_specific_ref_frequency_sum
+  A6_core83_weighted50:
+    description: Core 83 plus repeat-specific Top-50 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top50
+    dynamic_public: []
+  A6_core83_weighted100:
+    description: Core 83 plus repeat-specific Top-100 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top100
+    dynamic_public: []
+  A6_core83_weighted200:
+    description: Core 83 plus repeat-specific Top-200 weighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_weighted_top200
+    dynamic_public: []
+  A6_core83_unweighted50:
+    description: Core 83 plus repeat-specific Top-50 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top50
+    dynamic_public: []
+  A6_core83_unweighted100:
+    description: Core 83 plus repeat-specific Top-100 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top100
+    dynamic_public: []
+  A6_core83_unweighted200:
+    description: Core 83 plus repeat-specific Top-200 unweighted 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_unweighted_top200
+    dynamic_public: []
+  A6_core83_both50:
+    description: Core 83 plus both representations of Top-50 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top50
+    dynamic_public: []
+  A6_core83_both100:
+    description: Core 83 plus both representations of Top-100 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top100
+    dynamic_public: []
+  A6_core83_both200:
+    description: Core 83 plus both representations of Top-200 3-mers.
+    numeric: []
+    categorical: []
+    static_feature_groups:
+    - core83
+    - repeat_3mer_both_top200
+    dynamic_public: []
+model_engine:
+  engine: xgboost
+  fixed_parameters:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    verbosity: 0
+  early_stopping: false
+  hyperparameters:
+    max_depth:
+    - 1
+    - 2
+    - 3
+    min_child_weight:
+    - 3
+    - 5
+    - 10
+    learning_rate:
+    - 0.03
+    - 0.05
+    subsample:
+    - 0.7
+    - 0.85
+    colsample_bytree:
+    - 0.3
+    - 0.5
+    - 0.7
+    - 1.0
+    reg_alpha:
+    - 0.1
+    - 0.5
+    - 1.0
+    reg_lambda:
+    - 3.0
+    - 5.0
+    - 10.0
+    gamma: 0.0
+    scale_pos_weight: 1.0
+    n_estimators:
+    - 200
+    - 300
+    - 500
+  search:
+    strategy: random
+    n_iter: 100
+    random_state: 20260807
+    replacement: false
+  runtime:
+    n_jobs_per_fit: 1
+  zero_sd_tolerance: 1.0e-12
