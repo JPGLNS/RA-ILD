@@ -1,0 +1,49 @@
+xgboost_scheme_version: "1.0"
+
+scheme:
+  id: trb_xgboost_buffercoat_feature14_repeat50_v1
+  description: >-
+    Buffercoat-only Feature14 TRB ablation comparison across the first 50 frozen material-specific repeated holdouts using XGBoost.
+  base_resolved_config: >-
+    TRB/set/experiments/trb_scheme_buffercoat_feature14_repeat100_fullgrid_roc_v1/00_config/resolved_config.yaml
+  output_root: >-
+    TRB/set/experiments/trb_xgboost_buffercoat_feature14_repeat50_v1
+
+# Reuse repeats 1-50 from the material-specific frozen repeat100 assignments.
+outer_repeats: 50
+
+tuning_primary_metric: roc_auc
+
+model_engine:
+  engine: xgboost
+
+  fixed_parameters:
+    objective: binary:logistic
+    eval_metric: logloss
+    tree_method: hist
+    verbosity: 0
+
+  early_stopping: false
+
+  hyperparameters:
+    max_depth: [1, 2, 3]
+    min_child_weight: [3, 5, 10]
+    learning_rate: [0.03, 0.05]
+    subsample: [0.70, 0.85]
+    colsample_bytree: [0.30, 0.50, 0.70, 1.00]
+    reg_alpha: [0.1, 0.5, 1.0]
+    reg_lambda: [3.0, 5.0, 10.0]
+    gamma: 0.0
+    scale_pos_weight: 1.0
+    n_estimators: [200, 300, 500]
+
+  search:
+    strategy: random
+    n_iter: 100
+    random_state: 20260807
+    replacement: false
+
+  runtime:
+    n_jobs_per_fit: 1
+
+  zero_sd_tolerance: 1.0e-12
