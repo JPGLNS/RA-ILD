@@ -1,0 +1,22 @@
+{
+  "status": "INSTALLED",
+  "upgrade": "IGH Batch 15 XGBoost",
+  "source_ref": "feature/trb-framework-v2",
+  "source_content_ref": "d5ff373bf4b430f59b023fab8b2a189c37520a19",
+  "source_anchor": "d5ff373bf4b430f59b023fab8b2a189c37520a19",
+  "target_anchor": "76e006d71b2f5fadaefd5fb8c4896dbd24fc0cef",
+  "head_before_install": "76e006d71b2f5fadaefd5fb8c4896dbd24fc0cef",
+  "branch": "feature/igh-xgboost-v1",
+  "created_at_utc": "2026-08-10T03:45:03.830026+00:00",
+  "formal_candidate_pool_size": 3888,
+  "formal_candidate_count": 100,
+  "real_data_smoke_accepted": false,
+  "accepted_at_utc": "2026-08-10T06:11:26.601916+00:00",
+  "acceptance": "IGH_BATCH15_XGBOOST_ACCEPTANCE_PASS",
+  "smoke_experiment": "igh_xgboost_smoke_m0_v1",
+  "smoke_task": "1:1",
+  "smoke_tuning_candidates": 2,
+  "smoke_probability_metrics": true,
+  "smoke_feature_importance": true,
+  "smoke_aggregation": true
+}
