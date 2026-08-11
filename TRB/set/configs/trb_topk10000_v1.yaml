@@ -1,0 +1,26 @@
+schema_version: 1
+name: trb_topk10000_v1
+repertoire_input:
+  source_layer: 01_AA_clone_table
+  mode: topk
+  selection_unit: CDR3-AA
+  top_k: 10000
+  input_glob: "*_AA_clone_table.csv"
+  sort_rule:
+    - "frequency DESC"
+    - "read_count DESC"
+    - "cdr3_aa ASC"
+  selection_rule: "exact first K after deterministic sorting"
+normalization:
+  preserve_full_columns:
+    - frequency_norm_full
+    - read_fraction_full
+  recompute_within_topk:
+    frequency_norm: "frequency / sum(frequency among retained Top-K)"
+    read_fraction: "read_count / sum(read_count among retained Top-K)"
+output:
+  recommended_directory: TRB/result/01b_AA_clone_table_topk10000
+  sample_filename: "{sample_id}_TRB_CDR3_AA_clone_table_top10000.csv"
+  summary_filename: 01b_top10000_summary.csv
+  qc_filename: 01b_top10000_qc.csv
+  configuration_filename: 01b_top10000_configuration.json
