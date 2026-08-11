@@ -1,0 +1,419 @@
+schema_version: '1.0'
+registry:
+  id: trb_feature_registry_v1
+  receptor: TRB
+  stage: exploratory
+  default_repertoire_source: top10000
+  description: Additive registry for modular TRB feature exploration; no legacy pipeline behavior is changed in v1.
+repertoire_sources:
+  all:
+    status: available
+    representation: full
+    source_layer: 01_AA_clone_table
+    default_path: TRB/result/01_AA_clone_table
+    file_glob: '*_AA_clone_table.csv'
+    required_columns:
+    - sample_id
+    - cdr3_aa
+    - aa_length
+    - nt_clone_number
+    - read_count
+    - read_fraction
+    - input_frequency_sum
+    - input_cell_frequency_sum
+    - frequency
+    - frequency_norm
+    - top_nt_cdr3
+    weight_column: frequency_norm
+    top_k: null
+  top10000:
+    status: available
+    representation: topk
+    source_layer: 01b_AA_clone_table_topk
+    default_path: TRB/result/01b_AA_clone_table_top10000
+    file_glob: '*_TRB_CDR3_AA_clone_table_top10000.csv'
+    required_columns:
+    - sample_id
+    - topk_rank
+    - cdr3_aa
+    - aa_length
+    - nt_clone_number
+    - read_count
+    - read_fraction_full
+    - read_fraction
+    - input_frequency_sum
+    - input_cell_frequency_sum
+    - frequency
+    - frequency_norm_full
+    - frequency_norm
+    - top_nt_cdr3
+    weight_column: frequency_norm
+    top_k: 10000
+feature_groups:
+  clinical_age_sex:
+    family: clinical
+    status: defined
+    module_type: metadata_static
+    fit_scope: none
+    leakage_policy: metadata_only
+    repertoire_dependency: none
+    supported_repertoire_sources: &id001 []
+    producer: metadata
+    model_role: primary_predictor
+    selector:
+      exact:
+      - age
+      - sex
+      prefixes: []
+    reference_drop_columns: &id002 []
+    notes: Primary clinical variables kept independently selectable from material.
+  clinical_material:
+    family: clinical
+    status: defined
+    module_type: metadata_static
+    fit_scope: none
+    leakage_policy: metadata_only
+    repertoire_dependency: none
+    supported_repertoire_sources: *id001
+    producer: metadata
+    model_role: optional_predictor
+    selector:
+      exact:
+      - material
+      prefixes: []
+    reference_drop_columns: *id002
+    notes: Material is an optional clinical/technical covariate and can be enabled independently.
+  tcr_qc_depth:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: qc_or_sensitivity_predictor
+    selector:
+      exact:
+      - total_reads_all_nt
+      - total_reads_valid_aa
+      - valid_read_ratio
+      - nt_clone_number_all
+      - valid_nt_clone_number
+      - valid_nt_row_ratio
+      - aa_clone_number
+      - log1p_aa_clone_number
+      prefixes: []
+    reference_drop_columns: []
+    notes: QC/depth variables remain separately addressable and are not forced into primary models.
+  tcr_diversity:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - Shannon
+      - Simpson
+      - inverse_Simpson
+      - Gini
+      - clonality
+      prefixes: []
+    reference_drop_columns: []
+    notes: ''
+  tcr_clonal_expansion:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - top1_frequency
+      - top5_cumulative_frequency
+      - top10_cumulative_frequency
+      - top20_cumulative_frequency
+      - top50_cumulative_frequency
+      prefixes: []
+    reference_drop_columns: []
+    notes: This is clone-frequency expansion (top clone cumulative mass), not repertoire Top-K preprocessing.
+  tcr_aa_length:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - mean_aa_length
+      - median_aa_length
+      - sd_aa_length
+      - weighted_mean_aa_length
+      - weighted_sd_aa_length
+      - weighted_length_8_freq
+      - weighted_length_9_freq
+      - weighted_length_10_freq
+      - weighted_length_11_freq
+      - weighted_length_12_freq
+      - weighted_length_13_freq
+      - weighted_length_14_freq
+      - weighted_length_15_freq
+      - weighted_length_16_freq
+      - weighted_length_17_freq
+      - weighted_length_18_freq
+      - weighted_length_19_freq
+      - weighted_length_20_freq
+      - weighted_length_21_freq
+      - weighted_length_22_freq
+      - weighted_length_23_freq
+      - weighted_length_24_freq
+      - weighted_length_25_freq
+      - weighted_length_other_freq
+      prefixes: []
+    reference_drop_columns:
+    - weighted_length_other_freq
+    notes: ''
+  tcr_aa_composition_unweighted:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - A_frequency
+      - C_frequency
+      - D_frequency
+      - E_frequency
+      - F_frequency
+      - G_frequency
+      - H_frequency
+      - I_frequency
+      - K_frequency
+      - L_frequency
+      - M_frequency
+      - N_frequency
+      - P_frequency
+      - Q_frequency
+      - R_frequency
+      - S_frequency
+      - T_frequency
+      - V_frequency
+      - W_frequency
+      - Y_frequency
+      prefixes: []
+    reference_drop_columns:
+    - Y_frequency
+    notes: ''
+  tcr_aa_composition_weighted:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - weighted_A_frequency
+      - weighted_C_frequency
+      - weighted_D_frequency
+      - weighted_E_frequency
+      - weighted_F_frequency
+      - weighted_G_frequency
+      - weighted_H_frequency
+      - weighted_I_frequency
+      - weighted_K_frequency
+      - weighted_L_frequency
+      - weighted_M_frequency
+      - weighted_N_frequency
+      - weighted_P_frequency
+      - weighted_Q_frequency
+      - weighted_R_frequency
+      - weighted_S_frequency
+      - weighted_T_frequency
+      - weighted_V_frequency
+      - weighted_W_frequency
+      - weighted_Y_frequency
+      prefixes: []
+    reference_drop_columns:
+    - weighted_Y_frequency
+    notes: ''
+  tcr_physicochemical_unweighted:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - mean_hydrophobicity
+      - mean_charge
+      - aromaticity
+      - basic_aa_ratio
+      - acidic_aa_ratio
+      - polar_aa_ratio
+      - nonpolar_aa_ratio
+      prefixes: []
+    reference_drop_columns:
+    - nonpolar_aa_ratio
+    notes: ''
+  tcr_physicochemical_weighted:
+    family: tcr_stat
+    status: defined
+    module_type: sample_static
+    fit_scope: per_sample
+    leakage_policy: label_independent_per_sample
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_core
+    model_role: candidate_predictor
+    selector:
+      exact:
+      - weighted_hydrophobicity
+      - weighted_charge
+      - weighted_aromaticity
+      - weighted_basic_aa_ratio
+      - weighted_acidic_aa_ratio
+      - weighted_polar_aa_ratio
+      - weighted_nonpolar_aa_ratio
+      prefixes: []
+    reference_drop_columns:
+    - weighted_nonpolar_aa_ratio
+    notes: ''
+  tcr_3mer_unweighted:
+    family: kmer
+    status: defined
+    module_type: training_vocabulary
+    fit_scope: training_only
+    leakage_policy: fit_vocabulary_on_training_apply_to_heldout
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_3mer_unweighted
+    model_role: candidate_predictor
+    selector:
+      exact: []
+      prefixes:
+      - unweighted_3mer_
+    reference_drop_columns: []
+    notes: Vocabulary/filtering is training-derived even though each sample value is label independent.
+  tcr_3mer_weighted:
+    family: kmer
+    status: defined
+    module_type: training_vocabulary
+    fit_scope: training_only
+    leakage_policy: fit_vocabulary_on_training_apply_to_heldout
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: step02_3mer_weighted
+    model_role: candidate_predictor
+    selector:
+      exact: []
+      prefixes:
+      - weighted_3mer_
+    reference_drop_columns: []
+    notes: Vocabulary/filtering is training-derived; clone weighting uses the selected repertoire source frequency_norm.
+  public_legacy_descriptive:
+    family: reference
+    status: legacy_optional
+    module_type: descriptive_legacy
+    fit_scope: per_sample
+    leakage_policy: legacy_descriptive_only
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    producer: step03_public_legacy
+    model_role: descriptive_only
+    selector:
+      exact: []
+      prefixes:
+      - global_public_aa_
+      - RA_group_public_aa_
+      - ILD_group_public_aa_
+      - between_group_shared_aa_
+    reference_drop_columns: []
+    notes: Legacy Step03 descriptive public features are retained only for compatibility and are not a default modeling group.
+  public_legacy_reference:
+    family: reference
+    status: legacy_optional
+    module_type: learned_reference
+    fit_scope: training_only
+    leakage_policy: fit_reference_on_training_apply_to_heldout
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    producer: step03_public_legacy
+    model_role: optional_predictor
+    selector:
+      exact: []
+      prefixes:
+      - all_ref_public_
+      - RA_specific_ref_
+      - ILD_specific_ref_
+      - shared_ref_
+      - ILD_RA_specific_ref_
+    reference_drop_columns: []
+    notes: Legacy public-reference features. Expected to be superseded by a future enriched-dictionary feature module.
+  enriched_dict:
+    family: reference
+    status: planned
+    module_type: learned_reference
+    fit_scope: training_only
+    leakage_policy: fit_dictionary_on_training_apply_to_heldout
+    repertoire_dependency: repertoire
+    supported_repertoire_sources:
+    - all
+    - top10000
+    producer: future_enriched_dict
+    model_role: candidate_predictor
+    selector:
+      exact: []
+      prefixes:
+      - enriched_dict_
+    reference_drop_columns: []
+    notes: Framework-integration placeholder. The repository already contains exploratory enrich_dictionary CV code, but this
+      upgrade does not bind any existing implementation into the feature-matrix contract; the final dictionary feature definition
+      will be frozen in a later upgrade.
