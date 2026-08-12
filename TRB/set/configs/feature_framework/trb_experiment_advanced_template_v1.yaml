@@ -1,0 +1,54 @@
+schema_version: '1.0'
+experiment:
+  id: trb_advanced_template_v1
+  receptor: TRB
+
+cohort:
+  scope: total  # total / pbmc / buffycoat
+
+repertoire:
+  mode: topk    # all / topk
+  top_k: 10000  # required only when mode=topk; may be changed to any positive integer
+
+features:
+  clinical_groups:
+    - clinical_age_sex
+
+  static_tcr_groups:
+    - tcr_diversity
+    - tcr_clonal_expansion
+    - tcr_aa_length
+    - tcr_aa_composition_unweighted
+    - tcr_aa_composition_weighted
+    - tcr_physicochemical_unweighted
+    - tcr_physicochemical_weighted
+
+  kmer:
+    enabled: true
+    k: 3
+    representation: unweighted  # unweighted / weighted
+    top_n: 500                  # null or 0 = no maximum
+    min_sample_count: 5
+    min_prevalence: 0.05
+    min_unweighted_variance: 1.0e-12
+    min_weighted_variance: 1.0e-12
+
+  enriched_dictionary:
+    enabled: true
+    threshold_pct: 20.0
+    delta_pct: 10.0
+    features:
+      - RA_dict_hit_rate
+    # No source field is allowed here: this module MUST inherit repertoire.mode/top_k.
+
+model:
+  algorithm: elastic_net  # elastic_net / ridge / lasso / linear_svm / xgboost
+
+validation:
+  folds: 5
+  repeats: 100
+  split_candidates: 300
+  seed: 20260711
+
+compute:
+  workers: 8  # omitted => 1; allowed range 1..16
