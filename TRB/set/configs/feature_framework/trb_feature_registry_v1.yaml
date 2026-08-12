@@ -12,6 +12,10 @@ repertoire_sources:
     source_layer: 01_AA_clone_table
     default_path: TRB/result/01_AA_clone_table
     file_glob: '*_AA_clone_table.csv'
+    sample_filename_template: '{sample_id}_TRB_CDR3_AA_clone_table.csv'
+    summary_kind: step01_full
+    summary_path: TRB/result/01_AA_clone_table/01_AA_clone_table_summary.csv
+    parent_source: null
     required_columns:
     - sample_id
     - cdr3_aa
@@ -32,6 +36,10 @@ repertoire_sources:
     source_layer: 01b_AA_clone_table_topk
     default_path: TRB/result/01b_AA_clone_table_top10000
     file_glob: '*_TRB_CDR3_AA_clone_table_top10000.csv'
+    sample_filename_template: '{sample_id}_TRB_CDR3_AA_clone_table_top10000.csv'
+    summary_kind: step01b_topk
+    summary_path: TRB/result/01b_AA_clone_table_top10000/01b_top10000_summary.csv
+    parent_source: all
     required_columns:
     - sample_id
     - topk_rank

@@ -42,6 +42,7 @@ ALLOWED_MODULE_TYPES = {
 }
 ALLOWED_FIT_SCOPES = {"none", "per_sample", "training_only"}
 ALLOWED_REPERTOIRE_DEPENDENCY = {"none", "repertoire"}
+ALLOWED_SUMMARY_KINDS = {"step01_full", "step01b_topk"}
 
 
 class FeatureFrameworkError(ValueError):
@@ -106,9 +107,28 @@ class RepertoireSource:
     source_layer: str
     default_path: str
     file_glob: str
+    sample_filename_template: str
+    summary_kind: str
+    summary_path: str
+    parent_source: Optional[str]
     required_columns: Tuple[str, ...]
     weight_column: str
     top_k: Optional[int]
+
+    def sample_filename(self, sample_id: str) -> str:
+        sample_id = _nonempty_string(sample_id, "sample_id")
+        try:
+            rendered = self.sample_filename_template.format(sample_id=sample_id)
+        except (KeyError, ValueError) as exc:
+            raise FeatureFrameworkError(
+                f"invalid sample_filename_template for source {self.id!r}: "
+                f"{self.sample_filename_template!r}"
+            ) from exc
+        if not rendered or Path(rendered).name != rendered:
+            raise FeatureFrameworkError(
+                f"source {self.id!r} sample filename must render to a file name, got {rendered!r}"
+            )
+        return rendered
 
 
 @dataclass(frozen=True)
@@ -160,6 +180,10 @@ class ResolvedFeaturePlan:
                 "source_layer": self.repertoire_source.source_layer,
                 "default_path": self.repertoire_source.default_path,
                 "file_glob": self.repertoire_source.file_glob,
+                "sample_filename_template": self.repertoire_source.sample_filename_template,
+                "summary_kind": self.repertoire_source.summary_kind,
+                "summary_path": self.repertoire_source.summary_path,
+                "parent_source": self.repertoire_source.parent_source,
                 "weight_column": self.repertoire_source.weight_column,
                 "top_k": self.repertoire_source.top_k,
             },
@@ -333,6 +357,39 @@ def load_feature_registry(path: Union[Path, str]) -> FeatureRegistry:
             raise FeatureFrameworkError(f"topk repertoire source {source_id!r} requires top_k")
         if representation == "full" and top_k is not None:
             raise FeatureFrameworkError(f"full repertoire source {source_id!r} must not define top_k")
+        summary_kind = _nonempty_string(
+            item.get("summary_kind"), f"repertoire_sources.{source_id}.summary_kind"
+        )
+        if summary_kind not in ALLOWED_SUMMARY_KINDS:
+            raise FeatureFrameworkError(
+                f"repertoire_sources.{source_id}.summary_kind must be one of "
+                f"{sorted(ALLOWED_SUMMARY_KINDS)}"
+            )
+        parent_source = item.get("parent_source")
+        if parent_source is not None:
+            parent_source = _nonempty_string(
+                parent_source, f"repertoire_sources.{source_id}.parent_source"
+            )
+            if parent_source == source_id:
+                raise FeatureFrameworkError(
+                    f"repertoire source {source_id!r} cannot be its own parent"
+                )
+        if representation == "full" and summary_kind != "step01_full":
+            raise FeatureFrameworkError(
+                f"full repertoire source {source_id!r} must use summary_kind=step01_full"
+            )
+        if representation == "topk" and summary_kind != "step01b_topk":
+            raise FeatureFrameworkError(
+                f"topk repertoire source {source_id!r} must use summary_kind=step01b_topk"
+            )
+        if representation == "full" and parent_source is not None:
+            raise FeatureFrameworkError(
+                f"full repertoire source {source_id!r} must not define parent_source"
+            )
+        if representation == "topk" and parent_source is None:
+            raise FeatureFrameworkError(
+                f"topk repertoire source {source_id!r} requires parent_source"
+            )
         sources[source_id] = RepertoireSource(
             id=source_id,
             status=status,
@@ -346,6 +403,15 @@ def load_feature_registry(path: Union[Path, str]) -> FeatureRegistry:
             file_glob=_nonempty_string(
                 item.get("file_glob"), f"repertoire_sources.{source_id}.file_glob"
             ),
+            sample_filename_template=_nonempty_string(
+                item.get("sample_filename_template"),
+                f"repertoire_sources.{source_id}.sample_filename_template",
+            ),
+            summary_kind=summary_kind,
+            summary_path=_nonempty_string(
+                item.get("summary_path"), f"repertoire_sources.{source_id}.summary_path"
+            ),
+            parent_source=parent_source,
             required_columns=_string_tuple(
                 item.get("required_columns"),
                 f"repertoire_sources.{source_id}.required_columns",
@@ -360,6 +426,14 @@ def load_feature_registry(path: Union[Path, str]) -> FeatureRegistry:
         raise FeatureFrameworkError(
             f"registry.default_repertoire_source {default_source!r} is not defined"
         )
+    for source in sources.values():
+        if source.parent_source is not None and source.parent_source not in sources:
+            raise FeatureFrameworkError(
+                f"repertoire source {source.id!r} references unknown parent_source "
+                f"{source.parent_source!r}"
+            )
+        # Rendering one deterministic probe catches missing/invalid format fields early.
+        source.sample_filename("__SAMPLE__")
 
     groups_raw = _mapping(raw.get("feature_groups"), "feature_groups")
     if not groups_raw:
