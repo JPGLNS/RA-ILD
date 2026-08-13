@@ -1,0 +1,17 @@
+schema_version: '1.0'
+plan:
+  id: trb_feature_plan_top10000_primary_weighted_v1
+  receptor: TRB
+  repertoire_source: top10000
+  feature_groups:
+  - clinical_age_sex
+  - tcr_diversity
+  - tcr_clonal_expansion
+  - tcr_aa_length
+  - tcr_aa_composition_unweighted
+  - tcr_aa_composition_weighted
+  - tcr_physicochemical_unweighted
+  - tcr_physicochemical_weighted
+  - tcr_3mer_weighted
+  allow_legacy: false
+  allow_planned: false
