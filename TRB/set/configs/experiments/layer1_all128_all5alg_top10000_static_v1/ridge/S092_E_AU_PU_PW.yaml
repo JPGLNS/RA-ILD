@@ -1,0 +1,151 @@
+schema_version: '1.0'
+experiment:
+  id: layer1_all5alg_top10000_ridge_S092_E_AU_PU_PW
+  receptor: TRB
+cohort:
+  scope: total
+repertoire:
+  mode: topk
+  top_k: 10000
+features:
+  clinical_groups:
+  - clinical_age_sex
+  static_tcr_groups:
+  - tcr_clonal_expansion
+  - tcr_aa_composition_unweighted
+  - tcr_physicochemical_unweighted
+  - tcr_physicochemical_weighted
+  kmer:
+    enabled: false
+    k: 3
+    representation: unweighted
+    top_n: 500
+    min_sample_count: 5
+    min_prevalence: 0.05
+    min_unweighted_variance: 1.0e-12
+    min_weighted_variance: 1.0e-12
+  enriched_dictionary:
+    enabled: false
+    threshold_pct: 20
+    delta_pct: 10
+    features:
+    - RA_dict_hit_rate
+model:
+  algorithm: ridge
+  positive_label: ILD
+  negative_label: RA
+  tuning_primary_metric: roc_auc
+  zero_sd_tolerance: 1.0e-12
+  parameters:
+    elastic_net:
+      alpha_grid:
+      - 0.1
+      - 0.5
+      - 0.9
+      lambda_grid:
+      - 0.01
+      - 0.03
+      - 0.1
+      - 0.3
+      - 1.0
+      - 3.0
+      - 10.0
+      - 30.0
+      class_weight: balanced
+      max_iter: 10000
+      tolerance: 0.0001
+    ridge:
+      alpha_grid:
+      - 0.0
+      lambda_grid:
+      - 0.01
+      - 0.03
+      - 0.1
+      - 0.3
+      - 1.0
+      - 3.0
+      - 10.0
+      - 30.0
+      class_weight: balanced
+    lasso:
+      alpha_grid:
+      - 1.0
+      lambda_grid:
+      - 0.01
+      - 0.03
+      - 0.1
+      - 0.3
+      - 1.0
+      - 3.0
+      - 10.0
+      - 30.0
+      class_weight: balanced
+    linear_svm:
+      C_grid:
+      - 0.0001
+      - 0.001
+      - 0.01
+      - 0.1
+      - 1.0
+      - 10.0
+      - 100.0
+      - 1000.0
+      penalty: l2
+      loss: squared_hinge
+      class_weight: balanced
+      dual: auto
+      max_iter: 10000
+      tolerance: 0.0001
+    xgboost:
+      fixed_parameters:
+        objective: binary:logistic
+        eval_metric: logloss
+        tree_method: hist
+        verbosity: 0
+      hyperparameters:
+        max_depth:
+        - 1
+        - 2
+        - 3
+        min_child_weight:
+        - 3
+        - 5
+        - 10
+        learning_rate:
+        - 0.03
+        - 0.05
+        subsample:
+        - 0.7
+        - 0.85
+        colsample_bytree:
+        - 0.3
+        - 0.5
+        - 0.7
+        - 1.0
+        reg_alpha:
+        - 0.1
+        - 0.5
+        - 1.0
+        reg_lambda:
+        - 3.0
+        - 5.0
+        - 10.0
+        gamma: 0.0
+        scale_pos_weight: 1.0
+        n_estimators:
+        - 200
+        - 300
+        - 500
+      search_n_iter: 100
+      search_random_state: 20260807
+      n_jobs_per_fit: 1
+validation:
+  folds: 5
+  repeats: 100
+  split_candidates: 300
+  seed: 20260711
+  inner_split_candidates: 500
+  inner_split_seed: 20260724
+  split_assignments: auto
+compute:
+  workers: 10

@@ -1,0 +1,44 @@
+schema_version: '1.0'
+experiment:
+  id: trb_top10000_enrich_buffycoat_t20_d10_r100
+  receptor: TRB
+cohort:
+  scope: buffycoat
+repertoire:
+  mode: topk
+  top_k: 10000
+features:
+  clinical_groups:
+  - clinical_age_sex
+  static_tcr_groups:
+  - tcr_diversity
+  - tcr_clonal_expansion
+  - tcr_aa_length
+  - tcr_aa_composition_unweighted
+  - tcr_aa_composition_weighted
+  - tcr_physicochemical_unweighted
+  - tcr_physicochemical_weighted
+  kmer:
+    enabled: true
+    k: 3
+    representation: unweighted
+    top_n: 500
+    min_sample_count: 5
+    min_prevalence: 0.05
+    min_unweighted_variance: 1.0e-12
+    min_weighted_variance: 1.0e-12
+  enriched_dictionary:
+    enabled: true
+    threshold_pct: 20.0
+    delta_pct: 10.0
+    features:
+    - RA_dict_hit_rate
+model:
+  algorithm: elastic_net
+validation:
+  folds: 5
+  repeats: 100
+  split_candidates: 300
+  seed: 20260711
+compute:
+  workers: 8
