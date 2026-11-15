@@ -1,0 +1,15 @@
+schema_version: '1.0'
+plan:
+  id: igh_feature_plan_top10000_static_v3_175
+  receptor: IGH
+  repertoire_source: top10000
+  feature_groups:
+  - tcr_diversity
+  - tcr_clonal_expansion
+  - tcr_aa_length
+  - tcr_aa_composition_unweighted
+  - tcr_aa_composition_weighted
+  - tcr_physicochemical_unweighted
+  - tcr_physicochemical_weighted
+  allow_legacy: false
+  allow_planned: false
