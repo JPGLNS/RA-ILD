@@ -478,8 +478,8 @@ def main() -> int:
     a = p.parse_args()
     if not (1 <= a.start <= a.end <= 100):
         p.error("require 1 <= start <= end <= 100")
-    if not (1 <= a.jobs <= 8):
-        p.error("require 1 <= jobs <= 8")
+    if not (1 <= a.jobs <= 48):
+        p.error("require 1 <= jobs <= 48")
     repo = a.repo.expanduser().resolve()
     out = a.output_root.expanduser().resolve()
     ensure((repo / ".git").exists(), "Not a Git repo")
