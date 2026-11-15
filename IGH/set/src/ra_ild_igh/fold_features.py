@@ -38,6 +38,9 @@ from .enriched_dictionary import (
     transform_repertoires,
 )
 from .feature_framework import FeatureRegistry, load_feature_registry
+from .v3_public_adapter import (
+    PublicInput, V2_PUBLIC_COLUMNS, build_public_fold, load_public_input,
+)
 from .unified_experiment import UnifiedExperimentSpec
 
 PathLike = Union[str, Path]
@@ -66,6 +69,7 @@ class FoldFeatureInputs:
     kmer_unweighted: Mapping[str, Mapping[str, float]]
     kmer_weighted: Mapping[str, Mapping[str, float]]
     enrich_repertoires: Mapping[str, SampleRepertoire]
+    public_input: Optional[PublicInput] = None
 
     @property
     def sample_ids(self) -> Tuple[str, ...]:
@@ -273,6 +277,12 @@ def load_fold_feature_inputs(
         enrich_meta = metadata.rename(columns={"sample_id": "libraryid"})
         enrich = load_repertoires(enrich_meta, source, id_col="libraryid")
 
+    public_input = None
+    if spec.base.features.public_reference.enabled:
+        public_input = load_public_input(
+            ids, metadata["cohort"].astype(str).tolist(), source,
+        )
+
     return FoldFeatureInputs(
         metadata=metadata,
         static_values=static,
@@ -283,6 +293,7 @@ def load_fold_feature_inputs(
         kmer_unweighted=kmer_u,
         kmer_weighted=kmer_w,
         enrich_repertoires=enrich,
+        public_input=public_input,
     )
 
 
@@ -511,11 +522,20 @@ def build_fold_features(
         vocabulary = rank_training_kmers(train_ids, inputs, spec)
         selected = vocabulary.loc[vocabulary["keep"].astype(bool), "kmer"].astype(str).tolist()
         rep = spec.base.features.kmer.representation
-        train_kmer = _kmer_feature_frame(train_ids, selected, inputs, rep)
-        valid_kmer = _kmer_feature_frame(valid_ids, selected, inputs, rep)
-        train = train.merge(train_kmer, on="sample_id", how="left", validate="one_to_one")
-        valid = valid.merge(valid_kmer, on="sample_id", how="left", validate="one_to_one")
-        kcols = [c for c in train_kmer.columns if c != "sample_id"]
+        # With 'both' the SAME fold-local Top-K vocabulary is represented twice.
+        # Validation/holdout samples never contribute to vocabulary selection.
+        representations = ("unweighted", "weighted") if rep == "both" else (rep,)
+        if any(r not in {"unweighted", "weighted"} for r in representations):
+            raise FoldFeatureError(f"unsupported 3-mer representation: {rep!r}")
+        kcols = []
+        for representation in representations:
+            train_kmer = _kmer_feature_frame(train_ids, selected, inputs, representation)
+            valid_kmer = _kmer_feature_frame(valid_ids, selected, inputs, representation)
+            train = train.merge(train_kmer, on="sample_id", how="left", validate="one_to_one")
+            valid = valid.merge(valid_kmer, on="sample_id", how="left", validate="one_to_one")
+            kcols.extend(c for c in train_kmer.columns if c != "sample_id")
+        if len(kcols) != len(set(kcols)):
+            raise FoldFeatureError("duplicate weighted/unweighted 3-mer feature names")
         numeric.extend(kcols)
         vocab_hash = hashlib.sha256("\n".join(selected).encode("utf-8")).hexdigest()
         audit_rows.append({
@@ -579,6 +599,25 @@ def build_fold_features(
                 ("\n".join(reference.ra_clones) + "\n--ILD--\n" + "\n".join(reference.ild_clones)).encode("utf-8")
             ).hexdigest(),
         })
+
+    public_spec = spec.base.features.public_reference
+    if public_spec.enabled:
+        if inputs.public_input is None:
+            raise FoldFeatureError("Public-reference feature inputs were not loaded")
+        public_fold = build_public_fold(
+            inputs.public_input, public_spec, train_ids, valid_ids, context=context,
+        )
+        public_columns = list(V2_PUBLIC_COLUMNS)
+        if set(public_columns) & (set(numeric) | set(categorical)):
+            raise FoldFeatureError("Public feature names conflict with existing predictors")
+        train = train.merge(
+            public_fold.train, on="sample_id", how="left", validate="one_to_one",
+        )
+        valid = valid.merge(
+            public_fold.valid, on="sample_id", how="left", validate="one_to_one",
+        )
+        numeric.extend(public_columns)
+        audit_rows.append(dict(public_fold.audit))
 
     required = [*numeric, *categorical]
     if len(required) != len(set(required)):

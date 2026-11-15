@@ -9,7 +9,7 @@ dictionary, cohort, and later model-dispatch layers.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from collections.abc import Mapping, Sequence
 from typing import Any, Optional, Tuple, Union
@@ -22,7 +22,7 @@ except ImportError as exc:  # pragma: no cover
 SCHEMA_VERSION = "1.0"
 COHORT_SCOPES = {"total", "pbmc", "buffycoat"}
 REPERTOIRE_MODES = {"all", "topk"}
-KMER_REPRESENTATIONS = {"unweighted", "weighted"}
+KMER_REPRESENTATIONS = {"unweighted", "weighted", "both"}
 MODEL_ALGORITHMS = {"elastic_net", "ridge", "lasso", "linear_svm", "xgboost"}
 STATIC_TCR_GROUPS = {
     "tcr_qc_depth",
@@ -141,17 +141,32 @@ class EnrichedDictionarySpec:
 
 
 @dataclass(frozen=True)
+class PublicReferenceSpec:
+    enabled: bool = False
+    feature_set: str = "raw_bilateral"
+    global_min_prevalence: float = 0.02
+    global_min_count: int = 3
+    group_min_prevalence: float = 0.05
+    group_min_count: int = 3
+    specific_prevalence_delta: float = 0.05
+    epsilon: float = 1.0e-8
+
+
+@dataclass(frozen=True)
 class FeatureSpec:
     clinical_groups: Tuple[str, ...]
     static_tcr_groups: Tuple[str, ...]
     kmer: KmerSpec
     enriched_dictionary: EnrichedDictionarySpec
+    public_reference: PublicReferenceSpec = field(default_factory=PublicReferenceSpec)
 
     @property
     def phase2_feature_groups(self) -> Tuple[str, ...]:
         groups = list(self.clinical_groups) + list(self.static_tcr_groups)
         if self.kmer.enabled:
             groups.append(f"tcr_3mer_{self.kmer.representation}")
+        if self.public_reference.enabled:
+            groups.append("public_reference_raw_bilateral")
         return tuple(groups)
 
 
@@ -219,6 +234,18 @@ class AdvancedExperimentSpec:
                     "features": list(self.features.enriched_dictionary.features),
                     "repertoire_source": self.repertoire.source_id,
                     "source_policy": "inherit_main_repertoire",
+                },
+                "public_reference": {
+                    "enabled": self.features.public_reference.enabled,
+                    "feature_set": self.features.public_reference.feature_set,
+                    "global_min_prevalence": self.features.public_reference.global_min_prevalence,
+                    "global_min_count": self.features.public_reference.global_min_count,
+                    "group_min_prevalence": self.features.public_reference.group_min_prevalence,
+                    "group_min_count": self.features.public_reference.group_min_count,
+                    "specific_prevalence_delta": self.features.public_reference.specific_prevalence_delta,
+                    "epsilon": self.features.public_reference.epsilon,
+                    "repertoire_source": self.repertoire.source_id,
+                    "reference_policy": "train_only_exact_LOO",
                 },
             },
             "model": {"algorithm": self.model.algorithm},
@@ -334,6 +361,27 @@ def load_advanced_experiment(path: Union[str, Path]) -> AdvancedExperimentSpec:
     if unknown:
         raise ExperimentSpecError(f"unknown enriched_dictionary features: {unknown}")
 
+    praw = _mapping(features_raw.get("public_reference", {}), "features.public_reference")
+    for forbidden in ("source", "repertoire_source", "source_id"):
+        if forbidden in praw:
+            raise ExperimentSpecError(
+                f"features.public_reference.{forbidden} is forbidden; source inherits selected repertoire"
+            )
+    public_enabled = _bool(praw.get("enabled", False), "features.public_reference.enabled")
+    public_feature_set = str(praw.get("feature_set", "raw_bilateral")).strip().lower()
+    if public_feature_set != "raw_bilateral":
+        raise ExperimentSpecError("V3 Public currently supports only raw_bilateral (8 features)")
+    public_global_prev = _float(praw.get("global_min_prevalence", 0.02), "public.global_min_prevalence", 0.0)
+    public_group_prev = _float(praw.get("group_min_prevalence", 0.05), "public.group_min_prevalence", 0.0)
+    public_delta = _float(praw.get("specific_prevalence_delta", 0.05), "public.specific_prevalence_delta", 0.0)
+    if max(public_global_prev, public_group_prev, public_delta) > 1.0:
+        raise ExperimentSpecError("Public prevalence and delta must be <= 1")
+    public_global_min = _int(praw.get("global_min_count", 3), "public.global_min_count", 1)
+    public_group_min = _int(praw.get("group_min_count", 3), "public.group_min_count", 1)
+    public_epsilon = _float(praw.get("epsilon", 1.0e-8), "public.epsilon", 0.0)
+    if public_epsilon <= 0:
+        raise ExperimentSpecError("features.public_reference.epsilon must be > 0")
+
     model_raw = _mapping(raw.get("model", {}), "model")
     algorithm = _str(model_raw.get("algorithm", "elastic_net"), "model.algorithm").lower()
     if algorithm not in MODEL_ALGORITHMS:
@@ -373,6 +421,16 @@ def load_advanced_experiment(path: Union[str, Path]) -> AdvancedExperimentSpec:
                 threshold_pct=threshold,
                 delta_pct=delta,
                 features=e_features,
+            ),
+            public_reference=PublicReferenceSpec(
+                enabled=public_enabled,
+                feature_set=public_feature_set,
+                global_min_prevalence=public_global_prev,
+                global_min_count=public_global_min,
+                group_min_prevalence=public_group_prev,
+                group_min_count=public_group_min,
+                specific_prevalence_delta=public_delta,
+                epsilon=public_epsilon,
             ),
         ),
         model=ModelSpec(algorithm=algorithm),
