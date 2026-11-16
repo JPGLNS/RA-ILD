@@ -1,0 +1,97 @@
+{
+  "batch": "19",
+  "title": "TRB V3 complete cohort input adaptation (180 samples)",
+  "branch": "feature/trb-v3-complete-180",
+  "base_commit": "181807c802604cf92f28921b3a2dfc6bb0eeeb67",
+  "additive_only": true,
+  "model_training_enabled": false,
+  "expected_cohort": {
+    "total": {
+      "samples": 180,
+      "RA": 111,
+      "ILD": 69,
+      "train": 126,
+      "holdout": 54
+    },
+    "pbmc": {
+      "samples": 116,
+      "RA": 69,
+      "ILD": 47,
+      "train": 81,
+      "holdout": 35
+    },
+    "buffycoat": {
+      "samples": 64,
+      "RA": 42,
+      "ILD": 22,
+      "train": 45,
+      "holdout": 19
+    }
+  },
+  "exact_strata": {
+    "total": [
+      "cohort",
+      "batch"
+    ],
+    "pbmc": [
+      "cohort",
+      "batch"
+    ],
+    "buffycoat": [
+      "cohort"
+    ]
+  },
+  "balance_variables": {
+    "total": {
+      "categorical": [
+        "material",
+        "sex"
+      ],
+      "numeric": [
+        "age"
+      ]
+    },
+    "pbmc": {
+      "categorical": [
+        "sex"
+      ],
+      "numeric": [
+        "age"
+      ]
+    },
+    "buffycoat": {
+      "categorical": [
+        "batch",
+        "sex"
+      ],
+      "numeric": [
+        "age"
+      ]
+    }
+  },
+  "raw_input": {
+    "metadata": "TRB/metadata_TCR_with_batch.csv",
+    "directory": "TRB/完整数据/origin_result",
+    "suffix": "_TRB_CDR3_NT_frequency_error_correct.csv"
+  },
+  "data_version_root": "TRB/set/data_versions/trb_v3_180",
+  "files": [
+    "TRB/set/scripts_v2/audit_trb_v3_180_inputs.py",
+    "TRB/set/configs/repeated_holdout_splits/ra_ild_repeat100_v3_180.yaml",
+    "TRB/set/configs/repeated_holdout_splits/ra_ild_pbmc_repeat100_v3_180.yaml",
+    "TRB/set/configs/repeated_holdout_splits/ra_ild_buffycoat_repeat100_v3_180.yaml",
+    "TRB/set/configs/material_subsets/trb_v3_180_pbmc_only.yaml",
+    "TRB/set/configs/material_subsets/trb_v3_180_buffycoat_only.yaml",
+    "TRB/set/configs/repeated_holdout_training/trb_v3_180_total_training_v1.yaml",
+    "TRB/set/configs/repeated_holdout_training/trb_v3_180_pbmc_training_v1.yaml",
+    "TRB/set/configs/repeated_holdout_training/trb_v3_180_buffycoat_training_v1.yaml",
+    "TRB/set/configs/feature_framework/trb_feature_registry_v3_180.yaml",
+    "TRB/set/configs/feature_framework/trb_feature_plan_v3_180.yaml",
+    "TRB/set/README_TRB_V3_180.md"
+  ],
+  "notes": [
+    "The original 174-sample inputs and outputs are untouched.",
+    "The 126/54 repeat-1 compatibility partition is only for existing Step02-Step04 train/test builders; the 100 repeated-holdout banks are the model evaluation design.",
+    "Buffycoat exact cohort x batch stratification is not feasible because ILD x batch4 has one sample."
+  ]
+}

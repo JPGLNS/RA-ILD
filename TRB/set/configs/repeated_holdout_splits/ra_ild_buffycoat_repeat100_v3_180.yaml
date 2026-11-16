@@ -1,0 +1,34 @@
+split_set_version: '1.0'
+split_set:
+  id: ra_ild_buffycoat_repeat100_v3_180
+  description: One hundred deterministic metadata-balanced 45/19 repeated holdouts within the complete 64-sample Buffycoat cohort.
+  status: development
+  output_root: TRB/set/split_sets/ra_ild_buffycoat_repeat100_v3_180
+source:
+  metadata_files:
+    - TRB/set/data_versions/trb_v3_180/metadata/metadata_buffycoat.csv
+  sample_id_column: libraryid
+  patient_id_column: patient
+  require_one_sample_per_patient: true
+  expected_samples: 64
+  expected_patients: 64
+split:
+  strategy: repeated_holdout
+  label_column: cohort
+  repeats: 100
+  train_size: 45
+  holdout_size: 19
+  exact_strata:
+    - cohort
+  balance_categorical:
+    - batch
+    - sex
+  balance_numeric:
+    - age
+  candidates_per_repeat: 5000
+  base_seed: 20260724
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+  role_names:
+    train: train
+    holdout: holdout

@@ -1,0 +1,34 @@
+split_set_version: '1.0'
+split_set:
+  id: ra_ild_pbmc_repeat100_v3_180
+  description: One hundred deterministic metadata-balanced 81/35 repeated holdouts within the complete 116-sample PBMC cohort.
+  status: development
+  output_root: TRB/set/split_sets/ra_ild_pbmc_repeat100_v3_180
+source:
+  metadata_files:
+    - TRB/set/data_versions/trb_v3_180/metadata/metadata_pbmc.csv
+  sample_id_column: libraryid
+  patient_id_column: patient
+  require_one_sample_per_patient: true
+  expected_samples: 116
+  expected_patients: 116
+split:
+  strategy: repeated_holdout
+  label_column: cohort
+  repeats: 100
+  train_size: 81
+  holdout_size: 35
+  exact_strata:
+    - cohort
+    - batch
+  balance_categorical:
+    - sex
+  balance_numeric:
+    - age
+  candidates_per_repeat: 5000
+  base_seed: 20260724
+  diversity_weight: 0.05
+  max_pairwise_holdout_jaccard: 0.35
+  role_names:
+    train: train
+    holdout: holdout
