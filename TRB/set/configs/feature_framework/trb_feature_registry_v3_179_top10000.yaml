@@ -10,11 +10,11 @@ repertoire_sources:
     status: available
     representation: full
     source_layer: 01_AA_clone_table
-    default_path: TRB/set/data_versions/trb_v3_179_top10000/result/01_AA_clone_table
+    default_path: TRB/set/data_versions/trb_v3_180/result/01_AA_clone_table
     file_glob: '*_AA_clone_table.csv'
     sample_filename_template: '{sample_id}_TRB_CDR3_AA_clone_table.csv'
     summary_kind: step01_full
-    summary_path: TRB/set/data_versions/trb_v3_179_top10000/result/01_AA_clone_table/01_AA_clone_table_summary.csv
+    summary_path: TRB/set/data_versions/trb_v3_180/result/01_AA_clone_table/01_AA_clone_table_summary.csv
     parent_source: null
     required_columns:
     - sample_id
