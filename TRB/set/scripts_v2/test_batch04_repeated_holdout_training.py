@@ -30,6 +30,7 @@ from ra_ild_trb.repeated_holdout_training import (  # noqa: E402
     load_frozen_assignments,
     load_training_bundle_spec,
     prepare_full_static_matrix,
+    prepare_training_bundle,
 )
 
 
@@ -292,7 +293,24 @@ class Batch04RepeatedHoldoutTrainingTests(unittest.TestCase):
         overrides = result["overrides"]
         self.assertEqual(overrides["cross_validation"]["executed_outer_folds"], [1])
         self.assertEqual(overrides["repeated_holdout_training"]["holdout_size"], 9)
+        self.assertEqual(overrides["repeated_holdout_training"]["split_count"], 2)
+        self.assertIn("2 frozen 21/9 repeated holdouts across 30 samples", result["scheme"]["description"])
         self.assertEqual(overrides["final_model"]["status"], "not_selected")
+
+    def test_failed_scheme_generation_does_not_leave_frozen_marker(self) -> None:
+        self.spec.scheme_template.write_text("invalid: [yaml", encoding="utf-8")
+        with self.assertRaises(yaml.YAMLError):
+            prepare_training_bundle(self.spec)
+        self.assertFalse(self.spec.marker_path.exists())
+
+    def test_prepare_bundle_records_scheme_hash_in_final_marker(self) -> None:
+        marker = prepare_training_bundle(self.spec)
+        self.assertTrue(self.spec.marker_path.is_file())
+        self.assertTrue(self.spec.generated_scheme.is_file())
+        stored = json.loads(self.spec.marker_path.read_text(encoding="utf-8"))
+        self.assertEqual(stored["status"], "FROZEN")
+        self.assertEqual(stored["generated_scheme_sha256"], sha256(self.spec.generated_scheme))
+        self.assertEqual(marker["generated_scheme_sha256"], sha256(self.spec.generated_scheme))
 
 
 if __name__ == "__main__":
