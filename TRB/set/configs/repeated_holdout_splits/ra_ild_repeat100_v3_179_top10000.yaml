@@ -1,7 +1,7 @@
 split_set_version: '1.0'
 split_set:
   id: ra_ild_repeat100_v3_179_top10000
-  description: One hundred deterministic metadata-balanced 126/54 repeated holdouts for the complete 179-sample TRB cohort.
+  description: One hundred deterministic metadata-balanced 125/54 repeated holdouts for the complete 179-sample TRB cohort.
   status: development
   output_root: TRB/set/split_sets/ra_ild_repeat100_v3_179_top10000
 source:
