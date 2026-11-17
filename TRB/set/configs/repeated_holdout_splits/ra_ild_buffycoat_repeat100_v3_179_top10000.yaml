@@ -1,7 +1,7 @@
 split_set_version: '1.0'
 split_set:
   id: ra_ild_buffycoat_repeat100_v3_179_top10000
-  description: One hundred deterministic metadata-balanced 45/19 repeated holdouts within the complete 63-sample Buffycoat cohort.
+  description: One hundred deterministic metadata-balanced 44/19 repeated holdouts within the complete 63-sample Buffycoat cohort.
   status: development
   output_root: TRB/set/split_sets/ra_ild_buffycoat_repeat100_v3_179_top10000
 source:
