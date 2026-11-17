@@ -455,6 +455,9 @@ def materialize_repeat1(
     _write_csv_immutable(holdout, holdout_path)
     _write_csv_immutable(train, output_root / "train" / "metadata_train.csv")
     _write_csv_immutable(holdout, output_root / "test" / "metadata_test.csv")
+    # Match the established Step02-04 train/test compatibility filenames.
+    _write_csv_immutable(train, out_dir / "metadata_train_70.csv")
+    _write_csv_immutable(holdout, out_dir / "metadata_test_30.csv")
     marker_path = out_dir / "REPEAT01_COMPAT_FROZEN.json"
     if not marker_path.exists():
         marker = {
