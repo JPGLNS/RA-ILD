@@ -197,14 +197,19 @@ def audit_raw_files(frame: pd.DataFrame, raw_dir: Path) -> None:
     print("  first non-empty record: four fields in every file")
 
 
-def compare_old_metadata(root: Path, args: argparse.Namespace, new: pd.DataFrame) -> None:
+def compare_old_metadata(
+    root: Path,
+    args: argparse.Namespace,
+    new: pd.DataFrame,
+    allow_library_id_changes: bool,
+) -> list[tuple[str, str, str]]:
     old_paths = [
         resolve(root, args.old_train_metadata),
         resolve(root, args.old_test_metadata),
     ]
     if not all(path.is_file() for path in old_paths):
         print("\n[OLD COHORT COMPARISON] skipped: one or both old metadata files are absent")
-        return
+        return []
     old = pd.concat(
         [read_metadata(path, f"old metadata {index}") for index, path in enumerate(old_paths, 1)],
         ignore_index=True,
@@ -242,10 +247,24 @@ def compare_old_metadata(root: Path, args: argparse.Namespace, new: pd.DataFrame
         print("  ID_CHANGE", *item)
     for item in annotation_changes[:30]:
         print("  META_CHANGE", *item)
-    if removed or id_changes or annotation_changes:
+    if removed or annotation_changes:
         raise AuditError(
-            "Old-to-new cohort reconciliation requires review before materializing the new data version"
+            "Old-to-new reconciliation found removed patients or clinical annotation changes; "
+            "review these before materializing the new data version"
         )
+    if id_changes and not allow_library_id_changes:
+        raise AuditError(
+            "Library ID changes were found. After manually verifying that the new metadata "
+            "contains the correct patient-to-library mapping, rerun with "
+            "--accept-manually-verified-library-id-changes"
+        )
+    if id_changes:
+        print("\n[LIBRARY ID REMAPPING ACCEPTED]")
+        print("  approval: explicitly confirmed by the project operator")
+        print("  authoritative mapping: current complete metadata libraryid column")
+    else:
+        print("\n[LIBRARY ID REMAPPING] none")
+    return [(str(patient), str(old_id), str(new_id)) for patient, old_id, new_id in id_changes]
 
 
 def write_csv(path: Path, frame: pd.DataFrame, overwrite: bool) -> None:
@@ -258,7 +277,13 @@ def write_csv(path: Path, frame: pd.DataFrame, overwrite: bool) -> None:
     print(f"[WRITE] {path} rows={len(frame)} sha256={sha256(path)}")
 
 
-def materialize_metadata(root: Path, output_root: Path, frame: pd.DataFrame, overwrite: bool) -> None:
+def materialize_metadata(
+    root: Path,
+    output_root: Path,
+    frame: pd.DataFrame,
+    overwrite: bool,
+    id_changes: list[tuple[str, str, str]],
+) -> None:
     metadata_dir = output_root / "metadata"
     write_csv(metadata_dir / "metadata_total.csv", frame, overwrite)
     write_csv(
@@ -269,6 +294,17 @@ def materialize_metadata(root: Path, output_root: Path, frame: pd.DataFrame, ove
     write_csv(
         metadata_dir / "metadata_buffycoat.csv",
         frame.loc[frame["material"] == "buffycoat"].copy(),
+        overwrite,
+    )
+    mapping = pd.DataFrame(
+        id_changes,
+        columns=["patient", "old_libraryid", "new_libraryid"],
+    )
+    if not mapping.empty:
+        mapping["approval_status"] = "manually_verified_by_project_operator"
+    write_csv(
+        metadata_dir / "library_id_remapping_174_to_180.csv",
+        mapping,
         overwrite,
     )
 
@@ -331,6 +367,14 @@ def parse_args() -> argparse.Namespace:
         "--split-assignments",
         default="TRB/set/split_sets/ra_ild_repeat100_v3_180/repeated_holdout_assignments.csv",
     )
+    parser.add_argument(
+        "--accept-manually-verified-library-id-changes",
+        action="store_true",
+        help=(
+            "Accept old-to-new library ID remapping only after the operator has "
+            "manually verified that the current metadata IDs are correct."
+        ),
+    )
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
@@ -358,11 +402,16 @@ def main() -> int:
         part = frame if scope == "total" else frame.loc[frame["material"] == scope]
         print(f"  {scope} cohort x batch:", part.groupby(["cohort", "batch"]).size().to_dict())
 
-    compare_old_metadata(root, args, frame)
+    id_changes = compare_old_metadata(
+        root,
+        args,
+        frame,
+        allow_library_id_changes=args.accept_manually_verified_library_id_changes,
+    )
     audit_raw_files(frame, raw_dir)
 
     if args.mode == "write-metadata":
-        materialize_metadata(root, output_root, frame, args.overwrite)
+        materialize_metadata(root, output_root, frame, args.overwrite, id_changes)
     elif args.mode == "materialize-repeat1":
         materialize_repeat1(
             root,

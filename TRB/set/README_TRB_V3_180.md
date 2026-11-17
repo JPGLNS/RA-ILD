@@ -18,7 +18,8 @@ Read-only by default:
 
 ```bash
 python3 TRB/set/scripts_v2/audit_trb_v3_180_inputs.py \
-  --repo /data/users/chenhaisheng/RA-ILD
+  --repo /data/users/chenhaisheng/RA-ILD \
+  --accept-manually-verified-library-id-changes
 ```
 
 After the audit passes, materialize normalized metadata copies:
@@ -26,12 +27,20 @@ After the audit passes, materialize normalized metadata copies:
 ```bash
 python3 TRB/set/scripts_v2/audit_trb_v3_180_inputs.py \
   --repo /data/users/chenhaisheng/RA-ILD \
-  --mode write-metadata
+  --mode write-metadata \
+  --accept-manually-verified-library-id-changes
 ```
 
-This writes only three metadata copies under
-`TRB/set/data_versions/trb_v3_180/metadata/`. It does not copy or modify raw
-repertoire files.
+This writes three normalized metadata copies and an old-to-new Library ID
+mapping report under `TRB/set/data_versions/trb_v3_180/metadata/`. The report
+records the 12 manually verified Library ID remappings. The current complete
+metadata is authoritative for all new data processing. It does not copy or
+modify raw repertoire files.
+
+The explicit approval flag is required because the old 174-sample metadata
+contains 12 Library ID assignments that differ from the manually verified
+current metadata. Removed patients or clinical annotation changes still fail
+the audit and cannot be bypassed by this flag.
 
 ## 2. Generate the three repeated-holdout split banks
 

@@ -92,6 +92,26 @@
   "notes": [
     "The original 174-sample inputs and outputs are untouched.",
     "The 126/54 repeat-1 compatibility partition is only for existing Step02-Step04 train/test builders; the 100 repeated-holdout banks are the model evaluation design.",
-    "Buffycoat exact cohort x batch stratification is not feasible because ILD x batch4 has one sample."
-  ]
+    "Buffycoat exact cohort x batch stratification is not feasible because ILD x batch4 has one sample.",
+    "The 12 old-to-new Library ID remappings were manually verified by the project operator; the current complete metadata is authoritative.",
+    "The audit requires the explicit --accept-manually-verified-library-id-changes flag and writes a mapping report when metadata are materialized."
+  ],
+  "old_to_new_reconciliation": {
+    "old_samples": 174,
+    "new_samples": 180,
+    "added_patients": [
+      "B1197705",
+      "B4618549",
+      "B4619682",
+      "B4623412",
+      "B4624206",
+      "B4638938"
+    ],
+    "removed_patients": 0,
+    "library_id_changes": 12,
+    "clinical_annotation_changes": 0,
+    "library_id_mapping_manually_verified": true,
+    "authoritative_library_id_source": "TRB/metadata_TCR_with_batch.csv",
+    "generated_mapping_report": "TRB/set/data_versions/trb_v3_180/metadata/library_id_remapping_174_to_180.csv"
+  }
 }
