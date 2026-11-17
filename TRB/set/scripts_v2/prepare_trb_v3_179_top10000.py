@@ -206,6 +206,7 @@ def _verify_or_create_symlinks(link_dir: Path, inventory: Mapping[str, Path]) ->
 
 def _verify_prepared_marker(
     marker_path: Path,
+    repository_root: Path,
     metadata_dir: Path,
     link_dir: Path,
     expected_ids: set[str],
@@ -216,7 +217,7 @@ def _verify_prepared_marker(
     if marker.get("status") != "PREPARED":
         raise PreparationError(f"Unexpected preparation marker status: {marker.get('status')}")
     for key, record in marker.get("files", {}).items():
-        path = resolve(marker_path.parents[3], record["path"])
+        path = resolve(repository_root, record["path"])
         if not path.is_file() or sha256(path) != record["sha256"]:
             raise PreparationError(f"Prepared metadata hash mismatch for {key}: {path}")
     actual = {
@@ -264,7 +265,7 @@ def prepare_metadata_and_whitelist(
         return
 
     if marker_path.exists():
-        _verify_prepared_marker(marker_path, metadata_dir, link_dir, set(filtered["libraryid"].astype(str)))
+        _verify_prepared_marker(marker_path, root, metadata_dir, link_dir, set(filtered["libraryid"].astype(str)))
         print(f"Already prepared and verified: {output_root}")
         return
 
