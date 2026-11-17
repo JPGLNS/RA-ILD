@@ -2,19 +2,18 @@
 # -*- coding: utf-8 -*-
 """Prepare full-cohort inputs for leakage-controlled repeated-holdout training.
 
-Batch 04 reuses the existing nested-CV scientific engine.  This module only:
+Batch 04 reuses the existing nested-CV scientific engine. This module:
 
-* combines the old 123-sample train matrix and 51-sample test matrix into a
-  static-feature-only 174-sample matrix;
+* combines the legacy train/test feature matrices into one static-feature matrix;
 * builds a deterministic full-cohort sparse sequence representation;
-* converts the three frozen 123/51 assignments into V2-compatible outer and
-  inner assignment tables; and
+* converts the frozen repeated-holdout assignments into V2-compatible outer
+  and inner assignment tables; and
 * generates a concrete scheme YAML that points at those prepared inputs.
 
-The full-cohort sequence catalog is an indexing universe only.  Public-reference
+The full-cohort sequence catalog is an indexing universe only. Public-reference
 masks and all label-dependent public features are still rebuilt strictly from the
 current training partition by :mod:`ra_ild_trb.nested_cv`.
-"""
+""
 
 from __future__ import annotations
 
@@ -410,6 +409,9 @@ def prepare_full_static_matrix(
             f"Full matrix and split-set sample mismatch: missing={missing_matrix[:20]}, "
             f"extra={extra_matrix[:20]}"
         )
+    # A copy consolidates the many feature-column blocks inherited from the
+    # source matrices and avoids pandas fragmentation during reordering.
+    combined = combined.copy()
     combined = combined.set_index(spec.sample_id_column).loc[cohort_order].reset_index()
     combined = combined.rename(columns={spec.sample_id_column: "sample_id"})
 
@@ -834,17 +836,6 @@ def generate_scheme_yaml(
     scheme = result.get("scheme")
     if not isinstance(scheme, dict):
         raise RepeatedHoldoutTrainingError("Scheme template has no scheme mapping")
-    scheme.update(
-        {
-            "id": spec.scheme_id,
-            "description": (
-                "Three frozen 123/51 repeated holdouts with automatic split-specific "
-                "Elastic Net alpha/lambda and inner-OOF threshold selection; no M0, age, or sex."
-            ),
-            "status": "development",
-            "output_root": spec.scheme_output_root,
-        }
-    )
     split_count = int(assignments["repeat_index"].nunique())
     first_counts = (
         assignments.groupby(["repeat_index", "role"]).size().unstack(fill_value=0)
@@ -855,6 +846,30 @@ def generate_scheme_yaml(
         first_counts[spec.split_holdout_role] == holdout_size
     ).all():
         raise RepeatedHoldoutTrainingError("Repeated splits do not have constant train/holdout sizes")
+
+    if "sample_id" not in assignments.columns:
+        raise RepeatedHoldoutTrainingError("Repeated-holdout assignments are missing sample_id")
+    sample_count = int(assignments["sample_id"].astype(str).nunique())
+    matrix_sample_count = int(cache_metadata["matrix_shape"][0])
+    if sample_count != matrix_sample_count:
+        raise RepeatedHoldoutTrainingError(
+            f"Assignment sample count ({sample_count}) does not match sparse cache "
+            f"sample count ({matrix_sample_count})"
+        )
+
+    scheme.update(
+        {
+            "id": spec.scheme_id,
+            "description": (
+                f"{split_count} frozen {train_size}/{holdout_size} repeated holdouts "
+                f"across {sample_count} samples with automatic split-specific "
+                "Elastic Net alpha/lambda and inner-OOF threshold selection; "
+                "no M0, age, or sex."
+            ),
+            "status": "development",
+            "output_root": spec.scheme_output_root,
+        }
+    )
 
     overrides = result.get("overrides", {})
     if not isinstance(overrides, Mapping):
@@ -1020,9 +1035,8 @@ def prepare_training_bundle(
             for name, path in files.items()
         },
     }
-    spec.marker_path.write_text(
-        json.dumps(marker, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    # Generate and hash the concrete scheme before writing the frozen marker.
+    # A failed scheme generation must never leave a misleading FROZEN bundle.
     generate_scheme_yaml(spec, cache_metadata, assignments)
     marker["generated_scheme"] = _repo_relative(spec.generated_scheme, spec.repository_root)
     marker["generated_scheme_sha256"] = _sha256_file(spec.generated_scheme)
