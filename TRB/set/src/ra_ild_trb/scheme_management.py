@@ -484,6 +484,19 @@ def collect_input_manifest(
         configured = _get_nested(resolved, keys)
         configured_paths.append((".".join(keys), configured))
     configured_paths.extend(_additional_feature_path_specs(resolved))
+    repeat_3mer_options = resolved.get("repeat_3mer_features")
+    if repeat_3mer_options is not None:
+        if not isinstance(repeat_3mer_options, Mapping):
+            raise SchemeError("repeat_3mer_features must be a mapping")
+        if repeat_3mer_options.get("enabled") is True:
+            aa_manifest = repeat_3mer_options.get("aa_manifest")
+            if not isinstance(aa_manifest, str) or not aa_manifest.strip():
+                raise SchemeError(
+                    "repeat_3mer_features.aa_manifest must be a non-empty path when enabled"
+                )
+            configured_paths.append((
+                "repeat_3mer_features.aa_manifest", aa_manifest.strip()
+            ))
     repeated_holdout = resolved.get("repeated_holdout_training")
     if repeated_holdout is not None:
         if not isinstance(repeated_holdout, Mapping):
@@ -603,6 +616,29 @@ def build_prepared_scheme(
     if not isinstance(replacements, Mapping):
         raise SchemeError("replacements must be a mapping")
     _apply_top_level_replacements(resolved, replacements)
+    repeat_3mer_options = raw_scheme.get("repeat_3mer_features")
+    if repeat_3mer_options is not None:
+        if not isinstance(repeat_3mer_options, Mapping):
+            raise SchemeError("repeat_3mer_features must be a mapping")
+        repeat_3mer_options = copy.deepcopy(dict(repeat_3mer_options))
+        enabled = repeat_3mer_options.get("enabled", False)
+        if not isinstance(enabled, bool):
+            raise SchemeError("repeat_3mer_features.enabled must be boolean")
+        if enabled:
+            manifest_path = repeat_3mer_options.get("aa_manifest")
+            if not isinstance(manifest_path, str) or not manifest_path.strip():
+                raise SchemeError(
+                    "repeat_3mer_features.aa_manifest must be a non-empty path when enabled"
+                )
+            if repeat_3mer_options.get("selection_scope", "outer_repeat_train_only") != "outer_repeat_train_only":
+                raise SchemeError(
+                    "repeat_3mer_features.selection_scope must be outer_repeat_train_only"
+                )
+            if repeat_3mer_options.get("ranking_rule", "prevalence_then_total_variance") != "prevalence_then_total_variance":
+                raise SchemeError(
+                    "repeat_3mer_features.ranking_rule must be prevalence_then_total_variance"
+                )
+        resolved["repeat_3mer_features"] = repeat_3mer_options
     _normalize_final_model(resolved)
     _normalize_tuning_selection(resolved)
     _derive_scheme_counts(resolved)
