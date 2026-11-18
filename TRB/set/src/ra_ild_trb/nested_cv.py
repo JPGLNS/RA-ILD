@@ -20,7 +20,7 @@ small synthetic fixtures.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -43,6 +43,12 @@ from .public_reference import (
     ThresholdScheme,
     external_public_features,
     leave_one_out_public_features,
+)
+from .repeat_3mer_features import (
+    Repeat3merInputs,
+    Repeat3merOptions,
+    build_repeat_3mer_fold_features,
+    is_3mer_feature,
 )
 from .specifications import (
     HyperparameterCandidate,
@@ -145,6 +151,8 @@ class InnerPreparation:
     preprocessing_audit: pd.DataFrame
     public_reference_audit: pd.DataFrame
     public_loo_assignments: pd.DataFrame
+    repeat_3mer_audit: pd.DataFrame = field(default_factory=pd.DataFrame)
+    repeat_3mer_vocabulary: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 @dataclass(frozen=True)
@@ -193,6 +201,8 @@ class NestedCVTaskResult:
     public_reference_audit: pd.DataFrame
     public_loo_assignments: pd.DataFrame
     sample_roles: pd.DataFrame
+    repeat_3mer_audit: pd.DataFrame = field(default_factory=pd.DataFrame)
+    repeat_3mer_vocabulary: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 def _require_columns(frame: pd.DataFrame, columns: Sequence[str], label: str) -> None:
@@ -405,6 +415,39 @@ def _annotate_public_audit(
     return reference, assignment
 
 
+def _fold_model_specification(
+    specification: ResolvedModelSpecification,
+    fold_kmer_columns: Sequence[str],
+    expected_kmers: int,
+) -> ResolvedModelSpecification:
+    old_kmer_columns = [name for name in specification.numeric if is_3mer_feature(name)]
+    if not old_kmer_columns:
+        return specification
+    expected_columns = 2 * int(expected_kmers)
+    if len(old_kmer_columns) != expected_columns:
+        raise NestedCVError(
+            f"{specification.name}: expected {expected_columns} configured 3-mer "
+            f"predictors, observed {len(old_kmer_columns)}"
+        )
+    new_numeric: List[str] = []
+    inserted = False
+    for name in specification.numeric:
+        if is_3mer_feature(name):
+            if not inserted:
+                new_numeric.extend(map(str, fold_kmer_columns))
+                inserted = True
+        else:
+            new_numeric.append(name)
+    if len(new_numeric) != len(set(new_numeric)):
+        raise NestedCVError(f"{specification.name}: duplicate fold-local predictors")
+    return ResolvedModelSpecification(
+        name=specification.name,
+        description=specification.description,
+        numeric=tuple(new_numeric),
+        categorical=specification.categorical,
+    )
+
+
 def prepare_inner_folds(
     base: pd.DataFrame,
     split: OuterTaskSplit,
@@ -416,8 +459,11 @@ def prepare_inner_folds(
     model_specifications: Mapping[str, ResolvedModelSpecification],
     scheme: ThresholdScheme,
     options: NestedCVOptions,
+    *,
+    repeat_3mer_inputs: Optional[Repeat3merInputs] = None,
+    repeat_3mer_options: Optional[Repeat3merOptions] = None,
 ) -> InnerPreparation:
-    """Build every fold-local public feature and standardized model matrix."""
+    """Build fold-local public features, 3-mers, and standardized model matrices."""
     indexed = _indexed_base(
         base,
         sample_id_column=options.sample_id_column,
@@ -431,6 +477,12 @@ def prepare_inner_folds(
     preprocessing_rows: List[pd.DataFrame] = []
     reference_rows: List[pd.DataFrame] = []
     assignment_rows: List[pd.DataFrame] = []
+    repeat_3mer_audit_rows: List[Dict[str, object]] = []
+    repeat_3mer_vocabulary_parts: List[pd.DataFrame] = []
+    if (repeat_3mer_inputs is None) != (repeat_3mer_options is None):
+        raise NestedCVError("repeat_3mer_inputs/options must be provided together")
+    if repeat_3mer_options is not None and repeat_3mer_options.selection_scope != "inner_fold_train_only":
+        raise NestedCVError("Inner CV requires inner_fold_train_only 3-mer selection")
 
     for inner_fold, valid_ids in split.inner_valid_ids.items():
         valid_set = set(valid_ids)
@@ -492,15 +544,41 @@ def prepare_inner_folds(
             valid_public_result.features,
             row_lookup,
         )
+        fold_kmer_columns: Tuple[str, ...] = ()
+        if repeat_3mer_inputs is not None and repeat_3mer_options is not None:
+            fold_build = build_repeat_3mer_fold_features(
+                train_ids, valid_ids, repeat_3mer_inputs, repeat_3mer_options,
+                outer_repeat=split.outer_repeat, outer_fold=split.outer_fold,
+                inner_fold=int(inner_fold),
+            )
+            train_frame = train_frame.drop(
+                columns=[c for c in train_frame.columns if is_3mer_feature(c)]
+            ).merge(fold_build.train_features, on=options.sample_id_column,
+                    how="left", validate="one_to_one")
+            valid_frame = valid_frame.drop(
+                columns=[c for c in valid_frame.columns if is_3mer_feature(c)]
+            ).merge(fold_build.valid_features, on=options.sample_id_column,
+                    how="left", validate="one_to_one")
+            fold_kmer_columns = tuple(
+                c for c in fold_build.train_features.columns if c != options.sample_id_column
+            )
+            repeat_3mer_audit_rows.append(dict(fold_build.audit))
+            repeat_3mer_vocabulary_parts.append(fold_build.vocabulary)
+
         y_train = _binary_labels(train_frame, options)
         y_valid = _binary_labels(valid_frame, options)
 
         for model_name, specification in model_specifications.items():
+            fold_specification = (
+                _fold_model_specification(specification, fold_kmer_columns,
+                                          repeat_3mer_options.max_kmers)
+                if repeat_3mer_options is not None else specification
+            )
             design = prepare_design_matrices(
                 train_frame,
                 valid_frame,
-                specification.numeric,
-                specification.categorical,
+                fold_specification.numeric,
+                fold_specification.categorical,
                 zero_sd_tolerance=options.zero_sd_tolerance,
             )
             audit = design.audit.copy()
@@ -541,6 +619,11 @@ def prepare_inner_folds(
             pd.concat(assignment_rows, ignore_index=True)
             if assignment_rows
             else pd.DataFrame()
+        ),
+        repeat_3mer_audit=pd.DataFrame(repeat_3mer_audit_rows),
+        repeat_3mer_vocabulary=(
+            pd.concat(repeat_3mer_vocabulary_parts, ignore_index=True)
+            if repeat_3mer_vocabulary_parts else pd.DataFrame()
         ),
     )
 
@@ -994,6 +1077,8 @@ def run_nested_outer_task(
     outer_fold: int,
     outer_folds: int,
     inner_folds: int,
+    repeat_3mer_inputs: Optional[Repeat3merInputs] = None,
+    repeat_3mer_options: Optional[Repeat3merOptions] = None,
 ) -> NestedCVTaskResult:
     """Run one complete V1-compatible nested-CV outer task in memory."""
     _require_columns(base, (options.sample_id_column,), "base matrix")
@@ -1018,6 +1103,8 @@ def run_nested_outer_task(
         model_specifications,
         scheme,
         options,
+        repeat_3mer_inputs=repeat_3mer_inputs,
+        repeat_3mer_options=repeat_3mer_options,
     )
     tuning = tune_models(inner.prepared, candidates, options)
     outer = fit_outer_models(
@@ -1056,4 +1143,6 @@ def run_nested_outer_task(
             ignore_index=True,
         ),
         sample_roles=sample_role_frame(base, split, options),
+        repeat_3mer_audit=inner.repeat_3mer_audit,
+        repeat_3mer_vocabulary=inner.repeat_3mer_vocabulary,
     )

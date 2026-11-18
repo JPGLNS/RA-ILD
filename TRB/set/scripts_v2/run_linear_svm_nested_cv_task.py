@@ -34,6 +34,7 @@ from ra_ild_trb.nested_cv import validate_fixed_assignments  # noqa: E402
 from ra_ild_trb.public_reference import ThresholdScheme  # noqa: E402
 from ra_ild_trb.repeat_3mer_features import (  # noqa: E402
     build_repeat_3mer_features,
+    load_repeat_3mer_inputs,
     options_from_config,
     split_legacy_static_features,
     write_repeat_3mer_outputs,
@@ -135,6 +136,8 @@ def output_paths(output_dir: Path) -> Dict[str, Path]:
         "repeat_3mer_vocabulary": output_dir / "06_repeat_3mer_vocabulary.csv",
         "repeat_3mer_matrix": output_dir / "06_repeat_3mer_feature_matrix.csv.gz",
         "repeat_3mer_audit": output_dir / "06_repeat_3mer_audit.json",
+        "inner_repeat_3mer_audit": output_dir / "06_inner_repeat_3mer_audit.csv",
+        "inner_repeat_3mer_vocabulary": output_dir / "06_inner_repeat_3mer_vocabulary.csv",
         "complete": output_dir / "06_TASK_COMPLETE.json",
     }
 
@@ -272,9 +275,12 @@ def main() -> int:
             outer_fold=outer_fold,
             outer_folds=int(config.raw["cross_validation"]["outer_folds"]),
             inner_folds=int(config.raw["cross_validation"]["inner_folds"]),
+            repeat_3mer_inputs=repeat_inputs,
+            repeat_3mer_options=repeat_options,
         )
 
         repeat_options = options_from_config(config)
+        repeat_inputs = load_repeat_3mer_inputs(repeat_options, sample_ids) if repeat_options is not None else None
         repeat_audit = None
         if repeat_options is not None:
             repeat_build = build_repeat_3mer_features(
@@ -283,6 +289,7 @@ def main() -> int:
                 outer_train_ids=split.outer_train_ids,
                 outer_repeat=outer_repeat,
                 options=repeat_options,
+                inputs=repeat_inputs,
             )
             base = repeat_build.augmented_base
             static_feature_groups = repeat_build.static_feature_groups
@@ -383,6 +390,8 @@ def main() -> int:
         result.outer_metrics.to_csv(paths["outer_metrics"], index=False)
         result.coefficients.to_csv(paths["coefficients"], index=False)
         result.preprocessing_audit.to_csv(paths["preprocessing"], index=False)
+        result.repeat_3mer_audit.to_csv(paths["inner_repeat_3mer_audit"], index=False)
+        result.repeat_3mer_vocabulary.to_csv(paths["inner_repeat_3mer_vocabulary"], index=False)
         _write_static_union(paths["static_feature_list"], static_feature_groups)
 
         selected = {

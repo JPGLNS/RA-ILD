@@ -49,6 +49,7 @@ class Repeat3merError(ValueError):
 @dataclass(frozen=True)
 class Repeat3merOptions:
     aa_manifest: Path
+    selection_scope: str = "outer_repeat_train_only"
     sequence_column: str = "cdr3_aa"
     min_sample_count: int = 5
     min_prevalence: float = 0.05
@@ -61,6 +62,10 @@ class Repeat3merOptions:
     legacy_group_name: str = DEFAULT_LEGACY_GROUP
 
     def __post_init__(self) -> None:
+        if self.selection_scope not in {"outer_repeat_train_only", "inner_fold_train_only"}:
+            raise Repeat3merError(
+                "selection_scope must be outer_repeat_train_only or inner_fold_train_only"
+            )
         if not self.aa_manifest.is_file():
             raise FileNotFoundError(f"AA clone-table manifest not found: {self.aa_manifest}")
         if not self.sequence_column.strip():
@@ -98,6 +103,27 @@ class Repeat3merBuild:
     audit: Mapping[str, Any]
 
 
+@dataclass(frozen=True)
+class Repeat3merInputs:
+    """Unlabeled per-sample 3-mer values loaded once for one outer task."""
+
+    sample_ids: Tuple[str, ...]
+    unweighted_by_sample: Mapping[str, Mapping[str, float]]
+    weighted_by_sample: Mapping[str, Mapping[str, float]]
+    clone_numbers: Mapping[str, int]
+    manifest_path: Path
+
+
+@dataclass(frozen=True)
+class Repeat3merFoldBuild:
+    """Fold-local vocabulary and train/validation 3-mer matrices."""
+
+    train_features: pd.DataFrame
+    valid_features: pd.DataFrame
+    vocabulary: pd.DataFrame
+    audit: Mapping[str, Any]
+
+
 def _as_string_list(value: Any, label: str) -> Tuple[str, ...]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
         raise Repeat3merError(f"{label} must be a list")
@@ -125,9 +151,11 @@ def options_from_config(config, *, repository_root: Optional[Path] = None) -> Op
         raise Repeat3merError("repeat_3mer_features must be a mapping")
     if raw.get("enabled", False) is not True:
         return None
-    if str(raw.get("selection_scope", "outer_repeat_train_only")) != "outer_repeat_train_only":
+    selection_scope = str(raw.get("selection_scope", "outer_repeat_train_only"))
+    if selection_scope not in {"outer_repeat_train_only", "inner_fold_train_only"}:
         raise Repeat3merError(
-            "repeat_3mer_features.selection_scope must be outer_repeat_train_only"
+            "repeat_3mer_features.selection_scope must be outer_repeat_train_only "
+            "or inner_fold_train_only"
         )
     if str(raw.get("ranking_rule", "prevalence_then_total_variance")) != (
         "prevalence_then_total_variance"
@@ -146,6 +174,7 @@ def options_from_config(config, *, repository_root: Optional[Path] = None) -> Op
     top_values = tuple(int(value) for value in raw.get("top_k_values", [50, 100, 200, 500]))
     return Repeat3merOptions(
         aa_manifest=aa_manifest,
+        selection_scope=selection_scope,
         sequence_column=str(raw.get("sequence_column", "cdr3_aa")),
         min_sample_count=int(raw.get("min_sample_count", 5)),
         min_prevalence=float(raw.get("min_prevalence", 0.05)),
@@ -291,6 +320,44 @@ def _load_sample_kmers(
     return unweighted, weight_sums, aa_clone_number
 
 
+def load_repeat_3mer_inputs(
+    options: Repeat3merOptions,
+    sample_ids: Sequence[str],
+) -> Repeat3merInputs:
+    """Load every sample's unlabeled 3-mer values once for an outer task.
+
+    Loading validation/holdout sequences is allowed because this function does
+    not rank or select features. Vocabulary fitting below receives an explicit
+    training-ID list and cannot inspect other samples when computing prevalence,
+    variance, or the candidate universe.
+    """
+
+    ids = tuple(map(str, sample_ids))
+    if not ids or len(ids) != len(set(ids)):
+        raise Repeat3merError("Input sample IDs must be non-empty and unique")
+    manifest = _read_aa_manifest(options.aa_manifest, ids)
+    unweighted: Dict[str, Mapping[str, float]] = {}
+    weighted: Dict[str, Mapping[str, float]] = {}
+    clone_numbers: Dict[str, int] = {}
+    for row in manifest.itertuples(index=False):
+        sample_id = str(row.sample_id)
+        values_u, values_w, clone_number = _load_sample_kmers(
+            Path(str(row.path)).expanduser(),
+            sequence_column=options.sequence_column,
+            frequency_column=str(row.frequency_column),
+        )
+        unweighted[sample_id] = MappingProxyType(dict(values_u))
+        weighted[sample_id] = MappingProxyType(dict(values_w))
+        clone_numbers[sample_id] = int(clone_number)
+    return Repeat3merInputs(
+        sample_ids=ids,
+        unweighted_by_sample=MappingProxyType(unweighted),
+        weighted_by_sample=MappingProxyType(weighted),
+        clone_numbers=MappingProxyType(clone_numbers),
+        manifest_path=options.aa_manifest.resolve(),
+    )
+
+
 def rank_training_kmers(
     train_sample_ids: Sequence[str],
     unweighted_by_sample: Mapping[str, Mapping[str, float]],
@@ -424,6 +491,119 @@ def _sha256_strings(values: Iterable[str]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _feature_frame(
+    sample_ids: Sequence[str],
+    selected_kmers: Sequence[str],
+    inputs: Repeat3merInputs,
+) -> pd.DataFrame:
+    ids = tuple(map(str, sample_ids))
+    kmers = tuple(map(str, selected_kmers))
+    records: List[Dict[str, Any]] = []
+    for sample_id in ids:
+        if sample_id not in inputs.unweighted_by_sample:
+            raise Repeat3merError(f"3-mer input is missing sample {sample_id}")
+        unweighted = inputs.unweighted_by_sample[sample_id]
+        weighted = inputs.weighted_by_sample[sample_id]
+        row: Dict[str, Any] = {"sample_id": sample_id}
+        for kmer in kmers:
+            row[f"{UNWEIGHTED_PREFIX}{kmer}"] = float(unweighted.get(kmer, 0.0))
+            row[f"{WEIGHTED_PREFIX}{kmer}"] = float(weighted.get(kmer, 0.0))
+        records.append(row)
+    out = pd.DataFrame(records)
+    if out.isna().any().any():
+        raise Repeat3merError("3-mer feature frame contains missing values")
+    return out
+
+
+def build_repeat_3mer_fold_features(
+    train_ids: Sequence[str],
+    valid_ids: Sequence[str],
+    inputs: Repeat3merInputs,
+    options: Repeat3merOptions,
+    *,
+    outer_repeat: int,
+    outer_fold: int,
+    inner_fold: int,
+) -> Repeat3merFoldBuild:
+    """Fit a fresh vocabulary on one inner-training fold and apply it to validation.
+
+    The candidate universe, prevalence, variance, and ranking are all computed
+    from train_ids only. Validation sequences are transformed only after the
+    vocabulary has been frozen.
+    """
+
+    train = tuple(map(str, train_ids))
+    valid = tuple(map(str, valid_ids))
+    if not train or not valid or len(train) != len(set(train)) or len(valid) != len(set(valid)):
+        raise Repeat3merError("Inner train/validation IDs must be non-empty and unique")
+    if set(train) & set(valid):
+        raise Repeat3merError("Inner train and validation IDs overlap")
+    available = set(inputs.sample_ids)
+    unknown = sorted((set(train) | set(valid)) - available)
+    if unknown:
+        raise Repeat3merError(f"Inner fold IDs are absent from 3-mer inputs: {unknown[:20]}")
+    if options.selection_scope != "inner_fold_train_only":
+        raise Repeat3merError(
+            "Fold-local 3-mer builder requires selection_scope=inner_fold_train_only"
+        )
+
+    vocabulary = rank_training_kmers(
+        train,
+        inputs.unweighted_by_sample,
+        inputs.weighted_by_sample,
+        options,
+    )
+    selected = tuple(
+        vocabulary.loc[vocabulary["keep"].astype(bool), "kmer"]
+        .astype(str)
+        .head(options.max_kmers)
+        .tolist()
+    )
+    if len(selected) != options.max_kmers:
+        raise Repeat3merError(
+            f"Expected {options.max_kmers} inner-fold 3-mers; observed {len(selected)}"
+        )
+
+    train_features = _feature_frame(train, selected, inputs)
+    valid_features = _feature_frame(valid, selected, inputs)
+    vocabulary = vocabulary.copy()
+    vocabulary.insert(0, "inner_fold", int(inner_fold))
+    vocabulary.insert(0, "outer_fold", int(outer_fold))
+    vocabulary.insert(0, "outer_repeat", int(outer_repeat))
+    audit = MappingProxyType(
+        {
+            "status": "BUILT",
+            "selection_scope": "inner_fold_train_only",
+            "outer_repeat": int(outer_repeat),
+            "outer_fold": int(outer_fold),
+            "inner_fold": int(inner_fold),
+            "training_sample_count": len(train),
+            "validation_sample_count": len(valid),
+            "selected_kmer_count": len(selected),
+            "generated_3mer_feature_count": 2 * len(selected),
+            "top_k_values": list(options.top_k_values),
+            "ranking_rule": (
+                "training_prevalence_desc_then_unweighted_plus_weighted_"
+                "variance_desc_then_kmer_asc"
+            ),
+            "min_sample_count": options.min_sample_count,
+            "min_prevalence": options.min_prevalence,
+            "min_unweighted_variance": options.min_unweighted_variance,
+            "min_weighted_variance": options.min_weighted_variance,
+            "train_ids_sha256": _sha256_strings(train),
+            "validation_ids_sha256": _sha256_strings(valid),
+            "selected_kmers_sha256": _sha256_strings(selected),
+            "aa_manifest": str(inputs.manifest_path),
+        }
+    )
+    return Repeat3merFoldBuild(
+        train_features=train_features,
+        valid_features=valid_features,
+        vocabulary=vocabulary,
+        audit=audit,
+    )
+
+
 def build_repeat_3mer_features(
     base: pd.DataFrame,
     *,
@@ -431,8 +611,15 @@ def build_repeat_3mer_features(
     outer_train_ids: Sequence[str],
     outer_repeat: int,
     options: Repeat3merOptions,
+    inputs: Optional[Repeat3merInputs] = None,
 ) -> Repeat3merBuild:
-    """Fit one outer-repeat vocabulary and augment the complete cohort matrix."""
+    """Fit an outer-training vocabulary for the final outer model.
+
+    When selection_scope is inner_fold_train_only, this outer vocabulary is
+    retained only for the final outer-training refit and outer holdout. Inner
+    model selection uses independent vocabularies via
+    build_repeat_3mer_fold_features.
+    """
 
     if "sample_id" not in base.columns:
         raise Repeat3merError("Base matrix is missing sample_id")
@@ -460,21 +647,15 @@ def build_repeat_3mer_features(
     ]
     matrix = matrix.drop(columns=old_3mer_columns)
 
-    aa_manifest = _read_aa_manifest(options.aa_manifest, sample_ids)
-    manifest_lookup = aa_manifest.set_index("sample_id")
-    train_unweighted: Dict[str, Mapping[str, float]] = {}
-    train_weighted: Dict[str, Mapping[str, float]] = {}
-    clone_numbers: Dict[str, int] = {}
-    for sample_id in train_ids:
-        row = manifest_lookup.loc[sample_id]
-        unweighted, weighted, clone_number = _load_sample_kmers(
-            Path(str(row["path"])).expanduser(),
-            sequence_column=options.sequence_column,
-            frequency_column=str(row["frequency_column"]),
+    if inputs is None:
+        inputs = load_repeat_3mer_inputs(options, sample_ids)
+    elif tuple(inputs.sample_ids) != tuple(sample_ids):
+        raise Repeat3merError(
+            "Preloaded 3-mer inputs do not match the base-matrix sample order"
         )
-        train_unweighted[sample_id] = unweighted
-        train_weighted[sample_id] = weighted
-        clone_numbers[sample_id] = clone_number
+    train_unweighted = inputs.unweighted_by_sample
+    train_weighted = inputs.weighted_by_sample
+    clone_numbers = inputs.clone_numbers
 
     vocabulary = rank_training_kmers(
         train_ids,
@@ -494,26 +675,7 @@ def build_repeat_3mer_features(
         )
     retained_set = set(selected_kmers)
 
-    rows: List[Dict[str, Any]] = []
-    for sample_id in sample_ids:
-        if sample_id in train_unweighted:
-            unweighted = train_unweighted[sample_id]
-            weighted = train_weighted[sample_id]
-        else:
-            row = manifest_lookup.loc[sample_id]
-            unweighted, weighted, clone_number = _load_sample_kmers(
-                Path(str(row["path"])).expanduser(),
-                sequence_column=options.sequence_column,
-                frequency_column=str(row["frequency_column"]),
-                retained_kmers=retained_set,
-            )
-            clone_numbers[sample_id] = clone_number
-        record: Dict[str, Any] = {"sample_id": sample_id}
-        for kmer in selected_kmers:
-            record[f"{UNWEIGHTED_PREFIX}{kmer}"] = float(unweighted.get(kmer, 0.0))
-            record[f"{WEIGHTED_PREFIX}{kmer}"] = float(weighted.get(kmer, 0.0))
-        rows.append(record)
-    feature_matrix = pd.DataFrame(rows)
+    feature_matrix = _feature_frame(sample_ids, selected_kmers, inputs)
     if feature_matrix.isna().any().any():
         raise Repeat3merError("Repeat-specific 3-mer matrix contains missing values")
     expected_columns = 1 + 2 * options.max_kmers
@@ -536,7 +698,12 @@ def build_repeat_3mer_features(
     audit = MappingProxyType(
         {
             "status": "BUILT",
-            "selection_scope": "outer_repeat_train_only",
+            "selection_scope": (
+                "outer_repeat_train_only"
+                if options.selection_scope == "outer_repeat_train_only"
+                else "outer_train_only_for_final_outer_fit"
+            ),
+            "configured_selection_scope": options.selection_scope,
             "outer_repeat": int(outer_repeat),
             "training_sample_count": len(train_ids),
             "full_sample_count": len(sample_ids),
@@ -555,6 +722,7 @@ def build_repeat_3mer_features(
             "outer_train_ids_sha256": _sha256_strings(train_ids),
             "selected_kmers_sha256": _sha256_strings(selected_kmers),
             "aa_manifest": str(options.aa_manifest),
+            "input_sample_count": len(inputs.sample_ids),
             "clone_number_min": int(min(clone_numbers.values())),
             "clone_number_max": int(max(clone_numbers.values())),
         }

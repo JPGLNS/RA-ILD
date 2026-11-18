@@ -521,6 +521,8 @@ def run_linear_svm_outer_task(
     outer_fold: int,
     outer_folds: int,
     inner_folds: int,
+    repeat_3mer_inputs=None,
+    repeat_3mer_options=None,
 ) -> LinearSVMNestedCVTaskResult:
     split = validate_fixed_assignments(
         base[options.sample_id_column].astype(str).tolist(),
@@ -543,6 +545,8 @@ def run_linear_svm_outer_task(
         model_specifications,
         scheme,
         options,
+        repeat_3mer_inputs=repeat_3mer_inputs,
+        repeat_3mer_options=repeat_3mer_options,
     )
     tuning = tune_linear_svm_models(inner.prepared, candidates, options)
     outer = fit_outer_linear_svm_models(

@@ -427,6 +427,8 @@ def run_xgboost_outer_task(
     outer_fold: int,
     outer_folds: int,
     inner_folds: int,
+    repeat_3mer_inputs=None,
+    repeat_3mer_options=None,
 ) -> XGBoostNestedCVTaskResult:
     split = validate_fixed_assignments(
         base[options.sample_id_column].astype(str).tolist(), outer_assignments, inner_assignments,
@@ -436,6 +438,8 @@ def run_xgboost_outer_task(
     inner: InnerPreparation = prepare_inner_folds(
         base, split, row_lookup, presence, frequency, labels, aa_clone_numbers,
         model_specifications, scheme, options,
+        repeat_3mer_inputs=repeat_3mer_inputs,
+        repeat_3mer_options=repeat_3mer_options,
     )
     tuning = tune_xgboost_models(
         inner.prepared,
