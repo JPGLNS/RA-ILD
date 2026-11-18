@@ -47,6 +47,10 @@ configuration files. It checks exact model definitions, raw predictor counts,
 data, public-reference, split and training-bundle definitions across algorithms
 within each cohort.
 
+The global five-algorithm scheduler also runs this audit automatically before
+constructing or launching any task. A failed contract check therefore blocks
+execution before worker processes are started.
+
 It does not start training, alter inputs, modify frozen bundles, or overwrite
 existing experiment outputs. The optional JSON report is write-once; choose a
 new path for a subsequent audit.
