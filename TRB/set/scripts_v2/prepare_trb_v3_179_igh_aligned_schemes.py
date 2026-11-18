@@ -46,7 +46,7 @@ def main():
    "overrides":{"model_selection":{"expected_resolved_columns":{}}},
    "repeat_3mer_features":{"enabled":True,"selection_scope":"inner_fold_train_only","ranking_rule":"prevalence_then_total_variance","aa_manifest":spec["manifest"],"sequence_column":"cdr3_aa","min_sample_count":5,"min_prevalence":0.05,"min_unweighted_variance":1e-12,"min_weighted_variance":1e-12,"max_kmers":500,"top_k_values":[50,100,200,500],"expected_core_feature_count":83,"core_group_name":"core83","legacy_group_name":"static_tcr_candidate_predictors"}
   }
-  pending.append((root/SOURCE_DIR/f"{cohort}_{spec['new']}.yaml",scheme))
+  pending.append((root/SOURCE_DIR/f"{spec['new']}.yaml",scheme))
  for path,obj in pending:
   print(f"[PLAN] {path.relative_to(root)}")
   if args.apply:
