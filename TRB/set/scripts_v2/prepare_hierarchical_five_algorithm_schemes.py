@@ -22,6 +22,12 @@ from typing import Any, Mapping
 
 import yaml
 
+SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from ra_ild_trb.model_contract import validate_hierarchical_model_contract
+
 
 ROOT = Path(__file__).resolve().parents[3]
 BASES = {
@@ -120,6 +126,20 @@ def _validate_base(root: Path, cohort: str, spec: Mapping[str, Any]) -> Path:
     repeat3mer = raw.get("repeat_3mer_features", {})
     if not isinstance(repeat3mer, Mapping) or repeat3mer.get("enabled") is not True:
         raise PreparationError(f"{cohort}: repeat-specific 3-mer features are not enabled")
+    try:
+        predictor_counts = validate_hierarchical_model_contract(
+            raw["models"],
+            cohort=cohort,
+            repeat_3mer_options=repeat3mer,
+            expected_resolved_columns=raw.get("model_selection", {}).get(
+                "expected_resolved_columns"
+            ),
+        )
+    except Exception as exc:
+        raise PreparationError(
+            f"{cohort}: frozen M0-M3/3-mer model contract failed: {exc}"
+        ) from exc
+    print(f"[MODEL CONTRACT PASS] {cohort}: {predictor_counts}")
     if int(raw["outer_tasks"]["expected_tasks"]) != 100:
         raise PreparationError(f"{cohort}: expected exactly 100 outer tasks")
     return path
