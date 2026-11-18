@@ -26,30 +26,25 @@ import yaml
 ROOT = Path(__file__).resolve().parents[3]
 BASES = {
     "total": {
-        "experiment": "trb_v3_179_total_m0_m3_repeat100_top10000_r3_v1",
+        "experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
         "samples": 179,
-        "models": (
-            "M0_clinical",
-            "M1_tcr",
-            "M2_tcr_clinical",
-            "M3_tcr_clinical_material",
-        ),
+        "models": ("M0", "M1", "M2", "M3"),
     },
     "pbmc": {
-        "experiment": "trb_v3_179_pbmc_m0_m2_repeat100_top10000_r3_v1",
+        "experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
         "samples": 116,
-        "models": ("M0_clinical", "M1_tcr", "M2_tcr_clinical"),
+        "models": ("M0", "M1", "M2"),
     },
     "buffycoat": {
-        "experiment": "trb_v3_179_buffycoat_m0_m2_repeat100_top10000_r3_v1",
+        "experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
         "samples": 63,
-        "models": ("M0_clinical", "M1_tcr", "M2_tcr_clinical"),
+        "models": ("M0", "M1", "M2"),
     },
 }
-SOURCE_SCHEME_DIR = Path("TRB/set/configs/schemes/generated/hierarchical_repeat3mer")
-OUTPUT_SCHEME_DIR = Path("TRB/set/configs/schemes/generated/hierarchical_five_algorithm")
-SVM_CONFIG_DIR = Path("TRB/set/configs/linear_svm/hierarchical_repeat3mer")
-XGB_CONFIG_DIR = Path("TRB/set/configs/xgboost/hierarchical_repeat3mer")
+SOURCE_SCHEME_DIR = Path("TRB/set/configs/schemes/generated/hierarchical_igh_aligned")
+OUTPUT_SCHEME_DIR = Path("TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm")
+SVM_CONFIG_DIR = Path("TRB/set/configs/linear_svm/hierarchical_igh_aligned")
+XGB_CONFIG_DIR = Path("TRB/set/configs/xgboost/hierarchical_igh_aligned")
 MANIFEST_PATH = OUTPUT_SCHEME_DIR / "FIVE_ALGORITHM_RUN_MANIFEST.json"
 
 SVM_C_GRID = [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
@@ -120,6 +115,10 @@ def _validate_base(root: Path, cohort: str, spec: Mapping[str, Any]) -> Path:
     repeat3mer = raw.get("repeat_3mer_features", {})
     if not isinstance(repeat3mer, Mapping) or repeat3mer.get("enabled") is not True:
         raise PreparationError(f"{cohort}: repeat-specific 3-mer features are not enabled")
+    if repeat3mer.get("selection_scope") != "inner_fold_train_only":
+        raise PreparationError(
+            f"{cohort}: expected inner_fold_train_only 3-mer selection"
+        )
     if int(raw["outer_tasks"]["expected_tasks"]) != 100:
         raise PreparationError(f"{cohort}: expected exactly 100 outer tasks")
     return path
@@ -378,7 +377,7 @@ def prepare(root: Path, apply: bool) -> Path:
         "manifest_version": "1.0",
         "purpose": "TRB V3 179-sample five-algorithm hierarchical repeated-holdout training",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "base_branch": "feature/trb-v3-179-repeat3mer-bundle-adapter",
+        "base_branch": "feature/trb-v3-179-igh-aligned-hierarchy",
         "cohort_contract": {
             name: {
                 "experiment": value["experiment"],

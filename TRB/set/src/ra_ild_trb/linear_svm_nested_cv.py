@@ -128,6 +128,8 @@ class LinearSVMNestedCVTaskResult:
     public_reference_audit: pd.DataFrame
     public_loo_assignments: pd.DataFrame
     sample_roles: pd.DataFrame
+    repeat_3mer_audit: pd.DataFrame
+    repeat_3mer_vocabulary: pd.DataFrame
 
 
 def _rank_candidates(frame: pd.DataFrame) -> pd.DataFrame:
@@ -585,4 +587,6 @@ def run_linear_svm_outer_task(
             ignore_index=True,
         ),
         sample_roles=sample_role_frame(base, split, options),
+        repeat_3mer_audit=inner.repeat_3mer_audit,
+        repeat_3mer_vocabulary=inner.repeat_3mer_vocabulary,
     )

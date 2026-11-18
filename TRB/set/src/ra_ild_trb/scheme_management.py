@@ -630,9 +630,15 @@ def build_prepared_scheme(
                 raise SchemeError(
                     "repeat_3mer_features.aa_manifest must be a non-empty path when enabled"
                 )
-            if repeat_3mer_options.get("selection_scope", "outer_repeat_train_only") != "outer_repeat_train_only":
+            selection_scope = repeat_3mer_options.get(
+                "selection_scope", "outer_repeat_train_only"
+            )
+            if selection_scope not in {
+                "outer_repeat_train_only", "inner_fold_train_only"
+            }:
                 raise SchemeError(
-                    "repeat_3mer_features.selection_scope must be outer_repeat_train_only"
+                    "repeat_3mer_features.selection_scope must be "
+                    "outer_repeat_train_only or inner_fold_train_only"
                 )
             if repeat_3mer_options.get("ranking_rule", "prevalence_then_total_variance") != "prevalence_then_total_variance":
                 raise SchemeError(

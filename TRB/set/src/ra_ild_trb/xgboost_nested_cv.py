@@ -110,6 +110,8 @@ class XGBoostNestedCVTaskResult:
     public_reference_audit: pd.DataFrame
     public_loo_assignments: pd.DataFrame
     sample_roles: pd.DataFrame
+    repeat_3mer_audit: pd.DataFrame
+    repeat_3mer_vocabulary: pd.DataFrame
 
 
 def _selection_policy(metric: str) -> str:
@@ -466,4 +468,6 @@ def run_xgboost_outer_task(
         public_reference_audit=pd.concat([inner.public_reference_audit, outer.public_reference_audit], ignore_index=True),
         public_loo_assignments=pd.concat([inner.public_loo_assignments, outer.public_loo_assignments], ignore_index=True),
         sample_roles=sample_role_frame(base, split, options),
+        repeat_3mer_audit=inner.repeat_3mer_audit,
+        repeat_3mer_vocabulary=inner.repeat_3mer_vocabulary,
     )

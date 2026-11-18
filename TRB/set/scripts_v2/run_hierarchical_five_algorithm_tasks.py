@@ -26,7 +26,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[3]
-MANIFEST = Path("TRB/set/configs/schemes/generated/hierarchical_five_algorithm/FIVE_ALGORITHM_RUN_MANIFEST.json")
+MANIFEST = Path("TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/FIVE_ALGORITHM_RUN_MANIFEST.json")
 
 
 @dataclass(frozen=True)
@@ -343,7 +343,7 @@ def main() -> int:
                       f"runtime={result['runtime_seconds']}s")
                 if result["status"] != "complete":
                     failures.append(result["task"])
-        status_path = root / "TRB/set/experiments/trb_v3_179_five_algorithm_global/07_GLOBAL_TASK_STATUS.csv"
+        status_path = root / "TRB/set/experiments/trb_v3_179_igh_aligned_five_algorithm_global/07_GLOBAL_TASK_STATUS.csv"
         status_path.parent.mkdir(parents=True, exist_ok=True)
         pd.DataFrame(rows).to_csv(status_path, index=False)
         print(f"Status report: {status_path}")
