@@ -49,7 +49,6 @@ class Repeat3merError(ValueError):
 @dataclass(frozen=True)
 class Repeat3merOptions:
     aa_manifest: Path
-    selection_scope: str = "outer_repeat_train_only"
     sequence_column: str = "cdr3_aa"
     min_sample_count: int = 5
     min_prevalence: float = 0.05
@@ -60,6 +59,7 @@ class Repeat3merOptions:
     expected_core_feature_count: int = 83
     core_group_name: str = DEFAULT_CORE_GROUP
     legacy_group_name: str = DEFAULT_LEGACY_GROUP
+    selection_scope: str = "outer_repeat_train_only"
 
     def __post_init__(self) -> None:
         if self.selection_scope not in {"outer_repeat_train_only", "inner_fold_train_only"}:
