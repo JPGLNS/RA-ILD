@@ -24,6 +24,8 @@ from typing import Any, Mapping
 import pandas as pd
 import yaml
 
+from audit_trb_v3_179_five_algorithm_contract import audit as audit_model_contract
+
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = Path("TRB/set/configs/schemes/generated/hierarchical_five_algorithm/FIVE_ALGORITHM_RUN_MANIFEST.json")
@@ -279,6 +281,11 @@ def main() -> int:
         if args.memory_budget_gb <= 0 or args.min_free_gb < 0:
             raise ValueError("Invalid memory budget/minimum free memory")
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        contract_audit = audit_model_contract(root, manifest_path)
+        print(
+            "Model-contract audit: PASS "
+            f"({contract_audit['entry_count']} cohort/algorithm configurations)"
+        )
         reservations = {
             "elastic_net": args.reserve_elastic_net_gb,
             "ridge": args.reserve_ridge_gb,
