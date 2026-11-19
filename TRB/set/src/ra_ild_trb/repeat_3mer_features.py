@@ -185,7 +185,6 @@ def options_from_config(config, *, repository_root: Optional[Path] = None) -> Op
         expected_core_feature_count=int(raw.get("expected_core_feature_count", 83)),
         core_group_name=str(raw.get("core_group_name", DEFAULT_CORE_GROUP)),
         legacy_group_name=str(raw.get("legacy_group_name", DEFAULT_LEGACY_GROUP)),
-        selection_scope=selection_scope,
     )
 
 
