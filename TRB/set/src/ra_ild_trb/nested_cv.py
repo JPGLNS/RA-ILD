@@ -382,6 +382,12 @@ def assemble_model_dataframe(
     if missing:
         raise NestedCVError(f"Requested samples are absent from base: {missing[:10]}")
     output = base.loc[list(ids)].copy()
+    # _indexed_base() keeps sample_id both as an index and as a column so
+    # sample lookup remains explicit. Once rows are selected, downstream
+    # feature merges use the sample_id column (including inner-fold 3-mers).
+    # Clear only the copied frame's index name to prevent pandas from treating
+    # "sample_id" as both an index level and a column label during merge().
+    output.index.name = None
     if public_values is None:
         return output
     row_ids = [int(row_lookup[sample_id]) for sample_id in ids]
