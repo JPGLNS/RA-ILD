@@ -1,0 +1,33 @@
+linear_svm_scheme_version: '1.0'
+scheme:
+  id: trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_linear_svm_v1
+  description: PBMC frozen 100-repeat hierarchical TRB comparison using LinearSVC.
+    The exact cohort model definitions, outer/inner assignments, repeat-specific 3-mer
+    contract, and public-reference cache are inherited from the corresponding V3 resolved
+    config.
+  base_resolved_config: TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1/00_config/resolved_config.yaml
+  output_root: TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_linear_svm_v1
+model_engine:
+  engine: linear_svc
+  candidate_blocks:
+  - id: l2_squared_hinge_balanced
+    priority: 1
+    penalty: l2
+    loss: squared_hinge
+    class_weight_grid:
+    - balanced
+    C_grid:
+    - 0.0001
+    - 0.001
+    - 0.01
+    - 0.1
+    - 1.0
+    - 10.0
+    - 100.0
+    - 1000.0
+    dual: auto
+  max_iter: 10000
+  tolerance: 0.0001
+  zero_sd_tolerance: 1.0e-12
+  fit_intercept: true
+  intercept_scaling: 1.0

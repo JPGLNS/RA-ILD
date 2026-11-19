@@ -1,0 +1,70 @@
+scheme_version: '1.0'
+scheme:
+  id: trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_ridge_v1
+  description: PBMC frozen 100-repeat hierarchical TRB comparison using RIDGE (Elastic
+    Net logistic endpoint alpha=0.0). All cohort inputs, models, splits, public-reference
+    cache, and repeat-specific 3-mer settings are inherited unchanged.
+  status: development_igh_aligned
+  base_config: TRB/set/experiments/trb_v3_179_pbmc_m0_m2_repeat100_top10000_r3_v1/00_config/resolved_config.yaml
+  output_root: TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_ridge_v1
+replacements:
+  models:
+    M0:
+      description: 'Clinical baseline: age and sex.'
+      numeric:
+      - age
+      categorical:
+      - sex
+      static_feature_groups: []
+      dynamic_public: []
+    M1:
+      description: M0 plus Core83 and inner-fold Top-500 weighted/unweighted 3-mers.
+      numeric:
+      - age
+      categorical:
+      - sex
+      static_feature_groups:
+      - static_tcr_candidate_predictors
+      dynamic_public: []
+    M2:
+      description: M1 plus eight raw_bilateral public-reference features.
+      numeric:
+      - age
+      categorical:
+      - sex
+      static_feature_groups:
+      - static_tcr_candidate_predictors
+      dynamic_public:
+      - all_ref_public_clone_ratio
+      - all_ref_public_frequency_sum
+      - shared_ref_clone_ratio
+      - shared_ref_frequency_sum
+      - RA_specific_ref_clone_ratio
+      - RA_specific_ref_frequency_sum
+      - ILD_specific_ref_clone_ratio
+      - ILD_specific_ref_frequency_sum
+overrides:
+  model_selection:
+    expected_resolved_columns: {}
+  model_engine:
+    alpha_grid:
+    - 0.0
+repeat_3mer_features:
+  enabled: true
+  selection_scope: inner_fold_train_only
+  ranking_rule: prevalence_then_total_variance
+  aa_manifest: TRB/set/training_bundles/trb_v3_179_top10000_pbmc_training_inputs_v1/aa_clone_table_manifest.csv
+  sequence_column: cdr3_aa
+  min_sample_count: 5
+  min_prevalence: 0.05
+  min_unweighted_variance: 1.0e-12
+  min_weighted_variance: 1.0e-12
+  max_kmers: 500
+  top_k_values:
+  - 50
+  - 100
+  - 200
+  - 500
+  expected_core_feature_count: 83
+  core_group_name: core83
+  legacy_group_name: static_tcr_candidate_predictors

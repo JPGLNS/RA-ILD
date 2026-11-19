@@ -215,7 +215,10 @@ def _load_entry(
         if "outer_fold" in marker and int(marker["outer_fold"]) != 1:
             raise SummaryError(f"Fold identity mismatch: {marker_path}")
 
-        metrics = pd.read_csv(metric_path)
+        metrics = pd.read_csv(
+            metric_path,
+            float_precision="round_trip",
+        )
         if "outer_repeat" not in metrics.columns or "outer_fold" not in metrics.columns:
             raise SummaryError(f"Metrics lack repeat/fold identity: {metric_path}")
         if set(pd.to_numeric(metrics["outer_repeat"]).astype(int)) != {repeat}:
@@ -223,7 +226,11 @@ def _load_entry(
         if set(pd.to_numeric(metrics["outer_fold"]).astype(int)) != {1}:
             raise SummaryError(f"Metric fold identity mismatch: {metric_path}")
 
-        predictions = pd.read_csv(prediction_path)
+        predictions = pd.read_csv(
+            prediction_path,
+            float_precision="round_trip",
+        )
+
         required_predictions = {"model", "sample_id", "true_label"}
         if not required_predictions.issubset(predictions.columns):
             raise SummaryError(

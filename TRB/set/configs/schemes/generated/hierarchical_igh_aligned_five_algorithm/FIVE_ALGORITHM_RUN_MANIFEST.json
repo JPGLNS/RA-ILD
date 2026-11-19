@@ -1,0 +1,344 @@
+{
+  "manifest_version": "1.0",
+  "purpose": "TRB V3 179-sample five-algorithm hierarchical repeated-holdout training",
+  "created_at_utc": "2026-11-19T00:59:47.704494+00:00",
+  "base_branch": "feature/trb-v3-179-igh-aligned-hierarchy",
+  "cohort_contract": {
+    "total": {
+      "experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "samples": 179,
+      "models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "train_holdout": [
+        125,
+        54
+      ]
+    },
+    "pbmc": {
+      "experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "samples": 116,
+      "models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "train_holdout": [
+        81,
+        35
+      ]
+    },
+    "buffycoat": {
+      "experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "samples": 63,
+      "models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "train_holdout": [
+        44,
+        19
+      ]
+    }
+  },
+  "algorithm_contract": {
+    "elastic_net": {
+      "alpha_grid": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "lambda_grid_size": 8
+    },
+    "ridge": {
+      "alpha_grid": [
+        0.0
+      ],
+      "lambda_grid_size": 8
+    },
+    "lasso": {
+      "alpha_grid": [
+        1.0
+      ],
+      "lambda_grid_size": 8
+    },
+    "linear_svm": {
+      "C_grid": [
+        0.0001,
+        0.001,
+        0.01,
+        0.1,
+        1.0,
+        10.0,
+        100.0,
+        1000.0
+      ]
+    },
+    "xgboost": {
+      "candidate_count": 100,
+      "candidate_pool_size": 3888,
+      "n_jobs_per_fit": 1,
+      "early_stopping": false
+    }
+  },
+  "entries": [
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1/00_config/resolved_config.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "expected_samples": 179,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 24,
+      "existing_repeat_01_expected": true
+    },
+    {
+      "cohort": "total",
+      "algorithm": "ridge",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_ridge_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_ridge_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "expected_samples": 179,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "total",
+      "algorithm": "lasso",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_lasso_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_lasso_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "expected_samples": 179,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "total",
+      "algorithm": "linear_svm",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_linear_svm_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/linear_svm/hierarchical_repeat3mer/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_linear_svm_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "expected_samples": 179,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "total",
+      "algorithm": "xgboost",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_xgboost_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/xgboost/hierarchical_repeat3mer/trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1_xgboost_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_total_m0_m3_repeat100_top10000_v1",
+      "expected_samples": 179,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 100,
+      "candidate_pool_size": 3888,
+      "n_jobs_per_fit": 1
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1/00_config/resolved_config.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 116,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 24,
+      "existing_repeat_01_expected": true
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "ridge",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_ridge_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_ridge_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 116,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "lasso",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_lasso_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_lasso_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 116,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "linear_svm",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_linear_svm_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/linear_svm/hierarchical_repeat3mer/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_linear_svm_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 116,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "xgboost",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_xgboost_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/xgboost/hierarchical_repeat3mer/trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1_xgboost_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_pbmc_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 116,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 100,
+      "candidate_pool_size": 3888,
+      "n_jobs_per_fit": 1
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1/00_config/resolved_config.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 63,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 24,
+      "existing_repeat_01_expected": true
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "ridge",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_ridge_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_ridge_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 63,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "lasso",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_lasso_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/schemes/generated/hierarchical_igh_aligned_five_algorithm/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_lasso_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 63,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "linear_svm",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_linear_svm_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/linear_svm/hierarchical_repeat3mer/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_linear_svm_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 63,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 8
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "xgboost",
+      "config": "TRB/set/experiments/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_xgboost_v1/00_config/resolved_config.yaml",
+      "scheme": "TRB/set/configs/xgboost/hierarchical_repeat3mer/trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1_xgboost_v1.yaml",
+      "base_experiment": "trb_v3_179_igh_aligned_buffycoat_m0_m2_repeat100_top10000_v1",
+      "expected_samples": 63,
+      "expected_models": [
+        "M0",
+        "M1",
+        "M2"
+      ],
+      "outer_repeats": 100,
+      "outer_tasks": 100,
+      "candidate_count_per_model": 100,
+      "candidate_pool_size": 3888,
+      "n_jobs_per_fit": 1
+    }
+  ]
+}

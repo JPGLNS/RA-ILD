@@ -76,11 +76,27 @@ class SchemeManagementTests(unittest.TestCase):
             "models",
             "preprocessing",
             "modeling",
-            "model_selection",
             "nested_cv",
             "stability",
         ):
             self.assertEqual(base[key], resolved[key], msg=f"Changed section: {key}")
+
+        # model_selection: allow only the explicitly derived default metric.
+        resolved_selection = dict(resolved["model_selection"])
+
+        derived_metric = resolved_selection.pop("tuning_primary_metric", None)
+
+        self.assertEqual(
+            derived_metric,
+            "roc_auc",
+            msg="Unexpected tuning_primary_metric default",
+        )
+
+        self.assertEqual(
+            base["model_selection"],
+            resolved_selection,
+            msg="Baseline model_selection scientific settings changed",
+        )
 
     def test_baseline_counts_and_models_are_preserved(self) -> None:
         raw = self.prepared.resolved_config
