@@ -208,7 +208,9 @@ def _resolve_models(
 
 def _validate_expected_columns(config, model_specs) -> None:
     expected = config.raw.get("model_selection", {}).get("expected_resolved_columns", {})
-    if not isinstance(expected, Mapping):
+    # An empty mapping is intentional for schemes that replace the model set.
+    # The cohort-aware config auditor verifies the expanded predictor contract.
+    if not isinstance(expected, Mapping) or not expected:
         return
     for model_name, specification in model_specs.items():
         counts = expected.get(model_name)
