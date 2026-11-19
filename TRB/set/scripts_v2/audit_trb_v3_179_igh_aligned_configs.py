@@ -129,6 +129,21 @@ def _experiment_id(cohort: str, algorithm: str) -> str:
     return base + suffix
 
 
+def _expected_outer_output_root(algorithm: str, experiment_id: str) -> str:
+    """Return the output layout used by each algorithm's actual scheme preparer.
+
+    Elastic Net/Ridge/Lasso use scheme_management._rewrite_output_paths(),
+    which writes task outputs under 02_tasks/outer_nested_cv. Linear SVM and
+    XGBoost use their dedicated preparers, which write under 01_outer_tasks.
+    """
+    base = f"TRB/set/experiments/{experiment_id}"
+    if algorithm in {"elastic_net", "ridge", "lasso"}:
+        return f"{base}/02_tasks/outer_nested_cv"
+    if algorithm in {"linear_svm", "xgboost"}:
+        return f"{base}/01_outer_tasks"
+    raise AuditError(f"Unsupported algorithm for output layout: {algorithm}")
+
+
 def _input_signature(raw: Mapping[str, Any]) -> tuple[str, ...]:
     data = raw["data"]["train"]
     cv = raw["cross_validation"]
@@ -265,10 +280,13 @@ def audit(root: Path, manifest_path: Path) -> tuple[list[dict[str, Any]], list[s
                 raise AuditError(
                     f"runner mismatch: {raw['outer_tasks']['runner_script']!r}"
                 )
-            if str(raw["outer_tasks"]["output_root"]) != (
-                f"TRB/set/experiments/{experiment_id}/01_outer_tasks"
-            ):
-                raise AuditError("outer task output_root mismatch")
+            observed_output_root = str(raw["outer_tasks"]["output_root"]).rstrip("/")
+            expected_output_root = _expected_outer_output_root(algorithm, experiment_id)
+            if observed_output_root != expected_output_root:
+                raise AuditError(
+                    "outer task output_root mismatch: "
+                    f"observed={observed_output_root!r}, expected={expected_output_root!r}"
+                )
 
             repeat = raw.get("repeat_3mer_features")
             if not isinstance(repeat, Mapping):
