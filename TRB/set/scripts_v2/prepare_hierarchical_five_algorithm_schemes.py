@@ -172,7 +172,7 @@ def _build_ridge_lasso(
 def _build_svm(cohort: str, base_id: str) -> tuple[str, dict[str, Any]]:
     scheme_id = _new_id(base_id, "linear_svm")
     return (
-        f"TRB/set/configs/linear_svm/hierarchical_repeat3mer/{scheme_id}.yaml",
+        f"TRB/set/configs/linear_svm/hierarchical_igh_aligned/{scheme_id}.yaml",
         {
             "linear_svm_scheme_version": "1.0",
             "scheme": {
@@ -214,7 +214,7 @@ def _build_svm(cohort: str, base_id: str) -> tuple[str, dict[str, Any]]:
 def _build_xgb(cohort: str, base_id: str) -> tuple[str, dict[str, Any]]:
     scheme_id = _new_id(base_id, "xgboost")
     return (
-        f"TRB/set/configs/xgboost/hierarchical_repeat3mer/{scheme_id}.yaml",
+        f"TRB/set/configs/xgboost/hierarchical_igh_aligned/{scheme_id}.yaml",
         {
             "xgboost_scheme_version": "1.0",
             "scheme": {

@@ -186,8 +186,6 @@ def main() -> int:
             outer_repeat=outer_repeat, outer_fold=outer_fold,
             outer_folds=int(config.raw["cross_validation"]["outer_folds"]),
             inner_folds=int(config.raw["cross_validation"]["inner_folds"]),
-            repeat_3mer_inputs=repeat_inputs,
-            repeat_3mer_options=repeat_options,
         )
 
         repeat_options = options_from_config(config)
@@ -248,6 +246,8 @@ def main() -> int:
             outer_repeat=outer_repeat, outer_fold=outer_fold,
             outer_folds=int(config.raw["cross_validation"]["outer_folds"]),
             inner_folds=int(config.raw["cross_validation"]["inner_folds"]),
+            repeat_3mer_inputs=repeat_inputs,
+            repeat_3mer_options=repeat_options,
         )
 
         feature_input_audit.to_csv(paths["feature_input_audit"], index=False)
