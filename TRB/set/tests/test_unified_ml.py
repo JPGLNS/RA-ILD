@@ -411,5 +411,31 @@ class UnifiedMLTests(unittest.TestCase):
         self.assertTrue((out / "06_run_summary.md").is_file())
 
 
+
+    def test_both_3mer_representations_are_generated_from_one_vocabulary(self):
+        config = self.root / "both.yaml"
+        write_config(config, top_n=1)
+        raw = yaml.safe_load(config.read_text(encoding="utf-8"))
+        raw["features"]["kmer"]["representation"] = "both"
+        config.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
+        spec = load_unified_experiment(config)
+        ids = ("R1", "I1")
+        source = DynamicRepertoireSource("all", "full", None, self.root, None, "{sample_id}.csv")
+        inputs = FoldFeatureInputs(
+            metadata=pd.DataFrame({"sample_id": ids, "cohort": ["RA", "ILD"], "age": [40, 50], "sex": ["F", "M"]}),
+            static_values=pd.DataFrame({"sample_id": ids, "Shannon": [1.0, 2.0]}),
+            static_feature_names=("Shannon",), clinical_numeric=("age",), clinical_categorical=("sex",),
+            source=source,
+            kmer_unweighted={"R1": {"AAA": 0.5}, "I1": {"AAA": 0.25}},
+            kmer_weighted={"R1": {"AAA": 0.8}, "I1": {"AAA": 0.4}},
+            enrich_repertoires={},
+        )
+        from ra_ild_trb.fold_features import _kmer_feature_frame
+        frame = _kmer_feature_frame(ids, ["AAA"], inputs, "both")
+        self.assertEqual(list(frame.columns), ["sample_id", "unweighted_3mer_AAA", "weighted_3mer_AAA"])
+        self.assertEqual(float(frame.loc[0, "unweighted_3mer_AAA"]), 0.5)
+        self.assertEqual(float(frame.loc[0, "weighted_3mer_AAA"]), 0.8)
+        self.assertEqual(spec.base.features.kmer.representation, "both")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
