@@ -30,15 +30,32 @@ Generate configs (dry-run first):
 ```bash
 python3 TRB/set/scripts_v2/prepare_layer1_unified_configs.py
 python3 TRB/set/scripts_v2/prepare_layer1_unified_configs.py --apply
+python3 TRB/set/scripts_v2/audit_layer1_unified_configs.py
 ```
 
 Age + sex remain fixed adjustment covariates; only the selected Core83 groups
 vary. 3-mer and RA-hit are disabled in Layer 1. The generator writes an
 Elastic-Net-only manifest and rejects overwriting existing configs.
 
-Prepare the shared V3 Top10000 Step02 static-core cache once, using the exact
-V3 registry and 179-sample 70:30 compatibility metadata. Use the existing
-`run_trb_experiment.py --prepare-only` workflow with the V3 Registry.
+Prepare the shared V3 Top10000 Step02 static-core cache once with the dedicated
+all-Core83 cache-preparation config. Do NOT use an individual Layer-1 config
+such as L1_001_D: Step02 follows the config's selected static groups and would
+then materialize only a partial feature matrix.
+
+```bash
+python3 TRB/set/scripts/run_trb_experiment.py --config TRB/set/configs/layered_feature_experiments/trb179_top10000_core83_cache_prep.yaml --train-metadata TRB/set/data_versions/trb_v3_179_top10000/ml_compat/total/metadata_train_70.csv --test-metadata TRB/set/data_versions/trb_v3_179_top10000/ml_compat/total/metadata_test_30.csv --registry TRB/set/configs/feature_framework/trb_feature_registry_v3_179_top10000.yaml --prepare-only
+```
+
+Then verify all 83 Core83 columns, exact train/test sample coverage and source
+provenance:
+
+```bash
+python3 TRB/set/scripts_v2/audit_layer1_unified_configs.py --check-cache
+```
+
+The Step02 train/test directories are only a storage partition for the 179
+per-sample static features. Layer-1's cohort-specific frozen split bank defines
+the actual train/holdout membership in every repeat.
 
 Run one combination for Repeat001 acceptance:
 
