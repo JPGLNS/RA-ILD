@@ -65,8 +65,11 @@ python3 TRB/set/scripts_v2/run_layer1_unified_batch.py \
   --repeat 1 --max-experiments 1 --execute
 ```
 
-Smoke output is isolated under `smoke_repeat_001`. After acceptance, run the
-full Layer 1 in bounded batches. For example:
+Smoke output is stored in a `smoke_repeat_001` child directory under each
+combination. The full100 outputs are written into the combination directory
+itself; the batch runner and ML entry point explicitly preserve and ignore
+`smoke_repeat_*` child directories when checking for output collisions.
+After acceptance, run the full Layer 1 in bounded batches. For example:
 
 ```bash
 python3 TRB/set/scripts_v2/run_layer1_unified_batch.py \

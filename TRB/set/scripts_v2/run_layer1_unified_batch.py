@@ -32,7 +32,14 @@ def run_one(entry, args):
             if old.get("status")=="COMPLETE" and (out/"06_outer_metrics.csv").is_file():
                 return {"key":key,"status":"SKIPPED_COMPLETE"}
         except Exception: pass
-    if out.exists() and any(out.iterdir()) and not args.overwrite:
+    # A smoke run is deliberately nested under the combination directory.
+    # Preserve that subdirectory and allow the independent full100 outputs to
+    # be written alongside it; any other pre-existing content still blocks.
+    has_non_smoke_outputs = out.exists() and any(
+        not (child.is_dir() and child.name.startswith("smoke_repeat_"))
+        for child in out.iterdir()
+    )
+    if has_non_smoke_outputs and not args.overwrite:
         return {"key":key,"status":"BLOCKED_OUTPUT_EXISTS","output":str(out)}
     cmd=[sys.executable,str(SCRIPT),"--config",str(ROOT/entry["config"]),
          "--train-step02-dir",str(STEP02/"train"),"--test-step02-dir",str(STEP02/"test"),

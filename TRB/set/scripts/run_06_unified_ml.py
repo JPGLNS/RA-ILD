@@ -81,9 +81,21 @@ def expected_outputs(out: Path) -> Dict[str, Path]:
 
 def prepare_output(out: Path, overwrite: bool) -> None:
     if out.exists() and any(out.iterdir()):
-        if not overwrite:
-            raise FileExistsError(f"output directory is not empty; use --overwrite: {out}")
-        shutil.rmtree(out)
+        if overwrite:
+            shutil.rmtree(out)
+        else:
+            # Keep smoke_repeat_* child directories intact. They are separate
+            # acceptance-test outputs, not collisions with the full100 files
+            # written into this combination directory.
+            blocking = [
+                child for child in out.iterdir()
+                if not (child.is_dir() and child.name.startswith("smoke_repeat_"))
+            ]
+            if blocking:
+                raise FileExistsError(
+                    f"output directory contains non-smoke artifacts; use --overwrite: {out}; "
+                    f"blocking={ [p.name for p in blocking[:10]] }"
+                )
     out.mkdir(parents=True, exist_ok=True)
 
 
