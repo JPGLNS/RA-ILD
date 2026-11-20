@@ -2,7 +2,7 @@
 """Deterministic contracts for TRB V3 Layer-1/Layer-2 feature experiments.
 
 Layer 1 enumerates every non-empty combination of the seven Core83 groups.
-Layer 2 promotes complete Layer-1 results separately per cohort and algorithm,
+Layer 2 promotes complete Layer-1 results separately per cohort using Elastic Net only,
 then creates paired static/3-mer/RA-hit/combined contrasts. Model execution is
 intentionally delegated to the repository's nested-CV engines.
 """
@@ -18,7 +18,9 @@ CORE83_GROUPS = (
 )
 GROUP_CODES = dict(zip(CORE83_GROUPS, ("D","E","L","AU","AW","PU","PW")))
 COHORTS = {"total":179, "pbmc":116, "buffycoat":63}
-ALGORITHMS = ("elastic_net","ridge","lasso","linear_svm","xgboost")
+# Free Core83 feature-combination search is Elastic Net-only. The separate M0-M3
+# hierarchical model comparison retains its own five-algorithm implementation.
+ALGORITHMS = ("elastic_net",)
 RA_HIT_THRESHOLD_PCT = 20.0
 RA_HIT_DELTA_PCT = 10.0
 
@@ -54,7 +56,7 @@ def build_layer1_manifest() -> list[dict]:
 
 def rank_layer1_results(metrics: Iterable[Mapping], *, top_n:int=5,
                         primary_metric:str="roc_auc", secondary_metric:str="pr_auc") -> list[dict]:
-    """Promote top-N per cohort×algorithm; incomplete repeats are never eligible."""
+    """Promote top-N per cohort; this feature-combination search is Elastic Net-only."""
     if top_n<1: raise ValueError("top_n must be >=1")
     if primary_metric not in {"roc_auc","pr_auc","average_precision"}:
         raise ValueError("unsupported primary metric")

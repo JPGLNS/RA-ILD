@@ -1,114 +1,75 @@
 # TRB V3 179 Layered Feature Experiments
 
-This branch is an additive development branch based on
-`feature/trb-v3-179-igh-aligned-hierarchy`. It does not modify frozen V3 data,
-split banks, training bundles, or completed M0-M3 results.
+This branch adds a free Core83 feature-combination search and its incremental
+feature follow-up. It does not modify frozen V3 data, split banks, training
+bundles, or completed M0-M3 results.
 
 ## Scientific contract
 
 - Cohorts: Total (179), PBMC (116), Buffycoat (63).
-- Algorithms: Elastic Net, Ridge, Lasso, Linear SVM, XGBoost.
+- Algorithm for this free feature-combination search: **Elastic Net only**.
+- The separate M0-M3 hierarchical model comparison remains a five-algorithm
+  study; this branch does not change that study's algorithm design.
 - Layer 1: all 127 non-empty combinations of the seven Core83 groups.
-- Layer 2: top-N combinations are selected separately within each cohort ×
-  algorithm; each receives four paired states: F0 static, F1 3-mer, F2 RA-hit,
-  F3 3-mer + RA-hit.
+- Layer 2: Top 5 combinations selected separately within each cohort; each
+  receives four paired states: F0 static, F1 3-mer, F2 RA-hit, F3 combined.
 - RA-hit uses the established 20% prevalence threshold and 10 percentage-point
   between-class prevalence difference.
-- Outer evaluation target: 100 frozen repeated holdouts, fold 1.
+- Outer evaluation: 100 frozen repeated holdouts, outer fold 1; inner CV: 5-fold.
 
-## Current implementation slice
+## Expected experiment size
 
-`TRB/set/src/ra_ild_trb/layered_experiments.py` defines the deterministic
-127-combination search space, strict 100-repeat promotion contract, per-cohort
-and per-algorithm top-N ranking, and paired Layer-2 manifest.
+- Layer 1: 3 cohorts × 127 combinations × Elastic Net = **381 configs**.
+- Layer 2: 3 cohorts × Top 5 × 4 paired states = **60 configs**.
+- Total: **441 configs**.
 
-`TRB/set/scripts_v2/prepare_layered_feature_experiments.py` writes planning
-manifests. It never starts training. Run a dry-run first:
+## Layer 1
 
-```bash
-python3 TRB/set/scripts_v2/prepare_layered_feature_experiments.py
-```
-
-Write Layer 1 manifest:
-
-```bash
-python3 TRB/set/scripts_v2/prepare_layered_feature_experiments.py --apply
-```
-
-After Layer 1 is trained and aggregated with exactly 100 outer repeats per
-combination, generate promotion and Layer-2 manifests:
-
-```bash
-python3 TRB/set/scripts_v2/prepare_layered_feature_experiments.py \
-  --layer1-results PATH_TO_LAYER1_AGGREGATED_METRICS.csv --top-n 5 --apply
-```
-
-## Important status
-
-This commit establishes the experiment-space and promotion contract only. It
-does **not** yet contain the Layer-1/Layer-2 model execution adapter, the
-feature-group-aware nested-CV model specification, or the RA-hit fold-local
-integration into all five engines. Do not launch Repeat100 based on these
-planning manifests alone. Those execution components must pass Repeat001
-acceptance and leakage audits first.
-
-## Layer-1 executable pipeline
-
-Generate the 1,905 YAMLs (dry-run first):
+Generate configs (dry-run first):
 
 ```bash
 python3 TRB/set/scripts_v2/prepare_layer1_unified_configs.py
 python3 TRB/set/scripts_v2/prepare_layer1_unified_configs.py --apply
 ```
 
-The generated models keep age + sex as fixed adjustment covariates; only the
-selected Core83 groups vary. Layer 1 has 3-mer and RA-hit disabled.
+Age + sex remain fixed adjustment covariates; only the selected Core83 groups
+vary. 3-mer and RA-hit are disabled in Layer 1. The generator writes an
+Elastic-Net-only manifest and rejects overwriting existing configs.
 
 Prepare the shared V3 Top10000 Step02 static-core cache once, using the exact
-V3 registry and 179-sample 70:30 compatibility metadata:
+V3 registry and 179-sample 70:30 compatibility metadata. Use the existing
+`run_trb_experiment.py --prepare-only` workflow with the V3 Registry.
 
-```bash
-python3 TRB/set/scripts/run_trb_experiment.py \
-  --config TRB/set/configs/layered_feature_experiments/generated/layer1/total/elastic_net/trb179_total_elastic_net_l1_001_d.yaml \
-  --train-metadata TRB/set/data_versions/trb_v3_179_top10000/ml_compat/total/metadata_train_70.csv \
-  --test-metadata TRB/set/data_versions/trb_v3_179_top10000/ml_compat/total/metadata_test_30.csv \
-  --registry TRB/set/configs/feature_framework/trb_feature_registry_v3_179_top10000.yaml \
-  --prepare-only
-```
-
-Run a single-combination Repeat001 acceptance test first:
+Run one combination for Repeat001 acceptance:
 
 ```bash
 python3 TRB/set/scripts_v2/run_layer1_unified_batch.py \
-  --cohort total --algorithm elastic_net --combination-id L1_001_D \
+  --cohort total --combination-id L1_001_D \
   --repeat 1 --max-experiments 1 --execute
 ```
 
-Smoke output is isolated under `smoke_repeat_001`; it cannot be mistaken for
-the full 100-repeat result. After acceptance, run the full Layer 1 in bounded
-batches. Example:
+Smoke output is isolated under `smoke_repeat_001`. After acceptance, run the
+full Layer 1 in bounded batches. For example:
 
 ```bash
 python3 TRB/set/scripts_v2/run_layer1_unified_batch.py \
-  --cohort total --algorithm elastic_net --max-experiments 2 --execute
+  --cohort total --max-experiments 2 --execute
 ```
 
-Omit cohort/algorithm filters only when deliberately scheduling the full 1,905
-configurations. The runner checks that the shared Step02 caches and V3 registry
-exist, and records per-combination logs/status.
+The runner rejects manifests containing non-Elastic-Net algorithms and checks
+that the V3 registry and shared Step02 caches exist.
 
-After all 1,905 combinations have exactly 100 repeats:
+After all 381 combinations have exactly 100 repeats:
 
 ```bash
 python3 TRB/set/scripts_v2/aggregate_layer1_unified_results.py
 python3 TRB/set/scripts_v2/aggregate_layer1_unified_results.py --apply
 ```
 
-Promotion is strict: each cohort × algorithm must have all 127 combinations
-with 100 repeats. Top-N (default 5) is selected separately in each of the 15
-cohort × algorithm strata.
+Promotion is strict: each of the three cohorts must have all 127 combinations
+complete with 100 repeats. Top 5 is selected separately within each cohort.
 
-## Layer-2 executable pipeline
+## Layer 2
 
 Generate four paired states per promoted combination:
 
@@ -124,17 +85,18 @@ python3 TRB/set/scripts_v2/prepare_layer2_unified_configs.py --apply
 
 RA-hit remains fixed at T=20% and Delta=10 percentage points. Each Layer-2
 state uses the exact same cohort split bank as its corresponding Layer-1
-combination.
+combination. Layer-2 config generation rejects non-Elastic-Net promotions and
+requires exactly Top 5 from each of the three cohorts.
 
-Run one paired combination through Repeat001 before the full Layer 2:
+Run one paired combination through Repeat001 before full Layer 2:
 
 ```bash
 python3 TRB/set/scripts_v2/run_layer2_unified_batch.py \
-  --cohort total --algorithm elastic_net --feature-state F3_3mer_ra_hit \
+  --cohort total --feature-state F3_3mer_ra_hit \
   --limit 1 --repeat 1 --max-experiments 1 --execute
 ```
 
-After all paired states complete 100 repeats:
+After all 60 paired states complete 100 repeats:
 
 ```bash
 python3 TRB/set/scripts_v2/aggregate_layer2_incremental_results.py
@@ -145,11 +107,9 @@ The final paired report contains mean performance by state and per-repeat
 paired deltas (F1/F2/F3 minus F0) for ROC-AUC and PR-AUC, including 95% t
 confidence intervals and the fraction of repeats with positive improvement.
 
-## Important execution boundary
+## Execution boundary
 
-The code and manifests are committed, but no training was launched from this
-development environment. The repository's data and Step02 caches are on the
-user's neo3 server. Run Repeat001 and inspect logs/audits there before any
-Repeat100 batch. The 1,905 Layer-1 configurations are a substantial compute
-job, especially XGBoost (100 candidates × 5 inner folds × 100 repeats per
-combination); use the bounded runner and start with a small pilot.
+The code and manifests are committed, but training is not launched by this
+development change. Run unit tests, syntax checks, input audits and Repeat001
+acceptance on neo3 before any Repeat100 batch. Do not reuse old five-algorithm
+Layer-1 manifests; regenerate the new 381-entry Elastic-Net-only manifest.

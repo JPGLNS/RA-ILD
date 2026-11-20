@@ -7,18 +7,25 @@ import numpy as np
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"src"))
-from ra_ild_trb.layered_experiments import rank_layer1_results,build_layer2_manifest
+from ra_ild_trb.layered_experiments import ALGORITHMS, COHORTS, rank_layer1_results, build_layer2_manifest
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument("--manifest",type=Path,default=ROOT/"TRB/set/configs/layered_feature_experiments/generated/layer1/LAYER1_CONFIG_MANIFEST.json")
  p.add_argument("--results-root",type=Path,default=ROOT/"TRB/result/feature_framework/layered_feature_experiments/layer1")
  p.add_argument("--top-n",type=int,default=5)
- p.add_argument("--allow-incomplete",action="store_true")
  p.add_argument("--apply",action="store_true")
  a=p.parse_args()
  manifest=json.loads(a.manifest.read_text(encoding="utf-8")); rows=[]; missing=[]
- for item in manifest["entries"]:
+ entries=manifest["entries"]
+ if len(entries)!=len(COHORTS)*127:
+  raise ValueError(f"Elastic-Net-only Layer 1 manifest must contain {len(COHORTS)*127} entries; got {len(entries)}")
+ if any(item.get("algorithm")!="elastic_net" for item in entries):
+  raise ValueError("Layer-1 manifest contains non-Elastic-Net entries; refusing mixed-algorithm aggregation")
+ for cohort in COHORTS:
+  n=sum(item.get("cohort")==cohort for item in entries)
+  if n!=127: raise ValueError(f"Layer-1 manifest requires 127 combinations for {cohort}; got {n}")
+ for item in entries:
   path=a.results_root/item["cohort"]/item["algorithm"]/item["combination_id"]/"06_outer_metrics.csv"
   if not path.is_file(): missing.append((item,path)); continue
   frame=pd.read_csv(path)
@@ -35,13 +42,12 @@ def main():
    "f1_mean":float(frame.f1.mean()),"result_dir":str(path.parent)})
  print(f"Complete 100-repeat results: {len(rows)}/{len(manifest['entries'])}")
  print(f"Missing/incomplete results: {len(missing)}")
- if missing and not a.allow_incomplete:
-  print("STRICT MODE: no promotion performed until every Layer-1 combination has 100 repeats."); return 2
+ if missing:
+  print("STRICT MODE: no promotion performed until all 381 combinations have exactly 100 repeats."); return 2
  if not rows: raise ValueError("no complete Layer-1 results found")
- for cohort in ("total","pbmc","buffycoat"):
-  for algorithm in ("elastic_net","ridge","lasso","linear_svm","xgboost"):
-   n=sum(x["cohort"]==cohort and x["algorithm"]==algorithm for x in rows)
-   if n!=127: raise ValueError(f"promotion requires 127/127 completed combinations for {cohort}/{algorithm}; got {n}")
+ for cohort in COHORTS:
+  n=sum(x["cohort"]==cohort and x["algorithm"]=="elastic_net" for x in rows)
+  if n!=127: raise ValueError(f"promotion requires 127/127 completed Elastic Net combinations for {cohort}; got {n}")
  selected=rank_layer1_results(rows,top_n=a.top_n,primary_metric="roc_auc",secondary_metric="pr_auc")
  layer2=build_layer2_manifest(selected)
  out=a.results_root.parent/"layer1_summary"

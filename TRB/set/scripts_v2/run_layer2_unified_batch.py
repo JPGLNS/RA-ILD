@@ -41,11 +41,13 @@ def run_one(entry,args):
  return result
 def main():
  p=argparse.ArgumentParser(description=__doc__)
- p.add_argument("--manifest",type=Path,default=MANIFEST);p.add_argument("--cohort",choices=["total","pbmc","buffycoat"]);p.add_argument("--algorithm",choices=["elastic_net","ridge","lasso","linear_svm","xgboost"]);p.add_argument("--feature-state",choices=["F0_static","F1_3mer","F2_ra_hit","F3_3mer_ra_hit"]);p.add_argument("--limit",type=int);p.add_argument("--repeat",type=int);p.add_argument("--max-experiments",type=int,default=2);p.add_argument("--overwrite",action="store_true");p.add_argument("--execute",action="store_true")
+ p.add_argument("--manifest",type=Path,default=MANIFEST);p.add_argument("--cohort",choices=["total","pbmc","buffycoat"]);p.add_argument("--algorithm",choices=["elastic_net"],help="Free feature-combination search is Elastic Net-only.");p.add_argument("--feature-state",choices=["F0_static","F1_3mer","F2_ra_hit","F3_3mer_ra_hit"]);p.add_argument("--limit",type=int);p.add_argument("--repeat",type=int);p.add_argument("--max-experiments",type=int,default=2);p.add_argument("--overwrite",action="store_true");p.add_argument("--execute",action="store_true")
  a=p.parse_args()
  if not 1<=a.max_experiments<=8: raise ValueError("--max-experiments must be 1..8")
  if a.repeat is not None and not 1<=a.repeat<=100: raise ValueError("--repeat must be 1..100")
  entries=json.loads(a.manifest.read_text(encoding="utf-8"))["entries"]
+ if any(x.get("algorithm")!="elastic_net" for x in entries):
+  raise ValueError("Layer-2 manifest contains non-Elastic-Net entries; refusing mixed-algorithm execution")
  if a.cohort: entries=[x for x in entries if x["cohort"]==a.cohort]
  if a.algorithm: entries=[x for x in entries if x["algorithm"]==a.algorithm]
  if a.feature_state: entries=[x for x in entries if x["feature_state"]==a.feature_state]

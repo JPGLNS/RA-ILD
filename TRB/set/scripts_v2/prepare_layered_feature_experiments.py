@@ -30,14 +30,14 @@ def main():
         selected=rank_layer1_results(pd.read_csv(a.layer1_results).to_dict("records"),top_n=a.top_n)
         l2=build_layer2_manifest(selected)
     print("TRB V3 Layered Feature Experiment Manifests")
-    print(f"Layer 1: {len(l1)} = 3 cohorts × 5 algorithms × 127 Core83 combinations")
+    print(f"Layer 1: {len(l1)} = 3 cohorts × Elastic Net × 127 Core83 combinations")
     print(f"Layer 1 outer task evaluations: {len(l1)*100}")
     if l2 is None: print("Layer 2: deferred until complete Layer-1 aggregate is supplied")
     else: print(f"Layer 2: {len(l2)} = {len(selected)} promoted combinations × 4 paired states")
     print("RA-hit: prevalence >=20%; between-class prevalence delta >=10 percentage points")
     if not a.apply: print("DRY-RUN: no files written; add --apply to write manifests"); return 0
     out=root/"TRB/set/configs/layered_feature_experiments"
-    write_rows(out/"LAYER1_127_COMBINATIONS_3COHORT_5ALGORITHM.csv",l1)
+    write_rows(out/"LAYER1_127_COMBINATIONS_3COHORT_ELASTIC_NET.csv",l1)
     if l2 is not None:
         write_rows(out/"LAYER1_PROMOTED_TOPN.csv",selected)
         write_rows(out/"LAYER2_INCREMENTAL_MANIFEST.csv",l2)

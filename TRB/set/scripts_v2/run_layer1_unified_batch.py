@@ -57,7 +57,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--manifest",type=Path,default=MANIFEST)
     p.add_argument("--cohort",choices=["total","pbmc","buffycoat"])
-    p.add_argument("--algorithm",choices=["elastic_net","ridge","lasso","linear_svm","xgboost"])
+    p.add_argument("--algorithm",choices=["elastic_net"],help="Free feature-combination search is Elastic Net-only.")
     p.add_argument("--combination-id")
     p.add_argument("--limit",type=int)
     p.add_argument("--repeat",type=int,help="Run only one frozen repeat for acceptance testing; omit for all 100.")
@@ -69,6 +69,9 @@ def main():
     if a.repeat is not None and not 1<=a.repeat<=100: raise ValueError("--repeat must be 1..100")
     manifest=json.loads(a.manifest.read_text(encoding="utf-8"))
     entries=manifest["entries"]
+    unexpected=sorted({str(x.get("algorithm")) for x in entries if x.get("algorithm")!="elastic_net"})
+    if unexpected:
+        raise ValueError(f"Layer-1 manifest contains non-Elastic-Net algorithms: {unexpected}; regenerate it with the Elastic-Net-only generator")
     if a.cohort: entries=[x for x in entries if x["cohort"]==a.cohort]
     if a.algorithm: entries=[x for x in entries if x["algorithm"]==a.algorithm]
     if a.combination_id: entries=[x for x in entries if x["combination_id"]==a.combination_id]

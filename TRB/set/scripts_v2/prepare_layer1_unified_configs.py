@@ -36,7 +36,7 @@ def main():
     rel=Path("TRB/set/configs/layered_feature_experiments/generated/layer1")/cohort/algorithm/f"{exp_id}.yaml"
     rows.append({"cohort":cohort,"algorithm":algorithm,"combination_id":combo.combination_id,"feature_groups":list(combo.group_ids),"expected_samples":n,"config":rel.as_posix(),"outer_repeats":100,"split_assignments":split})
     files.append((root/rel,cfg))
- print(f"Layer-1 configs: {len(files)} = 3 cohorts × 5 algorithms × 127 combinations")
+ print(f"Layer-1 configs: {len(files)} = 3 cohorts × Elastic Net × 127 Core83 combinations")
  print("Fixed adjustment covariates: age + sex; variable predictors: selected Core83 groups")
  print("3-mer OFF; RA-hit OFF; Top10000 V3; frozen cohort-specific split assignments")
  if not a.apply: print("DRY-RUN: no files written; add --apply to materialize configs"); return 0

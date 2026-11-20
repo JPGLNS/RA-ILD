@@ -25,6 +25,16 @@ def main():
  required={"cohort","algorithm","rank","combination_id","feature_groups","layer1_roc_auc","layer1_pr_auc","layer1_n_repeats"}
  if not required.issubset(promoted.columns): raise ValueError(f"promoted CSV missing {sorted(required-set(promoted.columns))}")
  if not (pd.to_numeric(promoted["layer1_n_repeats"])==100).all(): raise ValueError("Layer 2 requires complete 100-repeat Layer-1 results")
+ if set(promoted["algorithm"].astype(str))!={"elastic_net"}:
+  raise ValueError("Layer 2 free-feature follow-up accepts Elastic Net promotions only")
+ expected_cohorts={"total","pbmc","buffycoat"}
+ if set(promoted["cohort"].astype(str))!=expected_cohorts:
+  raise ValueError(f"Layer 2 requires promoted combinations from all three cohorts: {sorted(expected_cohorts)}")
+ for cohort in sorted(expected_cohorts):
+  subset=promoted[promoted["cohort"].astype(str)==cohort]
+  ranks=sorted(pd.to_numeric(subset["rank"],errors="raise").astype(int).tolist())
+  if ranks!=[1,2,3,4,5]:
+   raise ValueError(f"Layer 2 expects exactly Top5 Elastic Net combinations for {cohort}; got ranks {ranks}")
  template=yaml.safe_load(TEMPLATE.read_text(encoding="utf-8"))
  files=[]; rows=[]
  for item in promoted.to_dict("records"):

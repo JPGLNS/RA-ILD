@@ -17,6 +17,10 @@ def mean_ci(values):
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument("--manifest",type=Path,default=MANIFEST);p.add_argument("--results-root",type=Path,default=RESULTS);p.add_argument("--apply",action="store_true");a=p.parse_args()
  entries=json.loads(a.manifest.read_text(encoding="utf-8"))["entries"]
+ if any(x.get("algorithm")!="elastic_net" for x in entries):
+  raise ValueError("Layer-2 manifest contains non-Elastic-Net entries; refusing mixed-algorithm aggregation")
+ if len(entries)!=60:
+  raise ValueError(f"Elastic-Net-only Layer 2 expects 60 entries (3 cohorts × Top5 × 4 states); got {len(entries)}")
  keys=sorted({(x["cohort"],x["algorithm"],x["combination_id"]) for x in entries})
  summary=[];paired=[];missing=[]
  for cohort,algorithm,combo in keys:
