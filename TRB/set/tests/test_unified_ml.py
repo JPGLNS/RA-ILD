@@ -437,5 +437,33 @@ class UnifiedMLTests(unittest.TestCase):
         self.assertEqual(float(frame.loc[0, "weighted_3mer_AAA"]), 0.8)
         self.assertEqual(spec.base.features.kmer.representation, "both")
 
+
+    def test_dynamic_repertoire_uses_explicit_versioned_registry(self):
+        config = self.root / "registry.yaml"
+        write_config(config)
+        raw = yaml.safe_load(config.read_text(encoding="utf-8"))
+        raw["repertoire"] = {"mode": "topk", "top_k": 10000}
+        config.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
+        spec = load_unified_experiment(config)
+        registry = self.root / "registry_v3.yaml"
+        yaml.safe_dump({
+            "repertoire_sources": {
+                "top10000": {
+                    "status": "available",
+                    "representation": "topk",
+                    "default_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000",
+                    "summary_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000/01b_top10000_summary.csv",
+                    "sample_filename_template": "{sample_id}_TRB_CDR3_AA_clone_table_top10000.csv",
+                    "weight_column": "frequency_norm",
+                }
+            }
+        }, registry.open("w", encoding="utf-8"), sort_keys=False)
+        from ra_ild_trb.dynamic_repertoire import resolve_dynamic_repertoire
+        source = resolve_dynamic_repertoire(spec.base, self.root, registry_path=registry)
+        self.assertEqual(source.source_id, "top10000")
+        self.assertEqual(source.aa_dir, (self.root / "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000").resolve())
+        self.assertEqual(source.sample_filename("S1"), "S1_TRB_CDR3_AA_clone_table_top10000.csv")
+        self.assertEqual(source.weight_column, "frequency_norm")
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
