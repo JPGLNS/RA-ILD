@@ -284,7 +284,7 @@ def build_orchestrator_plan(
     test_ids = _read_full_metadata_ids(test_meta)
     if set(train_ids) & set(test_ids):
         raise OrchestratorError("train/test metadata sample IDs overlap")
-    source = resolve_dynamic_repertoire(spec.base, root)
+    source = resolve_dynamic_repertoire(spec.base, root, registry_path=registry_path)
     paths = resolve_orchestrator_paths(
         spec,
         root,
@@ -332,6 +332,17 @@ def source_builder_command(plan: OrchestratorPlan) -> Optional[List[str]]:
             + str(plan.source_error)
         )
     root = plan.paths.repository_root
+    versioned_root = (root / "TRB/set/data_versions").resolve()
+    try:
+        plan.source.aa_dir.resolve().relative_to(versioned_root)
+    except ValueError:
+        pass
+    else:
+        raise OrchestratorError(
+            "registry-backed versioned repertoire source is missing; refusing to rebuild it "
+            "from legacy TRB/result/01_AA_clone_table. Restore/prepare the exact registered "
+            f"source instead: {plan.source.aa_dir}"
+        )
     script = root / "TRB/set/scripts/build_01b_AA_clone_table_topk.py"
     if not script.is_file():
         raise FileNotFoundError(script)
