@@ -55,8 +55,69 @@ class DynamicRepertoireSource:
 def resolve_dynamic_repertoire(
     spec: AdvancedExperimentSpec,
     repository_root: PathLike,
+    *,
+    registry_path: Optional[PathLike] = None,
 ) -> DynamicRepertoireSource:
+    """Resolve the selected repertoire from the supplied registry when available.
+
+    Registry-backed paths are essential for versioned data releases such as
+    TRB V3 179 Top10000.  The legacy path contract remains the fallback for
+    existing callers that do not provide a registry.
+    """
     root = Path(repository_root).expanduser().resolve()
+    source_id = spec.repertoire.source_id
+
+    if registry_path is not None:
+        registry_file = Path(registry_path).expanduser()
+        if not registry_file.is_absolute():
+            registry_file = root / registry_file
+        registry_file = registry_file.resolve()
+        if not registry_file.is_file():
+            raise FileNotFoundError(f"feature registry not found: {registry_file}")
+        raw = yaml.safe_load(registry_file.read_text(encoding="utf-8"))
+        sources = raw.get("repertoire_sources") if isinstance(raw, Mapping) else None
+        if not isinstance(sources, Mapping):
+            raise DynamicRepertoireError(
+                f"registry has no repertoire_sources mapping: {registry_file}"
+            )
+        entry = sources.get(source_id)
+        if entry is None:
+            raise DynamicRepertoireError(
+                f"registry {registry_file} does not define repertoire source {source_id!r}"
+            )
+        if not isinstance(entry, Mapping):
+            raise DynamicRepertoireError(
+                f"registry repertoire_sources.{source_id} must be a mapping"
+            )
+        default_path = entry.get("default_path")
+        summary_value = entry.get("summary_path")
+        filename_template = entry.get("sample_filename_template")
+        if not isinstance(default_path, str) or not default_path.strip():
+            raise DynamicRepertoireError(
+                f"registry repertoire_sources.{source_id}.default_path is invalid"
+            )
+        if not isinstance(filename_template, str) or "{sample_id}" not in filename_template:
+            raise DynamicRepertoireError(
+                f"registry repertoire_sources.{source_id}.sample_filename_template is invalid"
+            )
+        aa_dir_value = Path(default_path).expanduser()
+        aa_dir = aa_dir_value.resolve() if aa_dir_value.is_absolute() else (root / aa_dir_value).resolve()
+        if summary_value in (None, ""):
+            summary_path = None
+        else:
+            summary_candidate = Path(str(summary_value)).expanduser()
+            summary_path = summary_candidate.resolve() if summary_candidate.is_absolute() else (root / summary_candidate).resolve()
+        return DynamicRepertoireSource(
+            source_id=source_id,
+            representation=str(entry.get("representation", "full" if source_id == "all" else "topk")),
+            top_k=None if source_id == "all" else int(spec.repertoire.top_k),
+            aa_dir=aa_dir,
+            summary_path=summary_path,
+            sample_filename_template=filename_template,
+            weight_column=str(entry.get("weight_column", "frequency_norm")),
+        )
+
+    # Backward-compatible legacy locations.
     if spec.repertoire.mode == "all":
         return DynamicRepertoireSource(
             source_id="all",
