@@ -72,7 +72,7 @@ def main():
     p.add_argument("--overwrite",action="store_true")
     p.add_argument("--execute",action="store_true")
     a=p.parse_args()
-    if a.max_experiments<1 or a.max_experiments>8: raise ValueError("--max-experiments must be 1..8")
+    if a.max_experiments<1 or a.max_experiments>40: raise ValueError("--max-experiments must be 1..40")
     if a.repeat is not None and not 1<=a.repeat<=100: raise ValueError("--repeat must be 1..100")
     manifest=json.loads(a.manifest.read_text(encoding="utf-8"))
     entries=manifest["entries"]

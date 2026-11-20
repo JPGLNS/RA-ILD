@@ -69,15 +69,22 @@ Smoke output is stored in a `smoke_repeat_001` child directory under each
 combination. The full100 outputs are written into the combination directory
 itself; the batch runner and ML entry point explicitly preserve and ignore
 `smoke_repeat_*` child directories when checking for output collisions.
-After acceptance, run the full Layer 1 in bounded batches. For example:
+After acceptance, run the full Layer 1 with bounded concurrency. The
+runner supports up to 40 concurrent configurations. On neo3, when the batch
+runner is inside a systemd scope with `CPUQuota=5000%`, `MemoryHigh=100G`,
+and `MemoryMax=120G`, a suitable higher-throughput command is:
 
 ```bash
 python3 TRB/set/scripts_v2/run_layer1_unified_batch.py \
-  --cohort total --max-experiments 2 --execute
+  --max-experiments 40 --execute
 ```
 
-The runner rejects manifests containing non-Elastic-Net algorithms and checks
-that the V3 registry and shared Step02 caches exist.
+Each configuration still runs its 100 outer repeats sequentially with
+`workers=1`; the 40-way parallelism is across independent feature combinations.
+Keep BLAS/OpenMP thread counts at 1 so the systemd 50-core quota remains an
+effective aggregate CPU cap. The runner rejects manifests containing
+non-Elastic-Net algorithms and checks that the V3 registry and shared Step02
+caches exist.
 
 After all 381 combinations have exactly 100 repeats:
 
