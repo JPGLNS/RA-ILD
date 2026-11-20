@@ -21,6 +21,7 @@ from ra_ild_trb.enriched_dictionary import (
 )
 from ra_ild_trb.feature_framework import load_feature_registry
 from ra_ild_trb.fold_features import (
+    FoldFeatureError,
     FoldFeatureInputs,
     exact_loo_enriched_scores,
     rank_training_kmers,
@@ -138,7 +139,7 @@ class UnifiedMLTests(unittest.TestCase):
         self.assertEqual(load_unified_experiment(self.root / "lasso.yaml").model.lasso.alpha_grid, (1.0,))
 
     def test_static_default_is_83(self):
-        registry_path = Path(__file__).resolve().parents[1] / "configs/feature_framework/trb_feature_registry_v1.yaml"
+        registry_path = Path(__file__).resolve().parents[1] / "configs/feature_framework/trb_feature_registry_v3_179_top10000.yaml"
         registry = load_feature_registry(registry_path)
         columns = ["sample_id"]
         for group_id in DEFAULT_STATIC:
@@ -150,6 +151,16 @@ class UnifiedMLTests(unittest.TestCase):
         for group_id in DEFAULT_STATIC:
             for drop in registry.feature_groups[group_id].reference_drop_columns:
                 self.assertNotIn(drop, chosen)
+
+    def test_static_selection_rejects_partial_core_group(self):
+        registry_path = Path(__file__).resolve().parents[1] / "configs/feature_framework/trb_feature_registry_v3_179_top10000.yaml"
+        registry = load_feature_registry(registry_path)
+        columns = ["sample_id"]
+        for group_id in DEFAULT_STATIC:
+            columns.extend(registry.feature_groups[group_id].selector.exact)
+        columns.remove("Shannon")
+        with self.assertRaisesRegex(FoldFeatureError, "tcr_diversity.*Shannon"):
+            select_static_features(registry, columns, DEFAULT_STATIC)
 
     def test_kmer_vocabulary_uses_training_only(self):
         config = self.root / "c.yaml"
@@ -446,18 +457,19 @@ class UnifiedMLTests(unittest.TestCase):
         config.write_text(yaml.safe_dump(raw, sort_keys=False), encoding="utf-8")
         spec = load_unified_experiment(config)
         registry = self.root / "registry_v3.yaml"
-        yaml.safe_dump({
-            "repertoire_sources": {
-                "top10000": {
-                    "status": "available",
-                    "representation": "topk",
-                    "default_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000",
-                    "summary_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000/01b_top10000_summary.csv",
-                    "sample_filename_template": "{sample_id}_TRB_CDR3_AA_clone_table_top10000.csv",
-                    "weight_column": "frequency_norm",
+        with registry.open("w", encoding="utf-8") as handle:
+            yaml.safe_dump({
+                "repertoire_sources": {
+                    "top10000": {
+                        "status": "available",
+                        "representation": "topk",
+                        "default_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000",
+                        "summary_path": "TRB/set/data_versions/trb_v3_179_top10000/result/01b_AA_clone_table_top10000/01b_top10000_summary.csv",
+                        "sample_filename_template": "{sample_id}_TRB_CDR3_AA_clone_table_top10000.csv",
+                        "weight_column": "frequency_norm",
+                    }
                 }
-            }
-        }, registry.open("w", encoding="utf-8"), sort_keys=False)
+            }, handle, sort_keys=False)
         from ra_ild_trb.dynamic_repertoire import resolve_dynamic_repertoire
         source = resolve_dynamic_repertoire(spec.base, self.root, registry_path=registry)
         self.assertEqual(source.source_id, "top10000")

@@ -147,15 +147,18 @@ def select_static_features(
             raise FoldFeatureError(f"unknown static group {group_id!r}")
         group = registry.feature_groups[group_id]
         group_columns: List[str] = []
-        for exact in group.selector.exact:
-            if exact in columns:
-                group_columns.append(exact)
+        missing_exact = [name for name in group.selector.exact if name not in columns]
+        if missing_exact:
+            raise FoldFeatureError(
+                f"static group {group_id!r} is missing required core columns: {missing_exact}"
+            )
+        group_columns.extend(group.selector.exact)
         for prefix in group.selector.prefixes:
             group_columns.extend([c for c in columns if c.startswith(prefix) and c not in group_columns])
-        if not group_columns:
-            raise FoldFeatureError(f"static group {group_id!r} selected no core columns")
         drops = set(group.reference_drop_columns)
         group_columns = [c for c in group_columns if c not in drops]
+        if not group_columns:
+            raise FoldFeatureError(f"static group {group_id!r} selected no core columns after reference drops")
         selected.extend(group_columns)
     if len(selected) != len(set(selected)):
         duplicates = [x for x in selected if selected.count(x) > 1]
