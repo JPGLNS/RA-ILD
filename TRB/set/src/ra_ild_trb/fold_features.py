@@ -254,7 +254,7 @@ def load_fold_feature_inputs(
         if column not in metadata.columns:
             raise FoldFeatureError(f"metadata lacks selected clinical column {column}")
 
-    source = resolve_dynamic_repertoire(spec.base, root)
+    source = resolve_dynamic_repertoire(spec.base, root, registry_path=registry_file)
     _verify_step02_source(train_step02_dir, source.source_id, "TRAIN")
     _verify_step02_source(test_step02_dir, source.source_id, "TEST")
     if validate_source_files:
@@ -353,19 +353,37 @@ def _kmer_feature_frame(
     inputs: FoldFeatureInputs,
     representation: str,
 ) -> pd.DataFrame:
+    """Apply one shared training-fitted vocabulary to one or both 3-mer matrices."""
     ids = tuple(map(str, sample_ids))
     kmers = tuple(map(str, selected_kmers))
-    values = inputs.kmer_unweighted if representation == "unweighted" else inputs.kmer_weighted
-    matrix = np.zeros((len(ids), len(kmers)), dtype=float)
+    if representation == "both":
+        representations = ("unweighted", "weighted")
+    elif representation in {"unweighted", "weighted"}:
+        representations = (representation,)
+    else:
+        raise FoldFeatureError(f"unsupported 3-mer representation: {representation!r}")
+
+    frames = []
     lookup = {k: j for j, k in enumerate(kmers)}
-    for i, sid in enumerate(ids):
-        for kmer, value in values[sid].items():
-            j = lookup.get(kmer)
-            if j is not None:
-                matrix[i, j] = float(value)
-    prefix = f"{representation}_3mer_"
-    out = pd.DataFrame(matrix, columns=[prefix + k for k in kmers])
+    for current in representations:
+        values = (
+            inputs.kmer_unweighted
+            if current == "unweighted"
+            else inputs.kmer_weighted
+        )
+        matrix = np.zeros((len(ids), len(kmers)), dtype=float)
+        for i, sid in enumerate(ids):
+            for kmer, value in values[sid].items():
+                j = lookup.get(kmer)
+                if j is not None:
+                    matrix[i, j] = float(value)
+        prefix = f"{current}_3mer_"
+        frames.append(pd.DataFrame(matrix, columns=[prefix + k for k in kmers]))
+
+    out = pd.concat(frames, axis=1) if frames else pd.DataFrame(index=range(len(ids)))
     out.insert(0, "sample_id", ids)
+    if out.columns.duplicated().any():
+        raise FoldFeatureError("3-mer feature frame contains duplicate columns")
     return out
 
 
