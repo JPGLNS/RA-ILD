@@ -22,7 +22,7 @@ except ImportError as exc:  # pragma: no cover
 SCHEMA_VERSION = "1.0"
 COHORT_SCOPES = {"total", "pbmc", "buffycoat"}
 REPERTOIRE_MODES = {"all", "topk"}
-KMER_REPRESENTATIONS = {"unweighted", "weighted"}
+KMER_REPRESENTATIONS = {"unweighted", "weighted", "both"}
 MODEL_ALGORITHMS = {"elastic_net", "ridge", "lasso", "linear_svm", "xgboost"}
 STATIC_TCR_GROUPS = {
     "tcr_qc_depth",
@@ -151,7 +151,10 @@ class FeatureSpec:
     def phase2_feature_groups(self) -> Tuple[str, ...]:
         groups = list(self.clinical_groups) + list(self.static_tcr_groups)
         if self.kmer.enabled:
-            groups.append(f"tcr_3mer_{self.kmer.representation}")
+            if self.kmer.representation == "both":
+                groups.extend(("tcr_3mer_unweighted", "tcr_3mer_weighted"))
+            else:
+                groups.append(f"tcr_3mer_{self.kmer.representation}")
         return tuple(groups)
 
 
