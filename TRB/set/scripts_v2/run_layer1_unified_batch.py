@@ -21,8 +21,11 @@ def run_one(entry, args):
     cohort,algorithm,combo=entry["cohort"],entry["algorithm"],entry["combination_id"]
     key=f"{cohort}__{algorithm}__{combo}"
     out=OUT/cohort/algorithm/combo
-    log=LOG/cohort/algorithm/f"{combo}.log"
-    status=STATUS/cohort/algorithm/f"{combo}.json"
+    run_tag = "full100" if args.repeat is None else f"smoke_repeat_{args.repeat:03d}"
+    if args.repeat is not None:
+        out = out / run_tag
+    log=LOG/cohort/algorithm/f"{combo}.{run_tag}.log"
+    status=STATUS/cohort/algorithm/f"{combo}.{run_tag}.json"
     if status.is_file():
         try:
             old=json.loads(status.read_text())
