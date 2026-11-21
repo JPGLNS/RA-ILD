@@ -27,7 +27,14 @@ def run_one(entry,args):
    old=json.loads(status.read_text())
    if old.get("status")=="COMPLETE" and (out/"06_outer_metrics.csv").is_file(): return {"key":key,"status":"SKIPPED_COMPLETE"}
   except Exception: pass
- if out.exists() and any(out.iterdir()) and not args.overwrite: return {"key":key,"status":"BLOCKED_OUTPUT_EXISTS","output":str(out)}
+ # A completed smoke run lives in a child directory of the paired state.
+ # Reuse that parent for full100 results, but never overwrite other artifacts.
+ has_non_smoke_outputs = out.exists() and any(
+  not (child.is_dir() and child.name.startswith("smoke_repeat_"))
+  for child in out.iterdir()
+ )
+ if has_non_smoke_outputs and not args.overwrite:
+  return {"key":key,"status":"BLOCKED_OUTPUT_EXISTS","output":str(out)}
  cmd=[sys.executable,str(SCRIPT),"--config",str(ROOT/entry["config"]),"--train-step02-dir",str(STEP02/"train"),"--test-step02-dir",str(STEP02/"test"),"--train-metadata",str(TRAIN_META),"--test-metadata",str(TEST_META),"--registry",str(REGISTRY),"--output-dir",str(out),"--workers","1"]
  if args.repeat is not None: cmd += ["--repeat",str(args.repeat)]
  if args.overwrite: cmd.append("--overwrite")
@@ -43,7 +50,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument("--manifest",type=Path,default=MANIFEST);p.add_argument("--cohort",choices=["total","pbmc","buffycoat"]);p.add_argument("--algorithm",choices=["elastic_net"],help="Free feature-combination search is Elastic Net-only.");p.add_argument("--feature-state",choices=["F0_static","F1_3mer","F2_ra_hit","F3_3mer_ra_hit"]);p.add_argument("--limit",type=int);p.add_argument("--repeat",type=int);p.add_argument("--max-experiments",type=int,default=2);p.add_argument("--overwrite",action="store_true");p.add_argument("--execute",action="store_true")
  a=p.parse_args()
- if not 1<=a.max_experiments<=8: raise ValueError("--max-experiments must be 1..8")
+ if not 1<=a.max_experiments<=40: raise ValueError("--max-experiments must be 1..40")
  if a.repeat is not None and not 1<=a.repeat<=100: raise ValueError("--repeat must be 1..100")
  entries=json.loads(a.manifest.read_text(encoding="utf-8"))["entries"]
  if any(x.get("algorithm")!="elastic_net" for x in entries):
