@@ -1,0 +1,1003 @@
+{
+  "version": "1.0",
+  "promoted_combinations": 15,
+  "config_count": 60,
+  "entries": [
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_017_E_PU",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_017_e_pu_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_017_E_PU",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_017_e_pu_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_017_E_PU",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_017_e_pu_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_017_E_PU",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_017_e_pu_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_032_D_E_PU",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_032_d_e_pu_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_032_D_E_PU",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_032_d_e_pu_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_032_D_E_PU",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_032_d_e_pu_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_032_D_E_PU",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_032_d_e_pu_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_012_D_PU",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_012_d_pu_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_012_D_PU",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_012_d_pu_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_012_D_PU",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_012_d_pu_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_012_D_PU",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_012_d_pu_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_053_E_PU_PW",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_053_e_pu_pw_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_053_E_PU_PW",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_053_e_pu_pw_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_053_E_PU_PW",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_053_e_pu_pw_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_053_E_PU_PW",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_053_e_pu_pw_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_001_D",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_001_d_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_001_D",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_001_d_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_001_D",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_001_d_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "buffycoat",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_001_D",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_001_d_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_001_D",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_001_d_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_001_D",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_001_d_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_001_D",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_001_d_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_001_D",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_001_d_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_006_PU",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_006_pu_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_006_PU",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_006_pu_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_006_PU",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_006_pu_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_006_PU",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_006_pu_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_002_E",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_002_e_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_002_E",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_002_e_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_002_E",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_002_e_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_002_E",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_002_e_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_007_pw_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_007_pw_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_007_pw_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_007_pw_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_008_d_e_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_008_d_e_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_008_d_e_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "pbmc",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_008_d_e_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_007_pw_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_007_pw_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_007_pw_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 1,
+      "combination_id": "L1_007_PW",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_007_pw_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_025_AU_PW",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_025_au_pw_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_025_AU_PW",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_025_au_pw_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_025_AU_PW",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_025_au_pw_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 2,
+      "combination_id": "L1_025_AU_PW",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted",
+        "tcr_physicochemical_weighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_025_au_pw_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_008_d_e_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_008_d_e_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_008_d_e_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 3,
+      "combination_id": "L1_008_D_E",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity",
+        "tcr_clonal_expansion"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_008_d_e_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_001_D",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_001_d_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_001_D",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_001_d_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_001_D",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_001_d_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 4,
+      "combination_id": "L1_001_D",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_001_d_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_004_AU",
+      "feature_state": "F0_static",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_004_au_f0_static.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_004_AU",
+      "feature_state": "F1_3mer",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": false,
+      "ra_hit_threshold_pct": null,
+      "ra_hit_delta_pct": null,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_004_au_f1_3mer.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_004_AU",
+      "feature_state": "F2_ra_hit",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted"
+      ],
+      "include_3mer": false,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_004_au_f2_ra_hit.yaml",
+      "outer_repeats": 100
+    },
+    {
+      "cohort": "total",
+      "algorithm": "elastic_net",
+      "rank": 5,
+      "combination_id": "L1_004_AU",
+      "feature_state": "F3_3mer_ra_hit",
+      "feature_groups": [
+        "tcr_aa_composition_unweighted"
+      ],
+      "include_3mer": true,
+      "include_ra_hit": true,
+      "ra_hit_threshold_pct": 20.0,
+      "ra_hit_delta_pct": 10.0,
+      "config": "TRB/set/configs/layered_feature_experiments/generated/layer2/total/elastic_net/trb179_total_elastic_net_l1_004_au_f3_3mer_ra_hit.yaml",
+      "outer_repeats": 100
+    }
+  ]
+}
