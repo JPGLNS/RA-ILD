@@ -33,9 +33,13 @@ def checked(directory, name):
     return metrics,pred,run
 
 def assert_no_clinical(directory,run,expected_groups):
-    if run["resolved_experiment"]["features"]["clinical_groups"] != []:
+    # The unified runner serializes AdvancedExperimentSpec under "phase5".
+    # The feature groups do not live directly under "resolved_experiment".
+    resolved = run["resolved_experiment"]
+    features = resolved["phase5"]["features"]
+    if features["clinical_groups"] != []:
         raise ValueError("Clinical groups remain present")
-    if run["resolved_experiment"]["features"]["static_tcr_groups"] != expected_groups:
+    if features["static_tcr_groups"] != expected_groups:
         raise ValueError("TCR group mismatch in run manifest")
     if run["execution"].get("static_tcr_predictor_count",0)<1:
         raise ValueError("No TCR predictors")
@@ -57,7 +61,12 @@ def main():
         only_dir=ROOT/e["output_dir"]
         original_dir=RESULT/"layer1"/cohort/"elastic_net"/e["combination_id"]
         a,pa,run=checked(only_dir,f"{cohort} TCR-only")
-        b,pb,_=checked(original_dir,f"{cohort} clinical+TCR")
+        b,pb,original_run=checked(original_dir,f"{cohort} clinical+TCR")
+        baseline_features = original_run["resolved_experiment"]["phase5"]["features"]
+        if baseline_features["clinical_groups"] != ["clinical_age_sex"]:
+            raise ValueError(f"{cohort}: baseline clinical adjustment mismatch")
+        if baseline_features["static_tcr_groups"] != e["feature_groups"]:
+            raise ValueError(f"{cohort}: baseline TCR group mismatch")
         if not pa.equals(pb):
             raise ValueError(f"{cohort}: same-repeat holdout IDs/labels differ")
         assert_no_clinical(only_dir,run,e["feature_groups"])
