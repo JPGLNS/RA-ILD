@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Independent TCR-only (age/sex ablation) Elastic Net 100-repeat follow-up",
+  "base_commit": "606e8dbec8b23a31f69b896cf3defeedf57cd88d",
+  "algorithm": "elastic_net",
+  "repertoire": {
+    "mode": "topk",
+    "top_k": 10000
+  },
+  "outer_repeats": 100,
+  "inner_folds": 5,
+  "n_configs": 3,
+  "entries": [
+    {
+      "cohort": "total",
+      "combination_id": "L1_007_PW",
+      "feature_groups": [
+        "tcr_physicochemical_weighted"
+      ],
+      "expected_samples": 179,
+      "algorithm": "elastic_net",
+      "base_config": "TRB/set/configs/layered_feature_experiments/generated/layer1/total/elastic_net/trb179_total_elastic_net_l1_007_pw.yaml",
+      "config": "TRB/set/configs/layered_feature_experiments/tcr_only_ablation/configs/total.yaml",
+      "experiment_id": "trb179_total_elastic_net_l1_007_pw_tcr_only",
+      "split_assignments": "TRB/set/split_sets/ra_ild_repeat100_v3_179_top10000/repeated_holdout_assignments.csv",
+      "output_dir": "TRB/result/feature_framework/layered_feature_experiments/tcr_only_ablation/total"
+    },
+    {
+      "cohort": "pbmc",
+      "combination_id": "L1_001_D",
+      "feature_groups": [
+        "tcr_diversity"
+      ],
+      "expected_samples": 116,
+      "algorithm": "elastic_net",
+      "base_config": "TRB/set/configs/layered_feature_experiments/generated/layer1/pbmc/elastic_net/trb179_pbmc_elastic_net_l1_001_d.yaml",
+      "config": "TRB/set/configs/layered_feature_experiments/tcr_only_ablation/configs/pbmc.yaml",
+      "experiment_id": "trb179_pbmc_elastic_net_l1_001_d_tcr_only",
+      "split_assignments": "TRB/set/split_sets/ra_ild_pbmc_repeat100_v3_180/repeated_holdout_assignments.csv",
+      "output_dir": "TRB/result/feature_framework/layered_feature_experiments/tcr_only_ablation/pbmc"
+    },
+    {
+      "cohort": "buffycoat",
+      "combination_id": "L1_017_E_PU",
+      "feature_groups": [
+        "tcr_clonal_expansion",
+        "tcr_physicochemical_unweighted"
+      ],
+      "expected_samples": 63,
+      "algorithm": "elastic_net",
+      "base_config": "TRB/set/configs/layered_feature_experiments/generated/layer1/buffycoat/elastic_net/trb179_buffycoat_elastic_net_l1_017_e_pu.yaml",
+      "config": "TRB/set/configs/layered_feature_experiments/tcr_only_ablation/configs/buffycoat.yaml",
+      "experiment_id": "trb179_buffycoat_elastic_net_l1_017_e_pu_tcr_only",
+      "split_assignments": "TRB/set/split_sets/ra_ild_buffycoat_repeat100_v3_179_top10000/repeated_holdout_assignments.csv",
+      "output_dir": "TRB/result/feature_framework/layered_feature_experiments/tcr_only_ablation/buffycoat"
+    }
+  ]
+}
